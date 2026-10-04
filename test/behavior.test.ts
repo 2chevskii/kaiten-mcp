@@ -15,7 +15,7 @@ function errorPayload(result: CallToolResult) {
 
 test('pagination and compact projections retain navigation and full requested text', async context => {
   const harness = await startHarness(context);
-  harness.reply({result: [cardFixture], position: 'next-page'});
+  harness.reply([cardFixture]);
   const first = await harness.call('search_cards', {board_id: 2, limit: 1});
   const summary = {
     id: 10,
@@ -32,16 +32,16 @@ test('pagination and compact projections retain navigation and full requested te
   };
   assert.deepEqual(first.structuredContent, {
     items: [summary],
-    next_cursor: 'next-page',
+    next_cursor: 'offset:1',
   });
-  harness.reply({result: [], position: ''});
+  harness.reply([]);
   const last = await harness.call('search_cards', {
     board_id: 2,
     limit: 1,
-    cursor: 'next-page',
+    cursor: 'offset:1',
   });
   assert.deepEqual(last.structuredContent, {items: [], next_cursor: null});
-  assert.equal(harness.requests.at(-1)?.query.start_position, 'next-page');
+  assert.equal(harness.requests.at(-1)?.query.offset, '1');
 
   harness.reply([{id: 1, title: 'One'}]);
   assert.deepEqual(
@@ -87,6 +87,81 @@ test('pagination and compact projections retain navigation and full requested te
   });
 });
 
+test('card search keeps filters across offset pages and preserves archived false', async context => {
+  const harness = await startHarness(context);
+  const cards = [
+    {...cardFixture, id: 10},
+    {...cardFixture, id: 11, archived: true, condition: 2},
+    {...cardFixture, id: 12},
+    {...cardFixture, id: 13},
+  ];
+  harness.respond((request, response) => {
+    assert.equal(request.query.version, '1');
+    assert.equal(request.query.board_id, '2');
+    assert.equal(request.query.owner_ids, '5,6');
+    assert.equal(request.query.order_by, 'id');
+    assert.equal(request.query.order_direction, 'asc');
+    assert.ok(!('start_position' in request.query));
+    const matching = cards.filter(card => {
+      return (
+        request.query.archived === undefined ||
+        String(card.archived) === request.query.archived
+      );
+    });
+    const offset = Number(request.query.offset);
+    const limit = Number(request.query.limit);
+    response.end(JSON.stringify(matching.slice(offset, offset + limit)));
+  });
+
+  const filters = {board_id: 2, owner_ids: [5, 6], archived: false, limit: 2};
+  const first = await harness.call('search_cards', filters);
+  assert.notEqual(first.isError, true);
+  const page = first.structuredContent as {
+    items: {id: number; archived: boolean}[];
+    next_cursor: string;
+  };
+  assert.deepEqual(
+    page.items.map(card => card.id),
+    [10, 12],
+  );
+  assert.ok(page.items.every(card => card.archived === false));
+  const last = await harness.call('search_cards', {
+    ...filters,
+    cursor: page.next_cursor,
+  });
+  const final = last.structuredContent as {
+    items: {id: number}[];
+    next_cursor: null;
+  };
+  assert.deepEqual(
+    final.items.map(card => card.id),
+    [13],
+  );
+  assert.equal(final.next_cursor, null);
+
+  const archived = await harness.call('search_cards', {
+    ...filters,
+    archived: true,
+  });
+  assert.deepEqual(
+    (archived.structuredContent as {items: {id: number}[]}).items.map(
+      card => card.id,
+    ),
+    [11],
+  );
+  const all = await harness.call('search_cards', {
+    board_id: 2,
+    owner_ids: [5, 6],
+    limit: 100,
+  });
+  assert.deepEqual(
+    (all.structuredContent as {items: {id: number}[]}).items.map(
+      card => card.id,
+    ),
+    [10, 11, 12, 13],
+  );
+});
+
 test('invalid arguments never reach Kaiten', async context => {
   const harness = await startHarness(context);
   const cases: [string, Record<string, unknown>][] = [
@@ -102,6 +177,10 @@ test('invalid arguments never reach Kaiten', async context => {
     ['update_card', {card_id: 1, changes: {due_date: 'tomorrow'}}],
     ['search_cards', {states: [4]}],
     ['search_cards', {limit: 101}],
+    ['search_cards', {cursor: 'old-opensearch-cursor'}],
+    ['search_cards', {cursor: 'offset:-1'}],
+    ['search_cards', {cursor: 'offset:1.5'}],
+    ['search_cards', {cursor: 'offset:9007199254740992'}],
     ['list_spaces', {limit: 0}],
     ['list_spaces', {offset: -1}],
     ['move_card', {card_id: 1, board_id: 2}],
