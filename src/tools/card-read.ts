@@ -4,6 +4,18 @@ import {entityResult} from '../results.ts';
 import {read, type ToolRegistry} from '../tool-registry.ts';
 import {cardDetails, cardSummary} from '../views.ts';
 
+const invalidCursor =
+  'Invalid search cursor. Start a new search without cursor.';
+const searchCursor = z
+  .string()
+  .regex(/^offset:(0|[1-9]\d*)$/, invalidCursor)
+  .refine(value => {
+    const offset = Number(value.slice(7));
+    return (
+      Number.isSafeInteger(offset) && offset <= Number.MAX_SAFE_INTEGER - 100
+    );
+  }, invalidCursor);
+
 export function registerCardRead(registry: ToolRegistry): void {
   const {client} = registry;
   registry.add(
@@ -29,20 +41,29 @@ export function registerCardRead(registry: ToolRegistry): void {
       due_date_after: dateTime.optional(),
       due_date_before: dateTime.optional(),
       limit: pageFields.limit,
-      cursor: z.string().min(1).optional(),
+      cursor: searchCursor.optional(),
     }),
     z.object({items: z.array(cardSummary), next_cursor: z.string().nullable()}),
     read,
     async ({cursor, ...query}, options) => {
+      const offset = cursor ? Number(cursor.slice(7)) : 0;
       const response = await client.cards.retrieveCardList(
         {
           ...defined(query),
-          version: 2,
-          ...(cursor ? {start_position: cursor} : {}),
+          version: 1,
+          offset,
+          order_by: ['id'],
+          order_direction: ['asc'],
         },
         options,
       );
-      return {items: response.result, next_cursor: response.position || null};
+      return {
+        items: response,
+        next_cursor:
+          response.length === query.limit
+            ? `offset:${offset + response.length}`
+            : null,
+      };
     },
   );
   registry.add(
