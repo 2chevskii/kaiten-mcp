@@ -13,7 +13,7 @@ npm ci
 npm run build
 ```
 
-Сервер использует `@2chevskii/kaiten-client@1.0.2` из публичного npm registry.
+Сервер использует `@2chevskii/kaiten-client@1.0.3` из публичного npm registry.
 Авторизация в GitHub Packages не требуется. Версия библиотеки закреплена в
 манифесте, а полное дерево зависимостей — в закоммиченном lockfile.
 

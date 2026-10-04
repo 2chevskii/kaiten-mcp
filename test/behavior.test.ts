@@ -3,7 +3,10 @@ import {once} from 'node:events';
 import {test} from 'node:test';
 import type {ServerResponse} from 'node:http';
 import type {CallToolResult} from '@modelcontextprotocol/client';
-import type {CardMembersUpdateMemberRoleResponse} from '@2chevskii/kaiten-client';
+import type {
+  CardMembersUpdateMemberRoleResponse,
+  CardsUpdateCardResponse,
+} from '@2chevskii/kaiten-client';
 import {cardFixture, startHarness, token} from './harness.ts';
 
 function errorPayload(result: CallToolResult) {
@@ -71,7 +74,9 @@ test('role updates retain the client response without a membership ID', async co
 
 test('card mutations preserve tag arrays in their write responses', async context => {
   const harness = await startHarness(context);
-  const tags = [{id: 6, name: 'Backend', color: 3}];
+  const tags = [{id: 6, name: 'Backend', color: 3}] satisfies NonNullable<
+    CardsUpdateCardResponse['tags']
+  >;
   for (const returnedTags of [tags, []]) {
     harness.reply({...cardFixture, tags: returnedTags});
     const cases: [string, Record<string, unknown>][] = [

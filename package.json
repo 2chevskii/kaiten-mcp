@@ -1,6 +1,6 @@
 {
   "name": "@2chevskii/kaiten-mcp",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Local MCP server for Kaiten workflows",
   "license": "MIT",
   "type": "module",
@@ -40,7 +40,7 @@
     "check": "npm run build && npm run test:types && npm test && npm run lint && npm run format:check && npm run docs:build"
   },
   "dependencies": {
-    "@2chevskii/kaiten-client": "1.0.2",
+    "@2chevskii/kaiten-client": "1.0.3",
     "@modelcontextprotocol/server": "^2.3.0",
     "pino": "^10.4.0",
     "zod": "^4.0.0"

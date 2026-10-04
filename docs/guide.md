@@ -13,7 +13,7 @@ npm ci
 npm run build
 ```
 
-The server depends on `@2chevskii/kaiten-client@1.0.2` from the public npm registry.
+The server depends on `@2chevskii/kaiten-client@1.0.3` from the public npm registry.
 No GitHub Packages authentication is needed. The manifest pins this version and
 the committed lockfile fixes the full dependency tree.
 
