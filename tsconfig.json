@@ -1,11 +1,10 @@
 {
   "include": ["src/**/*.ts"],
   "compilerOptions": {
-    "composite": true,
-    "target": "ES2024",
+    "target": "es2025",
     "lib": ["ES2024", "DOM"],
     "types": ["node"],
-    "module": "Node20",
+    "module": "nodenext",
     "strict": true,
     "noUncheckedIndexedAccess": true,
     "exactOptionalPropertyTypes": true,
@@ -13,17 +12,14 @@
     "noFallthroughCasesInSwitch": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "verbatimModuleSyntax": true,
+    "verbatimModuleSyntax": false,
     "rewriteRelativeImportExtensions": true,
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
     "noEmitOnError": true,
-    "isolatedModules": true,
+    "isolatedModules": false,
     "skipLibCheck": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "outDir": "lib",
+    "outDir": "bin",
     "rootDir": "src"
   }
 }

@@ -9,7 +9,7 @@ HTTP server. `docs/` is a private bilingual VitePress workspace.
 
 Install with `npm ci` after authenticating to GitHub Packages. The client uses the
 `edge` tag; commit the lockfile and update the dependency explicitly. Never commit
-credentials. Generated `lib/`, `node_modules/`, and documentation output must not
+credentials. Generated `bin/`, `node_modules/`, and documentation output must not
 be edited by hand.
 
 ## Quality and style
