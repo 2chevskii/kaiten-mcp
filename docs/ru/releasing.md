@@ -51,7 +51,7 @@ Pages выберите GitHub Actions. URL пакетов задаются workf
 ## Релиз
 
 1. Одновременно обновите версию в package.json и lockfile. Откройте PR и слейте
-   после успешного CI. Начальная версия в репозитории — `0.1.0`.
+   после успешного CI.
 2. Поставьте на слитый коммит тег `v<версия package.json>` и отправьте его.
    `start_release.yml` проверит совпадение версии, запустит отдельные задания lint,
    форматирования, тестов и документации, затем соберёт и проверит установку пакета.
@@ -71,7 +71,7 @@ Pages выберите GitHub Actions. URL пакетов задаются workf
 ```sh
 npm run check
 npm pack
-npm run package:check -- ./2chevskii-kaiten-mcp-0.1.0.tgz
+npm run package:check -- ./2chevskii-kaiten-mcp-1.0.0.tgz
 ```
 
 Проверка пакета требует предварительной сборки и доступа к npm для установки
