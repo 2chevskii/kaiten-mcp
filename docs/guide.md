@@ -17,7 +17,7 @@ The server depends on `@2chevskii/kaiten-client@1.0.2` from the public npm regis
 No GitHub Packages authentication is needed. The manifest pins this version and
 the committed lockfile fixes the full dependency tree.
 
-After the first stable MCP release, you can also install the published executable:
+You can also install the stable executable published on npm:
 
 ```sh
 npm install --global @2chevskii/kaiten-mcp --registry=https://registry.npmjs.org
