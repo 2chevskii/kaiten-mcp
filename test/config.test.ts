@@ -53,6 +53,10 @@ test('invalid startup configuration exits with clean stdout and safe stderr', as
       assert.equal(stdout, '');
       assert.match(stderr, /KAITEN_ORIGIN/);
       assert.ok(!stderr.includes('secret'));
+      const entry = JSON.parse(stderr) as Record<string, unknown>;
+      assert.equal(entry.name, 'kaiten-mcp');
+      assert.equal(entry.level, 50);
+      assert.match(String(entry.msg), /Could not start Kaiten MCP/);
     });
   }
 });

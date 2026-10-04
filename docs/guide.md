@@ -68,7 +68,10 @@ keeps npm's script banners out of protocol stdout. The package also declares the
 `kaiten-mcp` executable; local development does not require a global installation.
 
 The SDK's stdio entry supports modern MCP connections and legacy initialization.
-The server logs diagnostics to stderr and closes on stdin EOF, SIGINT or SIGTERM.
+The server uses Pino to write newline-delimited JSON diagnostics exclusively to
+stderr, with a default level of `info` and synchronous writes. Diagnostic messages
+exclude credentials and raw upstream errors. The server closes on stdin EOF,
+SIGINT or SIGTERM.
 Stopping the process or cancelling a tool call cancels its pending HTTP request.
 
 ## Use the tools
