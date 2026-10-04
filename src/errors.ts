@@ -1,4 +1,5 @@
 import {KaitenHttpError, KaitenResponseError} from '@2chevskii/kaiten-client';
+import {ZodError} from 'zod/v4';
 
 export function describeError(error: unknown, signal: AbortSignal) {
   if (signal.aborted) {
@@ -21,6 +22,12 @@ export function describeError(error: unknown, signal: AbortSignal) {
       code: 'INVALID_KAITEN_RESPONSE',
       message: 'Kaiten returned an invalid response.',
       status: error.status,
+    };
+  }
+  if (error instanceof ZodError) {
+    return {
+      code: 'INVALID_KAITEN_RESPONSE',
+      message: 'Kaiten returned an unexpected response shape.',
     };
   }
   if (error instanceof TypeError && error.message === 'fetch failed') {

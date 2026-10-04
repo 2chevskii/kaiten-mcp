@@ -9,6 +9,7 @@ import {registerCardWrite} from './tools/card-write.ts';
 import {registerComments} from './tools/comments.ts';
 import {registerCardRelations} from './tools/card-relations.ts';
 import {registerChecklists} from './tools/checklists.ts';
+import {registerCustomProperties} from './tools/custom-properties.ts';
 
 export function createServer(
   configuration: Configuration,
@@ -34,5 +35,6 @@ export function createServer(
   registerComments(registry);
   registerCardRelations(registry);
   registerChecklists(registry);
+  registerCustomProperties(registry);
   return {server};
 }

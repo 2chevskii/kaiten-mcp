@@ -29,7 +29,10 @@ export const userView = identityView.extend({
   username: z.string().optional(),
   type: z.number().optional(),
 });
-export const tagView = namedView.extend({color: z.number().optional()});
+export const tagView = namedView.extend({
+  color: z.number().optional(),
+  tag_id: z.number().optional(),
+});
 export const cardSummary = identityView.extend({
   title: z.string(),
   board_id: z.number(),
