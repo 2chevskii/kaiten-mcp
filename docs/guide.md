@@ -6,29 +6,25 @@ tags, checklists and existing custom properties.
 
 ## Install
 
-Use Node.js 24 or newer. Authenticate to GitHub Packages with a personal access
-token (classic) that has `read:packages` and access to the client package:
+Use Node.js 24 or newer. Install and build from a checkout:
 
 ```sh
-npm login --scope=@2chevskii --auth-type=legacy --registry=https://npm.pkg.github.com
 npm ci
 npm run build
 ```
 
-The repository `.npmrc` maps `@2chevskii` to GitHub Packages. npm keeps login
-credentials in your user configuration; do not add credentials to the repository.
-The dependency uses `edge` from the library's `master` publication. The committed
-lockfile fixes the installed version, currently `1.0.0-master-dbb18a1`.
+The server depends on `@2chevskii/kaiten-client@1.0.2` from the public npm registry.
+No GitHub Packages authentication is needed. The manifest pins this version and
+the committed lockfile fixes the full dependency tree.
 
-To deliberately refresh it, run these commands and commit the resulting lockfile:
+After the first stable MCP release, you can also install the published executable:
 
 ```sh
-npm update @2chevskii/kaiten-client
-npm run check
+npm install --global @2chevskii/kaiten-mcp --registry=https://registry.npmjs.org
 ```
 
-Keep `edge` in the manifest; the lockfile stores its resolved version. Changing to
-a stable library release is a separate update.
+With a global installation, use `"command": "kaiten-mcp"` and omit `args` in the
+configuration below. Use `"command": "kaiten-mcp.cmd"` on Windows.
 
 ## Configure a client
 
@@ -135,10 +131,11 @@ integration has not been verified.
 
 Use a dedicated branch and small Conventional Commits. Update both documentation
 languages for interface changes. Repository conventions are in the root `AGENTS.md`.
+See [CI/CD and releases](./releasing.md) for package channels and release setup.
 
 ## Current scope
 
-Development, commits and documentation remain local. Documents, file attachments,
+Documents, file attachments,
 time tracking, automations, administration, SCIM, webhooks, HTTP transport, MCP
 resources and prompts are outside this version. Existing custom property
 definitions, options and directories can be read; their values can be assigned to

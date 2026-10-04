@@ -7,10 +7,10 @@ configuration, MCP boundary, and domain tools. All Kaiten requests use the publi
 API of `@2chevskii/kaiten-client`. `test/` contains protocol tests backed by a local
 HTTP server. `docs/` is a private bilingual VitePress workspace.
 
-Install with `npm ci` after authenticating to GitHub Packages. The client uses the
-`edge` tag; commit the lockfile and update the dependency explicitly. Never commit
-credentials. Generated `bin/`, `node_modules/`, and documentation output must not
-be edited by hand.
+Install with `npm ci`. The client is pinned to `1.0.2` from public npm; commit the
+lockfile and update the dependency explicitly. Never commit credentials. Generated
+`bin/`, `artifacts/`, tarballs, `node_modules/`, and documentation output must not
+be edited by hand. `tools/` contains package versioning and installation checks.
 
 ## Quality and style
 
@@ -29,6 +29,28 @@ Keep protocol stdout clean and send diagnostics to stderr.
 ## Delivery
 
 Use a dedicated branch and small Conventional Commits after each completed logical
-block. Document public behavior in English and Russian. Development is local for
-now: remote creation, push, pull requests, and publication require a later task.
-Report local checks separately from any live Kaiten verification.
+block. Document public behavior in English and Russian. Push changes and open a
+pull request for implementation tasks; monitor hosted checks. Report local and
+hosted checks separately from any live Kaiten verification.
+
+## CI/CD and releases
+
+`ci.yml` checks lint, formatting, test types, protocol tests, and documentation.
+It builds and checks an installable tarball, then publishes same-repository PR
+versions with `pr-<number>` and `master` versions with `edge` to GitHub Packages.
+Fork and Dependabot PRs are checked and packed without publishing. Preview versions
+are `<base>-<pr number or master>-<short head SHA>`.
+
+`publish_docs.yml` deploys the bilingual VitePress site from `master` to Pages.
+`start_release.yml` checks that `package.json` matches a pushed tag without its
+`v` prefix, runs separate check jobs, builds and checks the package, and creates a
+draft GitHub release with a raw versioned `.tgz` asset.
+
+`finish_release.yml` runs only on `release.published`. Independent matrix jobs
+publish the same asset with explicit `--tag latest`: npm uses OIDC and staged
+publishing in `npmjs`; GitHub Packages uses `GITHUB_TOKEN` in `github-packages`.
+Each environment links to its package. Rerun only failed jobs after a registry
+failure. npm approval requires a maintainer with 2FA. Do not add `NPM_TOKEN`.
+
+Before a release, follow `docs/releasing.md` and verify npm trusted publishing is
+configured. Create tags and publish stable releases only when requested.

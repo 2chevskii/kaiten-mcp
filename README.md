@@ -11,7 +11,8 @@ npm run check
 npm start
 ```
 
-GitHub Packages authentication is required to install the client `edge` package.
+The client dependency is pinned to `1.0.2` from the public npm registry.
 Set `KAITEN_ORIGIN` and `KAITEN_TOKEN` before starting the server.
 
-This repository and its documentation are currently developed locally.
+See [CI/CD and releases](docs/releasing.md) for PR/edge packages, stable releases,
+and npm trusted publishing setup.
