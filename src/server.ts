@@ -3,6 +3,8 @@ import {McpServer} from '@modelcontextprotocol/server';
 import packageJson from '../package.json' with {type: 'json'};
 import type {Configuration} from './config.ts';
 import {ToolRegistry} from './tool-registry.ts';
+import {registerNavigation} from './tools/navigation.ts';
+import {registerCardRead} from './tools/card-read.ts';
 
 export function createServer(
   configuration: Configuration,
@@ -22,5 +24,7 @@ export function createServer(
     configuration.timeoutMs,
     shutdownSignal,
   );
-  return {server, registry};
+  registerNavigation(registry);
+  registerCardRead(registry);
+  return {server};
 }
