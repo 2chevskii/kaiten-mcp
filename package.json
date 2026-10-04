@@ -1,6 +1,6 @@
 {
   "name": "@2chevskii/kaiten-mcp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Local MCP server for Kaiten workflows",
   "license": "MIT",
   "type": "module",
