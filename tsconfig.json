@@ -1,7 +1,6 @@
 {
   "include": ["src/**/*.ts"],
   "compilerOptions": {
-    "composite": true,
     "target": "ES2024",
     "lib": ["ES2024", "DOM"],
     "types": ["node"],
@@ -15,9 +14,6 @@
     "noUnusedParameters": true,
     "verbatimModuleSyntax": true,
     "rewriteRelativeImportExtensions": true,
-    "declaration": true,
-    "declarationMap": true,
-    "sourceMap": true,
     "noEmitOnError": true,
     "isolatedModules": true,
     "skipLibCheck": true,

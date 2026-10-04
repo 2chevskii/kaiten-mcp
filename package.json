@@ -15,9 +15,9 @@
     "docs"
   ],
   "scripts": {
-    "build": "tsc -b",
-    "build:watch": "tsc -b --watch",
-    "start": "node --enable-source-maps lib/cli.js",
+    "build": "tsc -p tsconfig.json",
+    "build:watch": "tsc -p tsconfig.json --watch",
+    "start": "node lib/cli.js",
     "test": "node --test test/*.test.ts",
     "test:types": "tsc -p tsconfig.test.json",
     "lint": "eslint .",

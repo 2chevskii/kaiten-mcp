@@ -3,7 +3,7 @@ import {test} from 'node:test';
 import {spawn} from 'node:child_process';
 import {once} from 'node:events';
 import {tmpdir} from 'node:os';
-import {readConfiguration} from '../lib/config.js';
+import {readConfiguration} from '../src/config.ts';
 import {cliPath} from './harness.ts';
 
 test('configuration defaults and validation', () => {
