@@ -2,7 +2,7 @@ import * as z from 'zod/v4';
 import {id, pageFields, text} from '../schemas.ts';
 import {entityResult, offsetPage, pageResult} from '../results.ts';
 import {change, create, read, type ToolRegistry} from '../tool-registry.ts';
-import {identityView, tagView, userView} from '../views.ts';
+import {identityView, memberRoleView, tagView, userView} from '../views.ts';
 
 export function registerCardRelations(registry: ToolRegistry): void {
   const {client} = registry;
@@ -38,13 +38,13 @@ export function registerCardRelations(registry: ToolRegistry): void {
   );
   registry.add(
     'update_card_member_role',
-    'Set a card membership role using the Kaiten numeric type. Use the membership id returned by list_card_members.',
+    'Make a card member responsible with type 2. Use the membership id returned by list_card_members. Returns card_id, user_id and type.',
     z.strictObject({
       card_id: id,
       member_id: id,
-      type: z.number().int().positive(),
+      type: z.literal(2),
     }),
-    entityResult(userView),
+    entityResult(memberRoleView),
     change,
     async (args, options) => ({
       item: await client.cardMembers.updateMemberRole(

@@ -3,6 +3,7 @@ import {once} from 'node:events';
 import {test} from 'node:test';
 import type {ServerResponse} from 'node:http';
 import type {CallToolResult} from '@modelcontextprotocol/client';
+import type {CardMembersUpdateMemberRoleResponse} from '@2chevskii/kaiten-client';
 import {cardFixture, startHarness, token} from './harness.ts';
 
 function errorPayload(result: CallToolResult) {
@@ -37,6 +38,79 @@ test('root and child columns retain nullable parent IDs in all location projecti
     assert.notEqual(result.isError, true);
     const {item} = result.structuredContent as {item: {column: unknown}};
     assert.deepEqual(item.column, column);
+  }
+});
+
+test('role updates retain the client response without a membership ID', async context => {
+  const harness = await startHarness(context);
+  const response = {
+    card_id: 10,
+    user_id: 5,
+    type: 2,
+    created: '2026-10-05T00:00:00Z',
+    updated: '2026-10-05T01:00:00Z',
+  } satisfies CardMembersUpdateMemberRoleResponse;
+  harness.reply(response);
+  const result = await harness.call('update_card_member_role', {
+    card_id: 10,
+    member_id: 9,
+    type: 2,
+  });
+  assert.deepEqual(result.structuredContent, {item: response});
+  for (const type of [0, 1, 3, 2.5]) {
+    const before = harness.requests.length;
+    const rejected = await harness.call('update_card_member_role', {
+      card_id: 10,
+      member_id: 9,
+      type,
+    });
+    assert.equal(rejected.isError, true);
+    assert.equal(harness.requests.length, before);
+  }
+});
+
+test('card mutations preserve tag arrays in their write responses', async context => {
+  const harness = await startHarness(context);
+  const tags = [{id: 6, name: 'Backend', color: 3}];
+  for (const returnedTags of [tags, []]) {
+    harness.reply({...cardFixture, tags: returnedTags});
+    const cases: [string, Record<string, unknown>][] = [
+      ['update_card', {card_id: 10, changes: {asap: false}}],
+      ['move_card', {card_id: 10, board_id: 2, column_id: 3, lane_id: 4}],
+      ['archive_card', {card_id: 10}],
+      ['restore_card', {card_id: 10}],
+      ['set_card_properties', {card_id: 10, properties: {id_1: 'value'}}],
+    ];
+    for (const [name, args] of cases) {
+      const result = await harness.call(name, args);
+      assert.notEqual(result.isError, true);
+      const {item} = result.structuredContent as {item: {tags: unknown}};
+      assert.deepEqual(item.tags, returnedTags);
+    }
+  }
+});
+
+test('checklist updates preserve null and empty text while creation requires text', async context => {
+  const harness = await startHarness(context);
+  for (const text of [null, '']) {
+    const response = {id: 9, checklist_id: 8, text};
+    harness.reply(response);
+    const result = await harness.call('update_checklist_item', {
+      card_id: 10,
+      checklist_id: 8,
+      item_id: 9,
+      changes: {text},
+    });
+    assert.deepEqual(result.structuredContent, {item: response});
+    assert.deepEqual(harness.requests.at(-1)?.body, {text});
+    const before = harness.requests.length;
+    const creation = await harness.call('add_checklist_item', {
+      card_id: 10,
+      checklist_id: 8,
+      text,
+    });
+    assert.equal(creation.isError, true);
+    assert.equal(harness.requests.length, before);
   }
 });
 

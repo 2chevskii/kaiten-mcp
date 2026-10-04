@@ -213,7 +213,13 @@ export const toolCases: ToolCase[] = [
     method: 'PATCH',
     path: '/cards/10/members/9',
     body: {type: 2},
-    response: {id: 9, type: 2},
+    response: {
+      card_id: 10,
+      user_id: 5,
+      type: 2,
+      created: '2026-10-05T00:00:00Z',
+      updated: '2026-10-05T01:00:00Z',
+    },
   },
   {
     name: 'remove_card_member',
