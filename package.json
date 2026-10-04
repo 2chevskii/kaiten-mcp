@@ -1,0 +1,49 @@
+{
+  "name": "@2chevskii/kaiten-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local MCP server for Kaiten workflows",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "bin": {
+    "kaiten-mcp": "./lib/cli.js"
+  },
+  "workspaces": [
+    "docs"
+  ],
+  "scripts": {
+    "build": "tsc -b",
+    "build:watch": "tsc -b --watch",
+    "start": "node --enable-source-maps lib/cli.js",
+    "test": "node --test test/*.test.ts",
+    "test:types": "tsc -p tsconfig.test.json",
+    "lint": "eslint .",
+    "format": "prettier . --write",
+    "format:check": "prettier . --check",
+    "docs:dev": "npm run dev --workspace docs",
+    "docs:build": "npm run build --workspace docs",
+    "check": "npm run build && npm run test:types && npm test && npm run lint && npm run format:check && npm run docs:build"
+  },
+  "dependencies": {
+    "@2chevskii/kaiten-client": "edge",
+    "@modelcontextprotocol/server": "^2.3.0",
+    "zod": "^4.0.0"
+  },
+  "devDependencies": {
+    "@modelcontextprotocol/client": "^2.3.0",
+    "@eslint/js": "^10.0.1",
+    "@eslint/json": "^2.1.0",
+    "@eslint/markdown": "^8.0.3",
+    "@types/node": "^24.19.1",
+    "eslint": "^10.12.0",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.13.0",
+    "jiti": "^2.7.0",
+    "prettier": "^3.9.9",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.71.0"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "include": ["src/**/*.ts"],
+  "compilerOptions": {
+    "composite": true,
+    "target": "ES2024",
+    "lib": ["ES2024", "DOM"],
+    "types": ["node"],
+    "module": "Node20",
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "verbatimModuleSyntax": true,
+    "rewriteRelativeImportExtensions": true,
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "noEmitOnError": true,
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "lib",
+    "rootDir": "src"
+  }
+}
