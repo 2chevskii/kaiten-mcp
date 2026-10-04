@@ -1,5 +1,6 @@
 package-lock.json
 bin/
+artifacts/
 lib/
 *.tsbuildinfo
 docs/.vitepress/dist/

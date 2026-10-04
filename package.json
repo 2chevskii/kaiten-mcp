@@ -1,10 +1,21 @@
 {
   "name": "@2chevskii/kaiten-mcp",
   "version": "0.1.0",
-  "private": true,
   "description": "Local MCP server for Kaiten workflows",
   "license": "MIT",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/2chevskii/kaiten-mcp.git"
+  },
+  "homepage": "https://2chevskii.github.io/kaiten-mcp/",
+  "bugs": "https://github.com/2chevskii/kaiten-mcp/issues",
+  "files": [
+    "bin/"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": ">=24"
   },
@@ -18,6 +29,7 @@
     "build": "tsc -p tsconfig.json",
     "build:watch": "tsc -p tsconfig.json --watch",
     "start": "node bin/cli.js",
+    "package:check": "node tools/check-package.mjs",
     "test": "node --test test/*.test.ts",
     "test:types": "tsc -p tsconfig.test.json",
     "lint": "eslint .",
@@ -28,7 +40,7 @@
     "check": "npm run build && npm run test:types && npm test && npm run lint && npm run format:check && npm run docs:build"
   },
   "dependencies": {
-    "@2chevskii/kaiten-client": "edge",
+    "@2chevskii/kaiten-client": "1.0.2",
     "@modelcontextprotocol/server": "^2.3.0",
     "pino": "^10.4.0",
     "zod": "^4.0.0"

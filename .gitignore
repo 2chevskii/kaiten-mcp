@@ -1,5 +1,7 @@
 node_modules/
 bin/
+artifacts/
+*.tgz
 lib/
 *.tsbuildinfo
 docs/.vitepress/dist/
