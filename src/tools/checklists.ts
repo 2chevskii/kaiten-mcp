@@ -18,7 +18,7 @@ import {
 
 const checklistIds = {card_id: id, checklist_id: id};
 const itemFields = {
-  text: text.optional(),
+  text: z.string().nullable().optional(),
   checked: z.boolean().optional(),
   sort_order: z.number().finite().optional(),
   due_date: dateTime.nullable().optional(),
@@ -147,7 +147,7 @@ export function registerChecklists(registry: ToolRegistry): void {
   );
   registry.add(
     'update_checklist_item',
-    'Change checklist item fields. checked marks completion; null clears due_date or responsible_id.',
+    'Change checklist item fields. checked marks completion; null clears text, due_date or responsible_id.',
     z.strictObject({
       ...checklistIds,
       item_id: id,
@@ -189,7 +189,7 @@ export function registerChecklists(registry: ToolRegistry): void {
 }
 
 function requireItemChange(changes: {
-  text?: string;
+  text?: string | null;
   checked?: boolean;
   sort_order?: number;
   due_date?: string | null;

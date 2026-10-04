@@ -95,7 +95,7 @@ an additional read; fields absent in that response stay absent.
 | `kaiten_delete_comment`          | `card_id`, `comment_id`         | Delete a comment                                                  |
 | `kaiten_list_card_members`       | `card_id`, `page`               | Membership IDs, user IDs, names and role type; local pagination   |
 | `kaiten_add_card_member`         | `card_id`, `user_id`            | Add an existing user                                              |
-| `kaiten_update_card_member_role` | `card_id`, `member_id`, `type`  | Set the positive numeric Kaiten membership type                   |
+| `kaiten_update_card_member_role` | `card_id`, `member_id`, `type`  | Make the member responsible with `type: 2`                        |
 | `kaiten_remove_card_member`      | `card_id`, `member_id`          | Remove a membership                                               |
 | `kaiten_list_card_tags`          | `card_id`, `page`               | Attached tags including `tag_id`; local pagination                |
 | `kaiten_add_card_tag`            | `card_id`, `name`               | Attach by name; Kaiten may create a missing tag                   |
@@ -104,6 +104,9 @@ an additional read; fields absent in that response stay absent.
 Use the membership `id` for `member_id`, and its `user_id` for the user. For tag
 removal use `tag_id` from the card tag list. Successful deletion responses contain
 the ID confirmed by Kaiten.
+
+Role updates accept only `type: 2`. Their result contains `card_id`, `user_id`,
+`type` and available timestamps; Kaiten does not return a membership `id`.
 
 ## Checklists
 
@@ -121,7 +124,9 @@ the ID confirmed by Kaiten.
 Optional item fields: `checked`, `sort_order`, `due_date`, `responsible_id`.
 Item changes support these fields and `text`. `checked: true` marks completion;
 `false` clears it. `due_date: null` clears the deadline and `responsible_id: null`
-clears responsibility on update. An update requires at least one field.
+clears responsibility on update. `text: null` or an empty string clears item text
+on update; adding an item requires nonempty text. An update requires at least one
+field.
 
 ## Existing custom properties
 

@@ -33,6 +33,13 @@ export const tagView = namedView.extend({
   color: z.number().optional(),
   tag_id: z.number().optional(),
 });
+export const memberRoleView = z.object({
+  card_id: z.number(),
+  user_id: z.number(),
+  type: z.number(),
+  created: z.string().optional(),
+  updated: z.string().optional(),
+});
 export const cardSummary = identityView.extend({
   title: z.string(),
   board_id: z.number(),
