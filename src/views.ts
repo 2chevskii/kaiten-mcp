@@ -8,7 +8,7 @@ export const namedView = identityView.extend({
 });
 export const locationView = namedView.extend({
   board_id: z.number().optional(),
-  column_id: z.number().optional(),
+  column_id: z.number().nullable().optional(),
   sort_order: z.number().optional(),
   type: z.number().optional(),
 });

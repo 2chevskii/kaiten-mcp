@@ -26,6 +26,9 @@ Single-entity results have `{item}`. Each result also has equivalent JSON text.
 Local pagination fetches one complete upstream list and slices the requested page.
 It does not cache results or follow additional upstream pages.
 
+Column `column_id` identifies the parent column and can be `null` when there is
+no parent. This applies to board details, column lists and card location details.
+
 ## Cards
 
 | Tool                  | Arguments                                                                     | Behavior                                          |

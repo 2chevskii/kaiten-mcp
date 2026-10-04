@@ -13,6 +13,33 @@ function errorPayload(result: CallToolResult) {
   return JSON.parse(content.text) as {code: string; status?: number};
 }
 
+test('root and child columns retain nullable parent IDs in all location projections', async context => {
+  const harness = await startHarness(context);
+  const columns = [
+    {id: 3, title: 'Root', board_id: 2, column_id: null, sort_order: 1},
+    {id: 4, title: 'Child', board_id: 2, column_id: 3, sort_order: 2},
+    {id: 5, title: 'Without parent field', board_id: 2, sort_order: 3},
+  ];
+  const board = {id: 2, title: 'Board', columns, lanes: []};
+  harness.reply(board);
+  assert.deepEqual(
+    (await harness.call('get_board', {board_id: 2})).structuredContent,
+    {item: board},
+  );
+  harness.reply(columns);
+  assert.deepEqual(
+    (await harness.call('list_columns', {board_id: 2})).structuredContent,
+    {items: columns, next_offset: null},
+  );
+  for (const column of columns) {
+    harness.reply({...cardFixture, column});
+    const result = await harness.call('get_card', {card_id: 10});
+    assert.notEqual(result.isError, true);
+    const {item} = result.structuredContent as {item: {column: unknown}};
+    assert.deepEqual(item.column, column);
+  }
+});
+
 test('pagination and compact projections retain navigation and full requested text', async context => {
   const harness = await startHarness(context);
   harness.reply([cardFixture]);
