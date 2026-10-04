@@ -9,7 +9,7 @@
     "node": ">=24"
   },
   "bin": {
-    "kaiten-mcp": "./lib/cli.js"
+    "kaiten-mcp": "./bin/cli.js"
   },
   "workspaces": [
     "docs"
@@ -17,7 +17,7 @@
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "build:watch": "tsc -p tsconfig.json --watch",
-    "start": "node lib/cli.js",
+    "start": "node bin/cli.js",
     "test": "node --test test/*.test.ts",
     "test:types": "tsc -p tsconfig.test.json",
     "lint": "eslint .",

@@ -19,7 +19,7 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "outDir": "lib",
+    "outDir": "bin",
     "rootDir": "src"
   }
 }

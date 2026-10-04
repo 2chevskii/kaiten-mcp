@@ -1,4 +1,5 @@
 node_modules/
+bin/
 lib/
 *.tsbuildinfo
 docs/.vitepress/dist/

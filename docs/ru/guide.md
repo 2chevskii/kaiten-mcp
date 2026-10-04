@@ -52,7 +52,7 @@ npm run check
   "mcpServers": {
     "kaiten": {
       "command": "node",
-      "args": ["C:/Users/YOU/source/kaiten-mcp/lib/cli.js"],
+      "args": ["C:/Users/YOU/source/kaiten-mcp/bin/cli.js"],
       "env": {
         "KAITEN_ORIGIN": "https://company.kaiten.ru",
         "KAITEN_TOKEN": "YOUR_KAITEN_TOKEN"

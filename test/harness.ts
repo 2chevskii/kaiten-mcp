@@ -10,7 +10,7 @@ import type {TestContext} from 'node:test';
 import {Client} from '@modelcontextprotocol/client';
 import {StdioClientTransport} from '@modelcontextprotocol/client/stdio';
 
-export const cliPath = fileURLToPath(new URL('../lib/cli.js', import.meta.url));
+export const cliPath = fileURLToPath(new URL('../bin/cli.js', import.meta.url));
 export const token = 'fixture-only-secret';
 
 export interface CapturedRequest {
