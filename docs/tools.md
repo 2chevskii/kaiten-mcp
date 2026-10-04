@@ -28,16 +28,16 @@ It does not cache results or follow additional upstream pages.
 
 ## Cards
 
-| Tool                  | Arguments                                                                     | Behavior                                |
-| --------------------- | ----------------------------------------------------------------------------- | --------------------------------------- |
-| `kaiten_search_cards` | Filters below, `limit?`, `cursor?`                                            | Search with Kaiten's version 2 cursor   |
-| `kaiten_get_card`     | `card_id`                                                                     | Detailed card projection                |
-| `kaiten_create_card`  | `title`, `board_id`, editable fields, `column_id?`, `lane_id?`, `properties?` | Create a card                           |
-| `kaiten_update_card`  | `card_id`, `changes`                                                          | Change supplied editable fields         |
-| `kaiten_move_card`    | `card_id`, `board_id`, `column_id`, `lane_id`                                 | Move to an explicit location            |
-| `kaiten_archive_card` | `card_id`                                                                     | Set condition to archived (`2`)         |
-| `kaiten_restore_card` | `card_id`                                                                     | Set condition to live (`1`)             |
-| `kaiten_delete_card`  | `card_id`                                                                     | Delete through Kaiten's DELETE endpoint |
+| Tool                  | Arguments                                                                     | Behavior                                          |
+| --------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------- |
+| `kaiten_search_cards` | Filters below, `limit?`, `cursor?`                                            | Version 1 search with a server continuation token |
+| `kaiten_get_card`     | `card_id`                                                                     | Detailed card projection                          |
+| `kaiten_create_card`  | `title`, `board_id`, editable fields, `column_id?`, `lane_id?`, `properties?` | Create a card                                     |
+| `kaiten_update_card`  | `card_id`, `changes`                                                          | Change supplied editable fields                   |
+| `kaiten_move_card`    | `card_id`, `board_id`, `column_id`, `lane_id`                                 | Move to an explicit location                      |
+| `kaiten_archive_card` | `card_id`                                                                     | Set condition to archived (`2`)                   |
+| `kaiten_restore_card` | `card_id`                                                                     | Set condition to live (`1`)                       |
+| `kaiten_delete_card`  | `card_id`                                                                     | Delete through Kaiten's DELETE endpoint           |
 
 Editable fields: `title`, `description`, `due_date`, `due_date_time_present`,
 `asap`, `size_text`, `owner_id`, `type_id`. `changes` must contain at least one
@@ -52,6 +52,17 @@ Search filters: `query`, `space_id`, `board_id`, `column_id`, `lane_id`,
 `archived`, `asap`, `overdue`, `due_date_after`, `due_date_before`.
 Plural ID filters are arrays. `states` accepts `1` (queued), `2` (in progress),
 `3` (done). Omitted filters retain Kaiten's defaults.
+
+Use `archived: false` to search only live cards, or `archived: true` for archived
+cards. Search uses Kaiten's version 1 endpoint, ordered by card ID, and paginates
+with `offset`. The server returns that position as `next_cursor`; pass it as
+`cursor` with the same filters to continue. A full page may require one final
+empty request before `next_cursor` becomes `null`. Offset pages can shift if
+matching cards are added, removed or changed between requests.
+
+Old version 2 OpenSearch cursors are incompatible. After updating, start an
+existing search again without `cursor`. The search endpoint and its pagination
+are documented in [Kaiten's API reference](https://developers.kaiten.ru/cards/retrieve-card-list).
 
 Summaries include ID, title, location, state, condition, archive flag, due date,
 owner ID and update time when present. Details additionally include the full
