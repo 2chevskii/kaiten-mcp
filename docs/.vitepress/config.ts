@@ -3,6 +3,7 @@ import {defineConfig} from 'vitepress';
 export default defineConfig({
   title: 'Kaiten MCP',
   description: 'Local MCP server for Kaiten',
+  base: process.env.VITEPRESS_BASE ?? '/',
   cleanUrls: true,
   locales: {
     root: {

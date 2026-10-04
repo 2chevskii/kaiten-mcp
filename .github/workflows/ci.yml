@@ -1,0 +1,118 @@
+name: CI
+
+on:
+  push:
+    branches: master
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+
+  format:
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm ci
+      - run: npm run format:check
+
+  test:
+    runs-on: ubuntu-26.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - run: npm run test:types
+      - run: npm test
+
+  build:
+    runs-on: ubuntu-26.04
+    needs: [lint, format, test, build_docs]
+    timeout-minutes: 10
+    outputs:
+      package_path: ${{ steps.calculate-version.outputs.package_path }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm ci
+      - id: calculate-version
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: node tools/calculate-package-version.mjs
+      - run: npm run build
+      - run: npm pack
+      - env:
+          PACKAGE: ./${{ steps.calculate-version.outputs.package_path }}
+        run: npm run package:check -- "$PACKAGE"
+      - uses: actions/upload-artifact@v7
+        with:
+          path: ${{ steps.calculate-version.outputs.package_path }}
+          archive: false
+          if-no-files-found: error
+
+  publish:
+    if: github.event_name == 'push' || (github.event.pull_request.head.repo.full_name == github.repository && github.actor != 'dependabot[bot]')
+    needs: build
+    runs-on: ubuntu-26.04
+    timeout-minutes: 10
+    environment:
+      name: github-packages
+      url: https://github.com/users/2chevskii/packages/npm/package/kaiten-mcp
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          registry-url: https://npm.pkg.github.com
+          scope: '@2chevskii'
+          package-manager-cache: false
+      - uses: actions/download-artifact@v8
+        with:
+          name: ${{ needs.build.outputs.package_path }}
+          path: artifacts
+      - env:
+          NODE_AUTH_TOKEN: ${{ github.token }}
+          PACKAGE: ./artifacts/${{ needs.build.outputs.package_path }}
+          PACKAGE_TAG: ${{ github.event_name == 'pull_request' && format('pr-{0}', github.event.pull_request.number) || 'edge' }}
+        run: npm publish "$PACKAGE" --registry https://npm.pkg.github.com --tag "$PACKAGE_TAG"
+
+  build_docs:
+    runs-on: ubuntu-26.04
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - run: npm ci
+      - run: npm run docs:build
