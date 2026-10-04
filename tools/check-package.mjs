@@ -42,7 +42,10 @@ try {
   assert.equal(installed.name, packageJson.name);
   assert.equal(installed.version, packageJson.version);
   assert.equal(installed.private, undefined);
-  assert.equal(installed.dependencies['@2chevskii/kaiten-client'], '1.0.2');
+  assert.equal(
+    installed.dependencies['@2chevskii/kaiten-client'],
+    packageJson.dependencies['@2chevskii/kaiten-client'],
+  );
 
   const transport = new StdioClientTransport({
     command: process.execPath,
