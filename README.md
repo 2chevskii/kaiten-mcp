@@ -148,7 +148,7 @@ company.
 Use `npm run build:watch` while editing the server and `npm run docs:dev` to preview
 the documentation. The server is built on
 [`@2chevskii/kaiten-client`](https://github.com/2chevskii/kaiten-client), pinned to
-version `1.0.2` from npm.
+version `1.0.3` from npm.
 
 PR and `edge` packages are available through GitHub Packages. Stable packages use
 the `latest` tag in npm and GitHub Packages. See the

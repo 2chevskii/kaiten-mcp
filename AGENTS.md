@@ -7,7 +7,7 @@ configuration, MCP boundary, and domain tools. All Kaiten requests use the publi
 API of `@2chevskii/kaiten-client`. `test/` contains protocol tests backed by a local
 HTTP server. `docs/` is a private bilingual VitePress workspace.
 
-Install with `npm ci`. The client is pinned to `1.0.2` from public npm; commit the
+Install with `npm ci`. The client is pinned to `1.0.3` from public npm; commit the
 lockfile and update the dependency explicitly. Never commit credentials. Generated
 `bin/`, `artifacts/`, tarballs, `node_modules/`, and documentation output must not
 be edited by hand. `tools/` contains package versioning and installation checks.
