@@ -51,7 +51,7 @@ access and 2FA. Do not add an
 ## Release
 
 1. Update the package and lockfile version together, open a PR and merge it after
-   CI passes. The initial repository version is `0.1.0`.
+   CI passes.
 2. Tag the merged commit with `v<package.json version>` and push the tag.
    `start_release.yml` verifies version equality, runs separate lint, formatting,
    test and documentation jobs, then builds and checks the installable package.
@@ -71,7 +71,7 @@ To check a stable archive locally after `npm ci`:
 ```sh
 npm run check
 npm pack
-npm run package:check -- ./2chevskii-kaiten-mcp-0.1.0.tgz
+npm run package:check -- ./2chevskii-kaiten-mcp-1.0.0.tgz
 ```
 
 The package check requires a prior build and npm access for production dependencies.
