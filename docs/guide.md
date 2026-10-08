@@ -1,54 +1,37 @@
-# Setup and development
+# Setup
 
-Kaiten MCP runs locally over stdio. One process uses one Kaiten company and API
-token. The server exposes 44 tools for cards, navigation, comments, memberships,
-tags, checklists and existing custom properties.
+Kaiten MCP connects an MCP client to one Kaiten company over stdio. You need
+Node.js 24 or newer, a Kaiten API token, and a client that can launch a local MCP
+server. The token determines which spaces, cards and operations are accessible.
 
-## Install
-
-Use Node.js 24 or newer. Install and build from a checkout:
+## 1. Install the server
 
 ```sh
-npm ci
-npm run build
-```
-
-The server depends on `@2chevskii/kaiten-client@1.0.3` from the public npm registry.
-No GitHub Packages authentication is needed. The manifest pins this version and
-the committed lockfile fixes the full dependency tree.
-
-You can also install the stable executable published on npm:
-
-```sh
+node --version
 npm install --global @2chevskii/kaiten-mcp --registry=https://registry.npmjs.org
+npm root --global
 ```
 
-With a global installation, use `"command": "kaiten-mcp"` and omit `args` in the
-configuration below. Use `"command": "kaiten-mcp.cmd"` on Windows.
+The last command prints the global `node_modules` directory. Find
+`@2chevskii/kaiten-mcp/bin/cli.js` inside it and use that file's absolute path
+below. The published package includes the compiled server and installs its
+runtime dependencies.
 
-## Configure a client
+For a source checkout, follow [development](./development.md). After building,
+use the checkout's `bin/cli.js` as the entry point.
 
-Set the environment for the server process:
+## 2. Configure your MCP client
 
-| Variable            | Meaning                                                                                               |
-| ------------------- | ----------------------------------------------------------------------------------------------------- |
-| `KAITEN_ORIGIN`     | Required company origin, such as `https://company.kaiten.ru`; no path, credentials, query or fragment |
-| `KAITEN_TOKEN`      | Required Kaiten API token                                                                             |
-| `KAITEN_TIMEOUT_MS` | Optional timeout per operation; default `30000`, integer from `1` to `2147483647`                     |
-
-HTTPS is required for Kaiten. Loopback HTTP is accepted by the library for local
-tests. The REST API version is `v1`.
-
-Add the following stdio entry to a compatible MCP client's configuration, adapting
-the configuration file location to that client. Supply the token through the
-client's environment/secret settings where available. Replace the placeholders:
+For clients that accept an `mcpServers` JSON configuration, add:
 
 ```json
 {
   "mcpServers": {
     "kaiten": {
       "command": "node",
-      "args": ["C:/Users/YOU/source/kaiten-mcp/bin/cli.js"],
+      "args": [
+        "/absolute/path/to/node_modules/@2chevskii/kaiten-mcp/bin/cli.js"
+      ],
       "env": {
         "KAITEN_ORIGIN": "https://company.kaiten.ru",
         "KAITEN_TOKEN": "YOUR_KAITEN_TOKEN"
@@ -58,85 +41,72 @@ client's environment/secret settings where available. Replace the placeholders:
 }
 ```
 
-Use an absolute path to Node.js 24+ if the client's PATH selects another version.
-The CLI works independently of the current directory. Direct `node` execution
-keeps npm's script banners out of protocol stdout. The package also declares the
-`kaiten-mcp` executable; local development does not require a global installation.
+Replace the path, company address and token. The configuration location and
+reload procedure depend on your MCP client. Supply the token through the
+client's environment or secret settings where supported.
 
-The SDK's stdio entry supports modern MCP connections and legacy initialization.
-The server uses Pino to write newline-delimited JSON diagnostics exclusively to
-stderr, with a default level of `info` and synchronous writes. Diagnostic messages
-exclude credentials and raw upstream errors. The server closes on stdin EOF,
-SIGINT or SIGTERM.
-Stopping the process or cancelling a tool call cancels its pending HTTP request.
+::: tip Windows paths
+Use the directory printed by `npm root --global`. JSON paths can use forward
+slashes, for example
+`C:/Users/YOU/AppData/Roaming/npm/node_modules/@2chevskii/kaiten-mcp/bin/cli.js`.
+If the client cannot resolve Node.js 24+, set `command` to the absolute path of
+that Node.js executable.
+:::
 
-## Use the tools
+Direct `node` execution works independently of the current directory and keeps
+npm script banners out of protocol stdout. The package also supplies the
+`kaiten-mcp` executable for hosts that support launching it from PATH.
 
-Typical workflow:
+### Environment variables
 
-1. Call `kaiten_list_spaces`, then `kaiten_list_boards` with a space ID.
-2. Call `kaiten_get_board` to discover valid column and lane IDs.
-3. Call `kaiten_search_cards` to find existing work or `kaiten_create_card` to create it.
-4. Fetch `kaiten_get_card` for the full description, members, tags, properties and checklist references.
-5. Use focused tools to move the card, add a comment or complete a checklist item.
-6. Archive a completed card, restore an archived card, or explicitly delete a card.
+| Variable            | Required | Value                                                                                            |
+| ------------------- | -------- | ------------------------------------------------------------------------------------------------ |
+| `KAITEN_ORIGIN`     | Yes      | Company origin, such as `https://company.kaiten.ru`; no API path, credentials, query or fragment |
+| `KAITEN_TOKEN`      | Yes      | Kaiten API token; whitespace around the token is trimmed                                         |
+| `KAITEN_TIMEOUT_MS` | No       | Timeout per tool operation in milliseconds; default `30000`, integer from `1` to `2147483647`    |
 
-Tools execute mutations when called. MCP annotations describe read and destructive
-operations to the host. Authorization is determined by the Kaiten token's access.
+HTTPS is required for a Kaiten company. The client library accepts loopback HTTP
+for local fixtures. REST requests use API v1.
 
-Search returns compact summaries. Descriptions, comment text and checklist item
-text are preserved when requested through their respective tools. Lists default
-to 25 items, with a maximum of 100 per call. Follow `next_cursor` or `next_offset`
-until it is `null`; keep the original filters. A full offset page may produce one
-final empty page because those endpoints do not return a total count.
+To connect to several companies or tokens, create separate server entries with
+unique names and their own environment variables.
 
-All successful results include `structuredContent` and equivalent JSON text in
-`content`. Single-entity results contain `item`; list results contain `items` and
-their continuation field. Unknown upstream fields are excluded from the public
-projections. Tool schemas are available through MCP `tools/list`.
+## 3. Verify the connection
 
-## Errors
+Reload your client's MCP configuration and check that it discovers **44 tools**
+with the `kaiten_` prefix. Ask the assistant:
 
-Invalid tool arguments are rejected before a request reaches Kaiten. Operational
-failures return `isError: true` and JSON text with `code`, `message`, and an optional
-HTTP `status`. Error codes are `KAITEN_HTTP_ERROR`, `INVALID_KAITEN_RESPONSE`,
-`NETWORK_ERROR`, `TIMEOUT`, `CANCELLED`, and `INTERNAL_ERROR`.
+> Identify my Kaiten user, then list the spaces I can access.
 
-The server does not automatically retry requests. An interrupted write can have
-reached Kaiten; inspect the card before repeating a create operation. Error text
-does not include raw upstream bodies, credentials or authorization headers.
+This uses `kaiten_get_current_user` and `kaiten_list_spaces` and verifies a real
+read through the configured token. A successful MCP connection alone verifies
+process startup and tool discovery; the first tool call verifies Kaiten access.
 
-## Develop and validate
+If the process exits or the tool fails, see [troubleshooting](./troubleshooting.md).
+Starting the server in a terminal may appear idle while it waits for MCP input.
 
-```sh
-npm run build:watch
-npm run docs:dev
-npm run check
-```
+## 4. Choose a workflow
 
-`check` runs compilation, test type checking, `node:test`, ESLint, Prettier and the
-English/Russian documentation build. To run protocol tests separately, build first:
+Start with [finding your cards](./workflows.md#find-my-active-cards),
+[reading a card's context](./workflows.md#understand-a-card), or
+[creating a card and checklist](./workflows.md#create-a-card-and-checklist).
+The [tool reference](./tools.md) lists every tool's arguments and behavior.
 
-```sh
-npm run build
-npm test
-```
+Tools execute changes immediately when called. The MCP host decides how to
+present or approve calls; server annotations describe read and destructive
+operations. Kaiten enforces the token's permissions.
 
-The tests launch the built CLI from a different working directory, connect an
-official MCP client and send requests through the installed Kaiten library to a
-local HTTP fixture. They cover every tool's HTTP contract, a complete card
-workflow, pagination, validation, sanitized errors, cancellation and shutdown.
-They do not contact a working Kaiten company. A specific desktop MCP application's
-integration has not been verified.
+Search returns compact summaries. Fetch card details, comments and checklist
+items with their dedicated tools. Lists default to 25 items and accept at most
+100; follow the returned continuation field until it is `null`.
 
-Use a dedicated branch and small Conventional Commits. Update both documentation
-languages for interface changes. Repository conventions are in the root `AGENTS.md`.
-See [CI/CD and releases](./releasing.md) for package channels and release setup.
+## Supported scope
 
-## Current scope
+The 44 tools cover navigation, cards, comments, memberships, tags, checklists and
+existing custom properties. Property definitions, options and directories can be
+read, and values can be assigned to cards.
 
-Documents, file attachments,
-time tracking, automations, administration, SCIM, webhooks, HTTP transport, MCP
-resources and prompts are outside this version. Existing custom property
-definitions, options and directories can be read; their values can be assigned to
-cards. Definition and directory editing are outside this version.
+Documents, attachments, time tracking, automations, administration, SCIM,
+webhooks, property-definition editing and directory editing are outside this
+version. The server exposes tools over stdio; HTTP transport, MCP resources and
+prompts are outside this version.

@@ -71,9 +71,10 @@ Pages выберите GitHub Actions. URL пакетов задаются workf
 ```sh
 npm run check
 npm pack
-npm run package:check -- ./2chevskii-kaiten-mcp-1.0.0.tgz
+npm run package:check -- "./2chevskii-kaiten-mcp-<version>.tgz"
 ```
 
+Замените `<version>` версией из имени файла, выведенного `npm pack`.
 Проверка пакета требует предварительной сборки и доступа к npm для установки
 production-зависимостей. Установленный CLI запускается из временного каталога;
 запросы к Kaiten не выполняются.

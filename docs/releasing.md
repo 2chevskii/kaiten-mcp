@@ -71,8 +71,9 @@ To check a stable archive locally after `npm ci`:
 ```sh
 npm run check
 npm pack
-npm run package:check -- ./2chevskii-kaiten-mcp-1.0.0.tgz
+npm run package:check -- "./2chevskii-kaiten-mcp-<version>.tgz"
 ```
 
+Replace `<version>` with the version in the filename printed by `npm pack`.
 The package check requires a prior build and npm access for production dependencies.
 It starts the installed CLI from a temporary directory without contacting Kaiten.

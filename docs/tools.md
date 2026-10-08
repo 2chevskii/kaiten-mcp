@@ -1,5 +1,8 @@
 # Tool reference
 
+The server exposes 44 tools. Use [workflows](./workflows.md) for step-by-step
+examples and [troubleshooting](./troubleshooting.md) for operational failures.
+
 All names below have the `kaiten_` prefix. Arguments use `snake_case`.
 Numeric IDs are positive safe integers; directory IDs are UUID strings.
 `?` marks an optional argument. Unknown arguments are rejected.
@@ -7,6 +10,36 @@ Numeric IDs are positive safe integers; directory IDs are UUID strings.
 `page` means optional `limit` (1–100, default 25) and `offset` (default 0).
 Offset list results have `{items, next_offset}`. Search uses `{items, next_cursor}`.
 Single-entity results have `{item}`. Each result also has equivalent JSON text.
+
+## Result contracts
+
+Successful calls return the envelope in `structuredContent` and the same JSON
+in a text entry in `content`. These examples show the structured payload only:
+
+```json
+{"item": {"id": 5, "full_name": "Alex"}}
+```
+
+```json
+{"items": [{"id": 1, "title": "Work"}], "next_offset": null}
+```
+
+```json
+{
+  "items": [{"id": 123, "title": "Release", "board_id": 2, "column_id": 3}],
+  "next_cursor": null
+}
+```
+
+The exact fields for each tool are advertised in its MCP `outputSchema`.
+Optional fields appear only when returned by Kaiten; unknown upstream fields
+are stripped. A missing field differs from an explicit `null`.
+
+Read tools advertise `readOnlyHint: true` and `idempotentHint: true`. Creation
+tools advertise `destructiveHint: false`; update and removal tools advertise
+`destructiveHint: true`. All write tools advertise `readOnlyHint: false` and
+`idempotentHint: false`. All tools use `openWorldHint: true`. These annotations
+inform the MCP host; token permissions determine access in Kaiten.
 
 ## Navigation and lookup
 
