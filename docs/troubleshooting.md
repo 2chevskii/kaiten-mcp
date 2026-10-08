@@ -7,10 +7,11 @@ exclude credentials and raw upstream response bodies.
 
 ## The client cannot start the server
 
-1. Run `node --version` and confirm Node.js 24 or newer. If your desktop client
-   uses another PATH, configure an absolute Node.js executable path.
-2. Run `npm root --global` and verify the configured path ends in
-   `@2chevskii/kaiten-mcp/bin/cli.js`. For a checkout, run `npm run build` first.
+1. Run `node --version` and confirm Node.js 24 or newer. Ensure Node.js, npm and
+   npx are available in your MCP client's PATH.
+2. Check the launch arguments against the [setup guide](./guide.md). Include
+   `--yes` to suppress installation prompts. On the first launch, npm needs
+   access to the configured registry to download the package and dependencies.
 3. Check that the client passes `KAITEN_ORIGIN` and `KAITEN_TOKEN` to the server
    process. Variables set in another terminal may be absent from a desktop app.
 4. Use an origin such as `https://company.kaiten.ru`, with no `/api/v1` path,
@@ -87,5 +88,5 @@ for each call; it does not cache a snapshot. See [pagination examples](./workflo
 
 Include the package version, Node.js version, MCP client name, failing tool and
 sanitized error in a [GitHub issue](https://github.com/2chevskii/kaiten-mcp/issues).
-Use `npm list --global @2chevskii/kaiten-mcp` to inspect a global installation.
+Include any fixed package version specified in the npx or npm exec arguments.
 Remove tokens and private company data from logs and example arguments.

@@ -4,21 +4,14 @@ Kaiten MCP connects an MCP client to one Kaiten company over stdio. You need
 Node.js 24 or newer, a Kaiten API token, and a client that can launch a local MCP
 server. The token determines which spaces, cards and operations are accessible.
 
-## 1. Install the server
+## 1. Check Node.js
+
+Use Node.js 24 or newer. npm and npx are included with Node.js:
 
 ```sh
 node --version
-npm install --global @2chevskii/kaiten-mcp --registry=https://registry.npmjs.org
-npm root --global
+npm --version
 ```
-
-The last command prints the global `node_modules` directory. Find
-`@2chevskii/kaiten-mcp/bin/cli.js` inside it and use that file's absolute path
-below. The published package includes the compiled server and installs its
-runtime dependencies.
-
-For a source checkout, follow [development](./development.md). After building,
-use the checkout's `bin/cli.js` as the entry point.
 
 ## 2. Configure your MCP client
 
@@ -28,10 +21,8 @@ For clients that accept an `mcpServers` JSON configuration, add:
 {
   "mcpServers": {
     "kaiten": {
-      "command": "node",
-      "args": [
-        "/absolute/path/to/node_modules/@2chevskii/kaiten-mcp/bin/cli.js"
-      ],
+      "command": "npx",
+      "args": ["--yes", "@2chevskii/kaiten-mcp"],
       "env": {
         "KAITEN_ORIGIN": "https://company.kaiten.ru",
         "KAITEN_TOKEN": "YOUR_KAITEN_TOKEN"
@@ -41,21 +32,38 @@ For clients that accept an `mcpServers` JSON configuration, add:
 }
 ```
 
-Replace the path, company address and token. The configuration location and
+npx resolves the package and downloads it into npm's cache when needed.
+`--yes` suppresses the installation prompt so the MCP client can start the
+server unattended. The published package contains the compiled server.
+
+Replace the company address and token. The configuration location and
 reload procedure depend on your MCP client. Supply the token through the
-client's environment or secret settings where supported.
+client's environment or secret settings where supported. Ensure the client can
+find Node.js and npx in its PATH.
 
-::: tip Windows paths
-Use the directory printed by `npm root --global`. JSON paths can use forward
-slashes, for example
-`C:/Users/YOU/AppData/Roaming/npm/node_modules/@2chevskii/kaiten-mcp/bin/cli.js`.
-If the client cannot resolve Node.js 24+, set `command` to the absolute path of
-that Node.js executable.
-:::
+### Alternative: npm exec
 
-Direct `node` execution works independently of the current directory and keeps
-npm script banners out of protocol stdout. The package also supplies the
-`kaiten-mcp` executable for hosts that support launching it from PATH.
+Use the same `env` settings with this command and argument list:
+
+```json
+{
+  "command": "npm",
+  "args": [
+    "exec",
+    "--yes",
+    "--package=@2chevskii/kaiten-mcp",
+    "--",
+    "kaiten-mcp"
+  ]
+}
+```
+
+Both forms run the package's `kaiten-mcp` executable. For a fixed release,
+append `@<version>` to the package name. See the
+[npm exec reference](https://docs.npmjs.com/cli/v11/commands/npm-exec/)
+for package resolution and caching behavior.
+
+For a source checkout, follow [development](./development.md).
 
 ### Environment variables
 
