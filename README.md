@@ -48,7 +48,7 @@ launch a local stdio server.
 ### 1. Install the server
 
 ```sh
-npm install --global @2chevskii/kaiten-mcp@1.0.0 --registry=https://registry.npmjs.org
+npm install --global @2chevskii/kaiten-mcp --registry=https://registry.npmjs.org
 ```
 
 The package includes the compiled server and installs its runtime dependencies.
