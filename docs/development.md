@@ -15,8 +15,8 @@ npm run check
 ```
 
 `npm ci` installs the server and documentation workspaces using the committed
-lockfile. The build emits `bin/cli.js`; use its absolute path in the
-[MCP client configuration](./guide.md#2-configure-your-mcp-client).
+lockfile. The build emits `bin/cli.js`. To launch the checkout from its root,
+use `node bin/cli.js` with the required Kaiten environment variables.
 Generated output is excluded from Git and must not be edited by hand.
 
 | Command                | Purpose                                                           |
@@ -31,8 +31,8 @@ Generated output is excluded from Git and must not be edited by hand.
 | `npm run docs:build`   | Build both documentation languages                                |
 | `npm run check`        | Run the build, test types, tests, lint, formatting and docs build |
 
-`npm start` launches the compiled CLI. For an MCP host, use direct `node`
-execution to keep npm's script output out of protocol stdout.
+`npm start` launches the compiled CLI for development. For the published package,
+use the [npx or npm exec configuration](./guide.md#2-configure-your-mcp-client).
 
 ## Request flow and project map
 

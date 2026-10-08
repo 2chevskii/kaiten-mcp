@@ -45,37 +45,14 @@ them.
 You need **Node.js 24 or newer**, a Kaiten API token, and an MCP client that can
 launch a local stdio server.
 
-### 1. Install the server
-
-```sh
-npm install --global @2chevskii/kaiten-mcp --registry=https://registry.npmjs.org
-```
-
-The package includes the compiled server and installs its runtime dependencies.
-You do not need to clone this repository or build it yourself.
-
-### 2. Find the installed package
-
-```sh
-npm root --global
-```
-
-This prints the global `node_modules` directory. The server entry point is
-`@2chevskii/kaiten-mcp/bin/cli.js` inside that directory. Use its full path in the
-configuration below.
-
-### 3. Add it to your MCP client
-
-For clients that use an `mcpServers` JSON configuration, add an entry like this:
+For clients that use an `mcpServers` JSON configuration, add:
 
 ```json
 {
   "mcpServers": {
     "kaiten": {
-      "command": "node",
-      "args": [
-        "/absolute/path/to/node_modules/@2chevskii/kaiten-mcp/bin/cli.js"
-      ],
+      "command": "npx",
+      "args": ["--yes", "@2chevskii/kaiten-mcp"],
       "env": {
         "KAITEN_ORIGIN": "https://company.kaiten.ru",
         "KAITEN_TOKEN": "YOUR_KAITEN_TOKEN"
@@ -85,17 +62,30 @@ For clients that use an `mcpServers` JSON configuration, add an entry like this:
 }
 ```
 
-Replace the path, company address and token. On Windows, forward slashes work in
-the JSON path, for example
-`C:/Users/YOU/AppData/Roaming/npm/node_modules/@2chevskii/kaiten-mcp/bin/cli.js`;
-use the location reported by `npm root --global` on your machine. If your MCP
-client cannot find Node.js 24+, set `command` to the full path to that Node.js
-executable.
+npx downloads the package into npm's cache when needed. `--yes` suppresses the
+installation prompt. Replace the company address and token, reload your client's
+configuration, and ask it to list your Kaiten spaces. Node.js and npx must be
+available in the client's PATH. Use dedicated secret settings for the token
+where supported.
 
-The configuration file location and reload procedure depend on your MCP client.
-If it provides dedicated secret settings, use those for the token. Once the client
-connects, it can discover the tools through MCP. Start by asking it to list your
-Kaiten spaces or boards.
+To use `npm exec`, keep the same environment and replace the launch settings:
+
+```json
+{
+  "command": "npm",
+  "args": [
+    "exec",
+    "--yes",
+    "--package=@2chevskii/kaiten-mcp",
+    "--",
+    "kaiten-mcp"
+  ]
+}
+```
+
+For a fixed release, append `@<version>` to the package name. See the
+[setup guide](https://2chevskii.github.io/kaiten-mcp/guide) for configuration
+and connection checks.
 
 ## Configuration
 
