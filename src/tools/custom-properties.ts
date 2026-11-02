@@ -1,5 +1,5 @@
 import * as z from 'zod/v4';
-import {defined, id, pageFields, properties} from '../schemas.ts';
+import {defined, id, pageFields, properties, uuid} from '../schemas.ts';
 import {entityResult, offsetPage, pageResult} from '../results.ts';
 import {change, read, type ToolRegistry} from '../tool-registry.ts';
 import {
@@ -100,7 +100,7 @@ export function registerCustomProperties(registry: ToolRegistry): void {
     'list_custom_directory_records',
     'Find records in an existing custom directory. Assign record UUIDs as an array in card properties.',
     z.strictObject({
-      directory_id: z.uuid(),
+      directory_id: uuid,
       ...pageFields,
       query: z.string().optional(),
     }),

@@ -32,6 +32,7 @@
     "package:check": "node tools/check-package.mjs",
     "test": "node --test test/*.test.ts",
     "test:types": "tsc -p tsconfig.test.json",
+    "tokens:count": "npm run build && node --env-file-if-exists=.env.tokens tools/token-count.ts",
     "lint": "eslint .",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
@@ -55,6 +56,7 @@
     "eslint-config-prettier": "^10.1.8",
     "globals": "^17.13.0",
     "jiti": "^2.7.0",
+    "openai": "7.47.0",
     "prettier": "^3.9.9",
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.71.0"

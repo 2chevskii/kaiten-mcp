@@ -34,12 +34,75 @@ Generated output is excluded from Git and must not be edited by hand.
 `npm start` launches the compiled CLI for development. For the published package,
 use the [npx or npm exec configuration](./guide.md#2-configure-your-mcp-client).
 
+## Measure tool context with OpenAI
+
+The token-count lab uses the pinned development-only `openai` SDK and
+`client.responses.inputTokens.count()`. It starts the local MCP server, collects
+all pages of `tools/list`, and closes it without executing tools or contacting
+Kaiten. Real Kaiten credentials are not needed. The default model is
+`gpt-6.1-sol`; access through your OpenAI API project is required.
+ChatGPT/Codex subscription authentication does not replace an API key here.
+
+```sh
+# Prepare requests without an API key or OpenAI requests.
+npm run tokens:count -- --dry-run
+
+# Copy .env.tokens.example to .env.tokens and set OPENAI_API_KEY locally.
+# An existing OPENAI_API_KEY environment variable takes precedence.
+npm run tokens:count
+
+# Optional: select a model and count each tool in isolation.
+npm run tokens:count -- --model gpt-6.1-sol --per-tool
+```
+
+Each run saves `catalog.json`, `requests.json`, and (after successful API calls)
+`report.json` under a timestamped `artifacts/token-count/` directory. Use
+`--output <directory>` to choose a destination; existing files there are
+overwritten. Artifacts and `.env.tokens` are ignored by Git. API keys and
+authorization headers are not included in the saved requests.
+
+The default run makes three counting requests, with no response generation:
+
+- `baseline`: a fixed short input without tools.
+- `functions`: the same input plus all tools mapped to OpenAI functions using
+  their names, descriptions, and input schemas. `strict: false` preserves
+  optional MCP arguments. Output schemas and MCP annotations are excluded.
+- `catalog-as-text`: the short input followed by compact JSON containing the full
+  tools array, including output schemas and annotations. This measures the
+  catalog as text, not its native MCP representation.
+
+The report preserves API counts, request IDs, and differences from the baseline.
+`--per-tool` adds one request per tool; isolated differences need not sum to the
+full-catalog difference. These are exact counts for the saved API payloads,
+not measurements of Codex or another MCP application's context. They do not
+measure tool results, deferred loading, or client-specific instructions.
+The lab uses the public OpenAI API endpoint, a 60-second timeout per request,
+and no automatic retries. Failures exit nonzero without inventing counts;
+the catalog and prepared requests remain available for inspection.
+
+See [OpenAI token counting](https://developers.openai.com/api/docs/guides/token-counting).
+
 ## Request flow and project map
 
 The MCP client starts `src/cli.ts`. It reads configuration, creates the Kaiten
 client and MCP server, and serves stdio. Tool registration supplies strict input
 schemas and output projections. Each tool uses the real Kaiten client; the
 registry validates the result and returns structured JSON with equivalent text.
+
+Date inputs advertise compact `date` / `date-time` string formats rather than
+expanded calendar regexes. Runtime validation still uses Zod's ISO validators:
+dates must exist in the calendar, and date-times require `Z` or a timezone offset.
+The same validation applies to card deadlines, search filters and checklist items.
+
+IDs advertise positive integers without repeating JavaScript's maximum safe
+integer in each field. Runtime validation still rejects zero, negative,
+fractional and unsafe IDs, including array elements. UUID inputs advertise the
+`uuid` string format without an expanded regex; Zod's UUID validation still
+checks the accepted versions, variants and special nil/max UUIDs before HTTP.
+
+Pagination offsets advertise nonnegative integers with a default of zero,
+without repeating the maximum safe integer. Runtime validation still rejects
+negative, fractional and unsafe offsets; page limits remain bounded to 1–100.
 
 | Path                                    | Responsibility                                                                |
 | --------------------------------------- | ----------------------------------------------------------------------------- |
