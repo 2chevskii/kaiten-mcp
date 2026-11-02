@@ -15,6 +15,70 @@ npm --version
 
 ## 2. Настройте MCP-клиент
 
+Выберите команду CLI или файл конфигурации ниже. Примеры для Codex и Claude Code
+добавляют сервер для вашего пользователя во всех проектах. Замените адрес компании
+и токен, а записи добавьте в существующую конфигурацию. Не сохраняйте настоящие
+токены в системе контроля версий. После настройки перезапустите клиент.
+
+### Codex
+
+**CLI:**
+
+```sh
+codex mcp add kaiten --env KAITEN_ORIGIN=https://company.kaiten.ru --env KAITEN_TOKEN=YOUR_KAITEN_TOKEN -- npx --yes @2chevskii/kaiten-mcp
+```
+
+**Файл конфигурации:** добавьте в `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.kaiten]
+command = "npx"
+args = ["--yes", "@2chevskii/kaiten-mcp"]
+
+[mcp_servers.kaiten.env]
+KAITEN_ORIGIN = "https://company.kaiten.ru"
+KAITEN_TOKEN = "YOUR_KAITEN_TOKEN"
+```
+
+Для одного доверенного проекта используйте `.codex/config.toml` в его корне.
+Проверьте регистрацию командой `codex mcp list`, а активные серверы — через `/mcp`
+внутри Codex. Подробнее в
+[официальном руководстве Codex по MCP](https://developers.openai.com/codex/mcp/).
+
+### Claude Code
+
+**CLI:**
+
+```sh
+claude mcp add --scope user --transport stdio kaiten --env KAITEN_ORIGIN=https://company.kaiten.ru --env KAITEN_TOKEN=YOUR_KAITEN_TOKEN -- npx --yes @2chevskii/kaiten-mcp
+```
+
+**Файл конфигурации:** добавьте запись в `mcpServers` верхнего уровня
+в файле `~/.claude.json`:
+
+```json
+{
+  "mcpServers": {
+    "kaiten": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["--yes", "@2chevskii/kaiten-mcp"],
+      "env": {
+        "KAITEN_ORIGIN": "https://company.kaiten.ru",
+        "KAITEN_TOKEN": "YOUR_KAITEN_TOKEN"
+      }
+    }
+  }
+}
+```
+
+Для общей конфигурации проекта сохраните тот же JSON в `.mcp.json` в корне проекта
+или используйте `--scope project` в команде CLI. Проверьте статус командой
+`claude mcp get kaiten` или через `/mcp` внутри Claude Code. Подробнее в
+[официальном руководстве Claude Code по MCP](https://code.claude.com/docs/en/mcp).
+
+### Другие MCP-клиенты
+
 Для клиентов с JSON-конфигурацией `mcpServers` добавьте:
 
 ```json

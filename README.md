@@ -37,12 +37,50 @@ can launch a local stdio server**.
 
 ### 1. Add the server
 
-For clients that accept an `mcpServers` JSON configuration, add this entry:
+Choose the CLI command **or** configuration file for your client. Replace the
+company address and token. These examples configure Kaiten for your user across
+projects; merge file entries into your existing configuration.
+
+#### Codex
+
+**CLI:**
+
+```sh
+codex mcp add kaiten --env KAITEN_ORIGIN=https://company.kaiten.ru --env KAITEN_TOKEN=YOUR_KAITEN_TOKEN -- npx --yes @2chevskii/kaiten-mcp
+```
+
+**Configuration file:** add to `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.kaiten]
+command = "npx"
+args = ["--yes", "@2chevskii/kaiten-mcp"]
+
+[mcp_servers.kaiten.env]
+KAITEN_ORIGIN = "https://company.kaiten.ru"
+KAITEN_TOKEN = "YOUR_KAITEN_TOKEN"
+```
+
+For one trusted project, use `.codex/config.toml` in its root instead. Run
+`codex mcp list` to check registration, or `/mcp` inside Codex to see active servers.
+See the [official Codex MCP guide](https://developers.openai.com/codex/mcp/).
+
+#### Claude Code
+
+**CLI:**
+
+```sh
+claude mcp add --scope user --transport stdio kaiten --env KAITEN_ORIGIN=https://company.kaiten.ru --env KAITEN_TOKEN=YOUR_KAITEN_TOKEN -- npx --yes @2chevskii/kaiten-mcp
+```
+
+**Configuration file:** add the `kaiten` entry under the top-level `mcpServers` in
+`~/.claude.json`:
 
 ```json
 {
   "mcpServers": {
     "kaiten": {
+      "type": "stdio",
       "command": "npx",
       "args": ["--yes", "@2chevskii/kaiten-mcp"],
       "env": {
@@ -54,9 +92,13 @@ For clients that accept an `mcpServers` JSON configuration, add this entry:
 }
 ```
 
-Replace the company address and token, then reload your client's MCP configuration.
-Use the client's secret settings for the token where supported. Node.js and npx
-must be available in the client's PATH.
+For a shared project configuration, use the same JSON in `.mcp.json` at the project
+root, or change the CLI scope to `--scope project`. Keep real tokens out of version
+control. Run `claude mcp get kaiten` to check status, or `/mcp` inside Claude Code.
+See the [official Claude Code MCP guide](https://code.claude.com/docs/en/mcp).
+
+Restart your client after setup. Node.js and npx must be available in its PATH.
+Use the client's secret settings for the token where supported.
 
 npx downloads the package when needed; `--yes` lets it start without an installation
 prompt. To pin a release, use `@2chevskii/kaiten-mcp@<version>` in `args`.

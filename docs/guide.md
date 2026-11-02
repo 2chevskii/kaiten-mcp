@@ -15,6 +15,69 @@ npm --version
 
 ## 2. Configure your MCP client
 
+Choose a CLI command or configuration file below. The Codex and Claude Code
+examples install the server for your user across projects. Replace the company
+address and token, and merge entries into existing configuration files. Keep real
+tokens out of version control. Restart the client after setup.
+
+### Codex
+
+**CLI:**
+
+```sh
+codex mcp add kaiten --env KAITEN_ORIGIN=https://company.kaiten.ru --env KAITEN_TOKEN=YOUR_KAITEN_TOKEN -- npx --yes @2chevskii/kaiten-mcp
+```
+
+**Configuration file:** add to `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.kaiten]
+command = "npx"
+args = ["--yes", "@2chevskii/kaiten-mcp"]
+
+[mcp_servers.kaiten.env]
+KAITEN_ORIGIN = "https://company.kaiten.ru"
+KAITEN_TOKEN = "YOUR_KAITEN_TOKEN"
+```
+
+For one trusted project, use `.codex/config.toml` at its root instead. Run
+`codex mcp list` to check registration, or `/mcp` inside Codex for active servers.
+See the [official Codex MCP guide](https://developers.openai.com/codex/mcp/).
+
+### Claude Code
+
+**CLI:**
+
+```sh
+claude mcp add --scope user --transport stdio kaiten --env KAITEN_ORIGIN=https://company.kaiten.ru --env KAITEN_TOKEN=YOUR_KAITEN_TOKEN -- npx --yes @2chevskii/kaiten-mcp
+```
+
+**Configuration file:** merge this entry into the top-level `mcpServers` in
+`~/.claude.json`:
+
+```json
+{
+  "mcpServers": {
+    "kaiten": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["--yes", "@2chevskii/kaiten-mcp"],
+      "env": {
+        "KAITEN_ORIGIN": "https://company.kaiten.ru",
+        "KAITEN_TOKEN": "YOUR_KAITEN_TOKEN"
+      }
+    }
+  }
+}
+```
+
+For a shared project configuration, put the same JSON in `.mcp.json` at the project
+root, or use `--scope project` in the CLI command. Run `claude mcp get kaiten` to
+check status, or `/mcp` inside Claude Code. See the
+[official Claude Code MCP guide](https://code.claude.com/docs/en/mcp).
+
+### Other MCP clients
+
 For clients that accept an `mcpServers` JSON configuration, add:
 
 ```json
