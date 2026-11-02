@@ -81,7 +81,7 @@ unique names and their own environment variables.
 
 ## 3. Verify the connection
 
-Reload your client's MCP configuration and check that it discovers **44 tools**
+Reload your client's MCP configuration and check that it discovers **48 tools**
 with the `kaiten_` prefix. Ask the assistant:
 
 > Identify my Kaiten user, then list the spaces I can access.
@@ -110,8 +110,8 @@ items with their dedicated tools. Lists default to 25 items and accept at most
 
 ## Supported scope
 
-The 44 tools cover navigation, cards, comments, memberships, tags, checklists and
-existing custom properties. Property definitions, options and directories can be
+The 48 tools cover navigation, cards, external links, comments, memberships, tags,
+checklists and existing custom properties. Property definitions, options and directories can be
 read, and values can be assigned to cards.
 
 Documents, attachments, time tracking, automations, administration, SCIM,

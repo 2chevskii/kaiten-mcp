@@ -4,6 +4,7 @@ import {test} from 'node:test';
 import type {ServerResponse} from 'node:http';
 import type {CallToolResult} from '@modelcontextprotocol/client';
 import type {
+  CardExternalLinksRetrieveCardExternalLinksResponse,
   CardMembersUpdateMemberRoleResponse,
   CardsUpdateCardResponse,
 } from '@2chevskii/kaiten-client';
@@ -16,6 +17,163 @@ function errorPayload(result: CallToolResult) {
   if (content?.type !== 'text') throw new Error('Expected text error.');
   return JSON.parse(content.text) as {code: string; status?: number};
 }
+
+test('external links preserve IDs and card data, paginate and report failures', async context => {
+  const harness = await startHarness(context);
+  const link = {
+    id: 20,
+    url: 'https://example.com',
+    description: 'Reference',
+    created: '2026-11-02T00:00:00Z',
+    updated: '2026-11-02T01:00:00Z',
+    card_id: 10,
+    external_link_id: 20,
+  } satisfies CardExternalLinksRetrieveCardExternalLinksResponse[number];
+  harness.reply([]);
+  assert.deepEqual(
+    (await harness.call('list_card_external_links', {card_id: 10}))
+      .structuredContent,
+    {items: [], next_offset: null},
+  );
+  harness.reply([link, {...link, id: 21}]);
+  assert.deepEqual(
+    (await harness.call('list_card_external_links', {card_id: 10, limit: 1}))
+      .structuredContent,
+    {items: [link], next_offset: 1},
+  );
+  assert.deepEqual(
+    (
+      await harness.call('list_card_external_links', {
+        card_id: 10,
+        limit: 1,
+        offset: 1,
+      })
+    ).structuredContent,
+    {items: [{...link, id: 21}], next_offset: null},
+  );
+  assert.deepEqual(harness.requests.at(-1)?.query, {});
+  harness.reply({...cardFixture, external_links: [link]});
+  const result = await harness.call('get_card', {card_id: 10});
+  const card = (
+    result.structuredContent as {
+      item: typeof cardFixture & {external_links: unknown};
+    }
+  ).item;
+  assert.equal(card.description, cardFixture.description);
+  assert.deepEqual(card.external_links, [link]);
+  assert.deepEqual(card.members, cardFixture.members);
+  assert.deepEqual(card.tags, cardFixture.tags);
+  assert.deepEqual(card.properties, cardFixture.properties);
+  harness.reply({...link, description: null});
+  assert.deepEqual(
+    (
+      await harness.call('update_card_external_link', {
+        card_id: 10,
+        link_id: link.id,
+        changes: {description: null},
+      })
+    ).structuredContent,
+    {item: {...link, description: null}},
+  );
+  assert.deepEqual(harness.requests.at(-1)?.body, {description: null});
+  const before = harness.requests.length;
+  assert.equal(
+    (
+      await harness.call('update_card_external_link', {
+        card_id: 10,
+        link_id: 20,
+        changes: {},
+      })
+    ).isError,
+    true,
+  );
+  assert.equal(harness.requests.length, before);
+  harness.reply({message: 'secret upstream details'}, 403);
+  const failure = await harness.call('remove_card_external_link', {
+    card_id: 10,
+    link_id: 20,
+  });
+  assert.equal(failure.isError, true);
+  assert.doesNotMatch(JSON.stringify(failure), /secret upstream details/);
+});
+
+test('external link creation IDs can be reused and edits preserve optional fields', async context => {
+  const harness = await startHarness(context);
+  const link = {id: 20, url: 'https://example.com', description: null};
+  harness.reply(link);
+  const created = await harness.call('add_card_external_link', {
+    card_id: 10,
+    url: link.url,
+  });
+  assert.deepEqual(created.structuredContent, {item: link});
+  assert.deepEqual(harness.requests.at(-1)?.body, {url: link.url});
+  const {item} = created.structuredContent as {item: {id: number}};
+  const changes = {url: 'https://example.org', description: ''};
+  harness.reply({...link, ...changes});
+  assert.deepEqual(
+    (
+      await harness.call('update_card_external_link', {
+        card_id: 10,
+        link_id: item.id,
+        changes,
+      })
+    ).structuredContent,
+    {item: {...link, ...changes}},
+  );
+  assert.equal(
+    harness.requests.at(-1)?.path,
+    '/api/v1/cards/10/external-links/20',
+  );
+  assert.deepEqual(harness.requests.at(-1)?.body, changes);
+  harness.reply({id: item.id});
+  assert.deepEqual(
+    (
+      await harness.call('remove_card_external_link', {
+        card_id: 10,
+        link_id: item.id,
+      })
+    ).structuredContent,
+    {item: {id: item.id}},
+  );
+  assert.equal(
+    harness.requests.at(-1)?.path,
+    '/api/v1/cards/10/external-links/20',
+  );
+  assert.equal(harness.requests.at(-1)?.body, undefined);
+});
+
+test('external link inputs enforce API URL and description constraints before HTTP', async context => {
+  const harness = await startHarness(context);
+  for (const field of [
+    {url: ''},
+    {url: 'not a URL'},
+    {url: `https://example.com/${'a'.repeat(16_384)}`},
+    {url: 'https://example.com', description: 'a'.repeat(513)},
+    {url: 'https://example.com', description: 1},
+  ]) {
+    for (const [name, args] of [
+      ['add_card_external_link', {card_id: 10, ...field}],
+      ['update_card_external_link', {card_id: 10, link_id: 20, changes: field}],
+    ] as const) {
+      assert.equal((await harness.call(name, args)).isError, true);
+    }
+  }
+  assert.equal(harness.requests.length, 0);
+  const url = `https://example.com/${'a'.repeat(16_384 - 20)}`;
+  assert.equal(url.length, 16_384);
+  const description = 'a'.repeat(512);
+  harness.reply({id: 20, url, description});
+  assert.notEqual(
+    (
+      await harness.call('add_card_external_link', {
+        card_id: 10,
+        url,
+        description,
+      })
+    ).isError,
+    true,
+  );
+});
 
 test('root and child columns retain nullable parent IDs in all location projections', async context => {
   const harness = await startHarness(context);

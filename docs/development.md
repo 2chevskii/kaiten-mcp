@@ -80,7 +80,7 @@ and presentation focused. Repository conventions are in the root `AGENTS.md`.
 
 Protocol tests launch the compiled CLI from a different working directory and
 connect the official MCP client. Calls go through the installed Kaiten library
-to a local HTTP server. The suite covers all 44 tool contracts, a stateful card
+to a local HTTP server. The suite covers all 48 tool contracts, a stateful card
 workflow, pagination, input validation, nullable response fields, sanitized
 failures, cancellation and shutdown.
 
