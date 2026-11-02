@@ -94,6 +94,12 @@ expanded calendar regexes. Runtime validation still uses Zod's ISO validators:
 dates must exist in the calendar, and date-times require `Z` or a timezone offset.
 The same validation applies to card deadlines, search filters and checklist items.
 
+IDs advertise positive integers without repeating JavaScript's maximum safe
+integer in each field. Runtime validation still rejects zero, negative,
+fractional and unsafe IDs, including array elements. UUID inputs advertise the
+`uuid` string format without an expanded regex; Zod's UUID validation still
+checks the accepted versions, variants and special nil/max UUIDs before HTTP.
+
 | Path                                    | Responsibility                                                                |
 | --------------------------------------- | ----------------------------------------------------------------------------- |
 | `src/cli.ts`                            | Stdio transport, startup failure handling and shutdown                        |

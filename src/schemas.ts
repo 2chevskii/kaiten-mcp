@@ -1,6 +1,11 @@
 import * as z from 'zod/v4';
 
-export const id = z.number().int().positive().max(Number.MAX_SAFE_INTEGER);
+// Advertise the integer contract without repeating JS's numeric bounds.
+export const id = z
+  .number()
+  .positive()
+  .refine(Number.isSafeInteger, 'Expected a safe integer ID.')
+  .meta({type: 'integer'});
 export const text = z.string().min(1);
 export const pageFields = {
   limit: z.number().int().min(1).max(100).default(25),
@@ -8,6 +13,11 @@ export const pageFields = {
 };
 export const pageInput = z.strictObject(pageFields);
 export const cardInput = z.strictObject({card_id: id});
+const uuidValidator = z.uuid();
+export const uuid = z
+  .string()
+  .refine(value => uuidValidator.safeParse(value).success, 'Expected a UUID.')
+  .meta({format: 'uuid'});
 const isoDate = z.iso.date();
 const isoDateTime = z.iso.datetime({offset: true});
 
