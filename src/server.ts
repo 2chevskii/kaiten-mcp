@@ -9,6 +9,7 @@ import {registerCardWrite} from './tools/card-write.ts';
 import {registerComments} from './tools/comments.ts';
 import {registerCardExternalLinks} from './tools/card-external-links.ts';
 import {registerCardRelations} from './tools/card-relations.ts';
+import {registerCardChildren} from './tools/card-children.ts';
 import {registerChecklists} from './tools/checklists.ts';
 import {registerCustomProperties} from './tools/custom-properties.ts';
 
@@ -36,6 +37,7 @@ export function createServer(
   registerComments(registry);
   registerCardExternalLinks(registry);
   registerCardRelations(registry);
+  registerCardChildren(registry);
   registerChecklists(registry);
   registerCustomProperties(registry);
   return {server};

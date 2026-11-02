@@ -14,7 +14,7 @@ your API token. Each server connection uses one Kaiten company and one token.
 
 ## What you can do
 
-The server provides 48 tools covering everyday work with cards:
+The server provides 51 tools covering everyday work with cards:
 
 - **Find your way around:** browse spaces, boards, columns and lanes; look up
   users, card types and tags.
@@ -23,6 +23,8 @@ The server provides 48 tools covering everyday work with cards:
 - **Keep the conversation together:** read and manage comments, card members and
   tags.
 - **Manage reference URLs:** list, add, edit and remove native card external links.
+- **Organize card hierarchies:** inspect parent and child cards, and link or
+  unlink existing child cards.
 - **Track smaller tasks:** create checklists, add items, assign responsibility and
   mark items complete.
 - **Use custom fields:** inspect existing property definitions, options and
