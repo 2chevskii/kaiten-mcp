@@ -129,7 +129,7 @@ an additional read; fields absent in that response stay absent.
 | `kaiten_update_card_external_link` | `card_id`, `link_id`, `changes` (`url?`, `description?`) | Updated link                |
 | `kaiten_remove_card_external_link` | `card_id`, `link_id`                                     | Removed link ID             |
 
-Set `description` to `null` to clear it. Update requires at least one change.
+URLs must be valid absolute URLs of at most 16,384 characters. Descriptions allow up to 512 characters; set `description` to `null` to clear it. Update requires at least one change.
 
 | Tool                             | Arguments                       | Behavior                                                          |
 | -------------------------------- | ------------------------------- | ----------------------------------------------------------------- |

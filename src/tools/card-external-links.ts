@@ -1,8 +1,11 @@
 import * as z from 'zod/v4';
-import {defined, hasChanges, id, pageFields, text} from '../schemas.ts';
+import {defined, hasChanges, id, pageFields} from '../schemas.ts';
 import {entityResult, offsetPage, pageResult} from '../results.ts';
 import {change, create, read, type ToolRegistry} from '../tool-registry.ts';
 import {externalLinkView, identityView} from '../views.ts';
+
+const linkUrl = z.url().max(16_384);
+const linkDescription = z.string().max(512).nullable().optional();
 
 export function registerCardExternalLinks(registry: ToolRegistry): void {
   const {client} = registry;
@@ -27,8 +30,8 @@ export function registerCardExternalLinks(registry: ToolRegistry): void {
     'Add a native external link to a card.',
     z.strictObject({
       card_id: id,
-      url: text,
-      description: z.string().nullable().optional(),
+      url: linkUrl,
+      description: linkDescription,
     }),
     entityResult(externalLinkView),
     create,
@@ -49,8 +52,8 @@ export function registerCardExternalLinks(registry: ToolRegistry): void {
       link_id: id,
       changes: z
         .strictObject({
-          url: text.optional(),
-          description: z.string().nullable().optional(),
+          url: linkUrl.optional(),
+          description: linkDescription,
         })
         .refine(hasChanges, 'Supply at least one change.'),
     }),
