@@ -18,6 +18,36 @@ export const directoryId = '12345678-1234-4234-8234-123456789abc';
 
 export const toolCases: ToolCase[] = [
   {
+    name: 'list_card_external_links',
+    args: card,
+    method: 'GET',
+    path: '/cards/10/external-links',
+    response: [{id: 20, url: 'https://example.com', description: 'Reference'}],
+  },
+  {
+    name: 'add_card_external_link',
+    args: {...card, url: 'https://example.com', description: 'Reference'},
+    method: 'POST',
+    path: '/cards/10/external-links',
+    body: {url: 'https://example.com', description: 'Reference'},
+    response: {id: 20, url: 'https://example.com', description: 'Reference'},
+  },
+  {
+    name: 'update_card_external_link',
+    args: {...card, link_id: 20, changes: {description: 'New'}},
+    method: 'PATCH',
+    path: '/cards/10/external-links/20',
+    body: {description: 'New'},
+    response: {id: 20, url: 'https://example.com', description: 'New'},
+  },
+  {
+    name: 'remove_card_external_link',
+    args: {...card, link_id: 20},
+    method: 'DELETE',
+    path: '/cards/10/external-links/20',
+    response: {id: 20},
+  },
+  {
     name: 'list_spaces',
     args: {},
     method: 'GET',

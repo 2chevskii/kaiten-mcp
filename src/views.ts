@@ -68,6 +68,14 @@ export const checklistItemView = identityView.extend({
 export const checklistDetails = checklistView.extend({
   items: z.array(checklistItemView),
 });
+export const externalLinkView = identityView.extend({
+  url: z.string(),
+  description: z.string().nullable().optional(),
+  created: z.string().optional(),
+  updated: z.string().optional(),
+  card_id: z.number().optional(),
+  external_link_id: z.number().optional(),
+});
 export const cardDetails = cardSummary.extend({
   description: z.string().nullable().optional(),
   asap: z.boolean().optional(),
@@ -81,6 +89,7 @@ export const cardDetails = cardSummary.extend({
   tags: z.array(tagView).optional(),
   properties: z.record(z.string(), z.json()).nullable().optional(),
   checklists: z.array(checklistView).optional(),
+  external_links: z.array(externalLinkView).optional(),
 });
 export const commentView = identityView.extend({
   text: z.string().optional(),

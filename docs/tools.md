@@ -1,7 +1,9 @@
 # Tool reference
 
-The server exposes 44 tools. Use [workflows](./workflows.md) for step-by-step
+The server exposes 48 tools. Use [workflows](./workflows.md) for step-by-step
 examples and [troubleshooting](./troubleshooting.md) for operational failures.
+
+Native external links are distinct from custom properties. Use `kaiten_list_card_external_links`, `kaiten_add_card_external_link`, `kaiten_update_card_external_link`, and `kaiten_remove_card_external_link` to manage them. Listing is paginated locally. Use the returned link ID for updates and removal. Card details include links when supplied by Kaiten.
 
 All names below have the `kaiten_` prefix. Arguments use `snake_case`.
 Numeric IDs are positive safe integers; directory IDs are UUID strings.
@@ -119,6 +121,15 @@ an additional read; fields absent in that response stay absent.
 ```
 
 ## Comments, memberships and tags
+
+| External link tool                 | Arguments                                                | Result                      |
+| ---------------------------------- | -------------------------------------------------------- | --------------------------- |
+| `kaiten_list_card_external_links`  | `card_id`, `limit?`, `offset?`                           | Link list and `next_offset` |
+| `kaiten_add_card_external_link`    | `card_id`, `url`, `description?`                         | Created link                |
+| `kaiten_update_card_external_link` | `card_id`, `link_id`, `changes` (`url?`, `description?`) | Updated link                |
+| `kaiten_remove_card_external_link` | `card_id`, `link_id`                                     | Removed link ID             |
+
+Set `description` to `null` to clear it. Update requires at least one change.
 
 | Tool                             | Arguments                       | Behavior                                                          |
 | -------------------------------- | ------------------------------- | ----------------------------------------------------------------- |
