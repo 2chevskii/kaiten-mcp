@@ -1,54 +1,43 @@
 # Kaiten MCP
 
-Kaiten MCP connects your AI assistant to your Kaiten workspace. It lets the
-assistant find cards, read their context, and make changes through tools exposed
-over the Model Context Protocol (MCP).
+**Your AI assistant, connected to Kaiten.**
 
-The server runs locally on your computer. Your MCP client starts it when needed
-and communicates with it over stdio; the server sends requests to Kaiten using
-your API token. Each server connection uses one Kaiten company and one token.
+[![npm version](https://img.shields.io/npm/v/@2chevskii/kaiten-mcp?style=flat-square)](https://www.npmjs.com/package/@2chevskii/kaiten-mcp)
+[![CI](https://github.com/2chevskii/kaiten-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/2chevskii/kaiten-mcp/actions/workflows/ci.yml)
+![Node.js 24+](https://img.shields.io/badge/Node.js-24%2B-3c873a?style=flat-square)
 
-[English documentation](https://2chevskii.github.io/kaiten-mcp/) ·
-[Документация на русском](https://2chevskii.github.io/kaiten-mcp/ru/) ·
-[npm package](https://www.npmjs.com/package/@2chevskii/kaiten-mcp)
+Find cards, understand what's blocking them, and keep work moving without leaving
+your assistant. Kaiten MCP runs locally and gives your MCP client **51 tools** for
+working with your Kaiten company through its API.
+
+[Get started](#get-started) ·
+[Documentation](https://2chevskii.github.io/kaiten-mcp/) ·
+[Документация на русском](https://2chevskii.github.io/kaiten-mcp/ru/)
 
 ## What you can do
 
-The server provides 51 tools covering everyday work with cards:
+- **Find your work:** browse spaces and boards; search cards by owner, member,
+  responsible user, deadline, tag or state.
+- **Get the context:** read card descriptions, comments, checklists, external
+  links, and parent and child card references.
+- **Keep cards moving:** create, edit, move, archive, restore or delete cards;
+  manage comments, members, tags and external links.
+- **Break down tasks:** create checklists, assign items, mark them complete, and
+  link existing cards as children.
+- **Use custom fields:** discover existing properties, options and directory
+  records, then assign values to cards.
 
-- **Find your way around:** browse spaces, boards, columns and lanes; look up
-  users, card types and tags.
-- **Work with cards:** search and read cards, create new ones, update descriptions
-  and deadlines, move cards, and archive, restore or delete them.
-- **Keep the conversation together:** read and manage comments, card members and
-  tags.
-- **Manage reference URLs:** list, add, edit and remove native card external links.
-- **Organize card hierarchies:** inspect parent and child cards, and link or
-  unlink existing child cards.
-- **Track smaller tasks:** create checklists, add items, assign responsibility and
-  mark items complete.
-- **Use custom fields:** inspect existing property definitions, options and
-  directories, and set property values on cards.
-
-Once connected, try asking your assistant to:
-
-> Find overdue cards assigned to me on the Support board.
->
-> Read this card and its comments, then summarize what is blocking it.
->
-> Create a card for the release checklist and add these three tasks.
-
-The assistant uses the available tools to carry out these requests. Changes made
-through the server affect your Kaiten workspace immediately, with the permissions
-of the supplied token. Review proposed changes in your MCP client before approving
-them.
+See the [tool reference](https://2chevskii.github.io/kaiten-mcp/tools) for the full
+list of tools and supported fields.
 
 ## Get started
 
-You need **Node.js 24 or newer**, a Kaiten API token, and an MCP client that can
-launch a local stdio server.
+You need **Node.js 24 or newer**, a **Kaiten API token**, and an **MCP client that
+can launch a local stdio server**.
 
-For clients that use an `mcpServers` JSON configuration, add:
+### 1. Add the server
+
+For clients that accept an `mcpServers` JSON configuration, add this entry:
 
 ```json
 {
@@ -65,89 +54,78 @@ For clients that use an `mcpServers` JSON configuration, add:
 }
 ```
 
-npx downloads the package into npm's cache when needed. `--yes` suppresses the
-installation prompt. Replace the company address and token, reload your client's
-configuration, and ask it to list your Kaiten spaces. Node.js and npx must be
-available in the client's PATH. Use dedicated secret settings for the token
-where supported.
+Replace the company address and token, then reload your client's MCP configuration.
+Use the client's secret settings for the token where supported. Node.js and npx
+must be available in the client's PATH.
 
-To use `npm exec`, keep the same environment and replace the launch settings:
+npx downloads the package when needed; `--yes` lets it start without an installation
+prompt. To pin a release, use `@2chevskii/kaiten-mcp@<version>` in `args`.
 
-```json
-{
-  "command": "npm",
-  "args": [
-    "exec",
-    "--yes",
-    "--package=@2chevskii/kaiten-mcp",
-    "--",
-    "kaiten-mcp"
-  ]
-}
-```
+### 2. Check the connection
 
-For a fixed release, append `@<version>` to the package name. See the
-[setup guide](https://2chevskii.github.io/kaiten-mcp/guide) for configuration
-and connection checks.
+Your client should discover 51 tools with the `kaiten_` prefix. Ask your assistant:
+
+> Identify my Kaiten user, then list the spaces I can access.
+
+This verifies access to Kaiten with your token. For launch alternatives and setup
+details, see the [setup guide](https://2chevskii.github.io/kaiten-mcp/guide).
+If the server won't connect, start with
+[troubleshooting](https://2chevskii.github.io/kaiten-mcp/troubleshooting).
+
+## Try a task
+
+Once connected, ask your assistant:
+
+- "Find my overdue cards on the Support board."
+- "Read this card, its comments and checklists, then summarize what's blocking it."
+- "Create a release card on the Delivery board and add a checklist for testing,
+  documentation and rollout."
+
+The [workflow guide](https://2chevskii.github.io/kaiten-mcp/workflows) shows how
+these requests translate into tool calls.
+
+<!-- eslint-disable markdown/no-missing-label-refs -- GitHub alert syntax. -->
+
+> [!IMPORTANT]
+> Tools apply changes immediately using your token's permissions. Your MCP client
+> controls approval of tool calls. Requests are not automatically retried; after a
+> write times out, check the affected card before repeating it.
+
+<!-- eslint-enable markdown/no-missing-label-refs -->
 
 ## Configuration
 
-| Variable            | Required | Description                                                                                                            |
-| ------------------- | -------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `KAITEN_ORIGIN`     | Yes      | Your company origin, such as `https://company.kaiten.ru`. Supply the origin only, without an API path or query string. |
-| `KAITEN_TOKEN`      | Yes      | The Kaiten API token used for all requests.                                                                            |
-| `KAITEN_TIMEOUT_MS` | No       | Timeout for each tool operation, in milliseconds. Defaults to `30000`; accepts integers from `1` to `2147483647`.      |
+| Variable            | Required | Description                                                                                     |
+| ------------------- | -------- | ----------------------------------------------------------------------------------------------- |
+| `KAITEN_ORIGIN`     | Yes      | Company origin, such as `https://company.kaiten.ru`, without an API path, query or fragment.    |
+| `KAITEN_TOKEN`      | Yes      | Kaiten API token used for all requests.                                                         |
+| `KAITEN_TIMEOUT_MS` | No       | Timeout per tool operation in milliseconds. Default: `30000`. Integer from `1` to `2147483647`. |
 
-To connect to several Kaiten companies, add a separate server entry for each,
-with its own name and environment settings.
+Each server entry connects to one company with one token. Add separate entries
+with unique names to connect to several companies.
 
-## How it behaves
+The server communicates over **stdio**. Your MCP client starts the process and
+sends it tool calls; diagnostics go to stderr. Running it in a terminal may look
+idle while it waits for MCP input.
 
-Search and list tools return compact results with pagination. Individual read
-tools provide the full requested description, comment or checklist item text.
-Your assistant can follow the returned cursor or offset to load more results.
-
-The server validates tool arguments before sending requests. Cancelling a tool
-call cancels its pending HTTP request. Failed requests are not automatically
-retried; if a write times out, check the card before repeating the change.
-
-Diagnostics go to stderr, leaving stdout for the MCP protocol. The process stops
-when the client closes its input stream or sends a termination signal. Starting
-it in a terminal can appear idle because it is waiting for an MCP connection.
-
-This release focuses on cards and their related data. Documents, file attachments,
-time tracking, automation management, administration, SCIM and webhooks are outside
-its scope. The server supports stdio transport and exposes tools; it does not
-provide an HTTP endpoint, MCP resources or prompts.
-
-See the [tool reference](https://2chevskii.github.io/kaiten-mcp/tools) for all tool
-names, arguments and response fields, or the
-[setup guide](https://2chevskii.github.io/kaiten-mcp/guide) for more detail.
+This version focuses on cards and related data. Documents, attachments, time
+tracking, automation, administration, webhooks, and editing custom-field
+definitions or directories are outside its scope.
 
 ## Development
 
-From a checkout of this repository:
+From a checkout, install dependencies and run all checks:
 
 ```sh
 npm ci
 npm run check
 ```
 
-`check` builds the server, checks test types, runs protocol tests, checks lint and
-formatting, and builds the English and Russian documentation. The tests use the
-real client library against a local HTTP fixture; they do not access your Kaiten
-company.
+The checks build the server, check types, run tests, lint and formatting checks,
+and build both documentation languages. Tests use the real Kaiten client library
+against a local HTTP fixture.
 
-Use `npm run build:watch` while editing the server and `npm run docs:dev` to preview
-the documentation. The server is built on
-[`@2chevskii/kaiten-client`](https://github.com/2chevskii/kaiten-client), pinned to
-version `1.0.3` from npm.
-
-PR and `edge` packages are available through GitHub Packages. Stable packages use
-the `latest` tag in npm and GitHub Packages. See the
-[release guide](https://2chevskii.github.io/kaiten-mcp/releasing) for the CI/CD
-workflow and publishing process.
-
-## License
-
-[MIT](https://github.com/2chevskii/kaiten-mcp/blob/master/LICENSE).
+See the [development guide](https://2chevskii.github.io/kaiten-mcp/development) for
+the project structure and local workflow, and the
+[release guide](https://2chevskii.github.io/kaiten-mcp/releasing) for package channels
+and publishing.
