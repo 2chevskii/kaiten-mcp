@@ -1,12 +1,19 @@
 import {defineConfig} from 'vitepress';
+import {fileURLToPath} from 'node:url';
 
 const repository = 'https://github.com/2chevskii/kaiten-mcp';
+const base = process.env.VITEPRESS_BASE ?? '/';
 
 export default defineConfig({
   title: 'Kaiten MCP',
   description: 'Connect your AI assistant to Kaiten cards and workflows.',
-  base: process.env.VITEPRESS_BASE ?? '/',
+  base,
   cleanUrls: true,
+  appearance: 'dark',
+  head: [['link', {rel: 'icon', type: 'image/png', href: `${base}icon.png`}]],
+  vite: {
+    publicDir: fileURLToPath(new URL('../../assets', import.meta.url)),
+  },
   locales: {
     root: {
       label: 'English',
@@ -89,6 +96,7 @@ export default defineConfig({
     },
   },
   themeConfig: {
+    logo: '/icon.png',
     socialLinks: [{icon: 'github', link: repository}],
     search: {
       provider: 'local',

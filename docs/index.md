@@ -5,6 +5,9 @@ hero:
   name: Kaiten MCP
   text: Your assistant, connected to Kaiten
   tagline: Find cards, read their context, and manage everyday work through 51 MCP tools. Runs locally with your company's API token.
+  image:
+    src: /kaiten-mcp-artwork.png
+    alt: Kaiten and Model Context Protocol marks connected
   actions:
     - theme: brand
       text: Get started

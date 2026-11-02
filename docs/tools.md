@@ -3,8 +3,6 @@
 The server exposes 51 tools. Use [workflows](./workflows.md) for step-by-step
 examples and [troubleshooting](./troubleshooting.md) for operational failures.
 
-Native external links are distinct from custom properties. Use `kaiten_list_card_external_links`, `kaiten_add_card_external_link`, `kaiten_update_card_external_link`, and `kaiten_remove_card_external_link` to manage them. Listing is paginated locally. Use the returned link ID for updates and removal. Card details include links when supplied by Kaiten.
-
 All names below have the `kaiten_` prefix. Arguments use `snake_case`.
 Numeric IDs are positive safe integers; directory IDs are UUID strings.
 `?` marks an optional argument. Unknown arguments are rejected.
@@ -139,7 +137,11 @@ list/add tool or by `get_card`, not a relationship ID. The
 [removal endpoint](https://developers.kaiten.ru/card-children/remove-children)
 maps these arguments to `/cards/{parent_card_id}/children/{child_card_id}`.
 
-## Comments, memberships and tags
+## External links
+
+Native external links are distinct from custom properties. Listing is paginated
+locally. Use the returned link ID for updates and removal. Card details include
+links when supplied by Kaiten.
 
 | External link tool                 | Arguments                                                | Result                      |
 | ---------------------------------- | -------------------------------------------------------- | --------------------------- |
@@ -149,6 +151,8 @@ maps these arguments to `/cards/{parent_card_id}/children/{child_card_id}`.
 | `kaiten_remove_card_external_link` | `card_id`, `link_id`                                     | Removed link ID             |
 
 URLs must be valid absolute URLs of at most 16,384 characters. Descriptions allow up to 512 characters; set `description` to `null` to clear it. Update requires at least one change.
+
+## Comments, memberships and tags
 
 | Tool                             | Arguments                       | Behavior                                                          |
 | -------------------------------- | ------------------------------- | ----------------------------------------------------------------- |
