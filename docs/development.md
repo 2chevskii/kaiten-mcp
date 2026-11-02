@@ -89,6 +89,11 @@ client and MCP server, and serves stdio. Tool registration supplies strict input
 schemas and output projections. Each tool uses the real Kaiten client; the
 registry validates the result and returns structured JSON with equivalent text.
 
+Date inputs advertise compact `date` / `date-time` string formats rather than
+expanded calendar regexes. Runtime validation still uses Zod's ISO validators:
+dates must exist in the calendar, and date-times require `Z` or a timezone offset.
+The same validation applies to card deadlines, search filters and checklist items.
+
 | Path                                    | Responsibility                                                                |
 | --------------------------------------- | ----------------------------------------------------------------------------- |
 | `src/cli.ts`                            | Stdio transport, startup failure handling and shutdown                        |

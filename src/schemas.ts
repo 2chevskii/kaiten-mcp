@@ -8,7 +8,23 @@ export const pageFields = {
 };
 export const pageInput = z.strictObject(pageFields);
 export const cardInput = z.strictObject({card_id: id});
-export const dateTime = z.union([z.iso.date(), z.iso.datetime({offset: true})]);
+const isoDate = z.iso.date();
+const isoDateTime = z.iso.datetime({offset: true});
+
+// Keep calendar validation at runtime without advertising Zod's large regexes.
+export const dateTime = z.union([
+  z
+    .string()
+    .refine(value => isoDate.safeParse(value).success, 'Expected an ISO date.')
+    .meta({format: 'date'}),
+  z
+    .string()
+    .refine(
+      value => isoDateTime.safeParse(value).success,
+      'Expected an ISO date-time with a timezone.',
+    )
+    .meta({format: 'date-time'}),
+]);
 export const properties = z.record(z.string().regex(/^id_[1-9]\d*$/), z.json());
 
 export function hasChanges(value: object): boolean {
