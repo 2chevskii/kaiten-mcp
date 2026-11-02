@@ -1,6 +1,6 @@
 # Tool reference
 
-The server exposes 48 tools. Use [workflows](./workflows.md) for step-by-step
+The server exposes 51 tools. Use [workflows](./workflows.md) for step-by-step
 examples and [troubleshooting](./troubleshooting.md) for operational failures.
 
 Native external links are distinct from custom properties. Use `kaiten_list_card_external_links`, `kaiten_add_card_external_link`, `kaiten_update_card_external_link`, and `kaiten_remove_card_external_link` to manage them. Listing is paginated locally. Use the returned link ID for updates and removal. Card details include links when supplied by Kaiten.
@@ -105,7 +105,7 @@ are documented in [Kaiten's API reference](https://developers.kaiten.ru/cards/re
 Summaries include ID, title, location, state, condition, archive flag, due date,
 owner ID and update time when present. Details additionally include the full
 description, priority, size, type, location names, owner, memberships, tags,
-properties and checklist references. Comments and checklist item content use
+properties, parent and child card references and checklist references. Comments and checklist item content use
 separate tools. Mutation results project fields from the write response without
 an additional read; fields absent in that response stay absent.
 
@@ -119,6 +119,25 @@ an additional read; fields absent in that response stay absent.
   }
 }
 ```
+
+## Parent and child cards
+
+`kaiten_get_card` includes `parents` and `children` when returned by Kaiten.
+Each reference contains the card ID, title, location and available summary fields.
+Empty arrays mean no relationships; absent fields remain absent.
+
+| Tool                        | Arguments                         | Result                                 |
+| --------------------------- | --------------------------------- | -------------------------------------- |
+| `kaiten_list_card_children` | `parent_card_id`, `page`          | Child card summaries; local pagination |
+| `kaiten_add_card_child`     | `parent_card_id`, `child_card_id` | Linked child card summary              |
+| `kaiten_remove_card_child`  | `parent_card_id`, `child_card_id` | ID confirmed by Kaiten                 |
+
+`parent_card_id` identifies the parent; `child_card_id` identifies an existing
+child card. Adding a link does not create a card. Removing a link does not delete
+either card or remove other relationships. Use the child's `id` returned by the
+list/add tool or by `get_card`, not a relationship ID. The
+[removal endpoint](https://developers.kaiten.ru/card-children/remove-children)
+maps these arguments to `/cards/{parent_card_id}/children/{child_card_id}`.
 
 ## Comments, memberships and tags
 

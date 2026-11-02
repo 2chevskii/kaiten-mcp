@@ -90,6 +90,8 @@ export const cardDetails = cardSummary.extend({
   properties: z.record(z.string(), z.json()).nullable().optional(),
   checklists: z.array(checklistView).optional(),
   external_links: z.array(externalLinkView).optional(),
+  parents: z.array(cardSummary).optional(),
+  children: z.array(cardSummary).optional(),
 });
 export const commentView = identityView.extend({
   text: z.string().optional(),

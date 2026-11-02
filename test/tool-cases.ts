@@ -48,6 +48,28 @@ export const toolCases: ToolCase[] = [
     response: {id: 20},
   },
   {
+    name: 'list_card_children',
+    args: {parent_card_id: 10},
+    method: 'GET',
+    path: '/cards/10/children',
+    response: [{...cardFixture, id: 20}],
+  },
+  {
+    name: 'add_card_child',
+    args: {parent_card_id: 10, child_card_id: 20},
+    method: 'POST',
+    path: '/cards/10/children',
+    body: {card_id: 20},
+    response: {...cardFixture, id: 20},
+  },
+  {
+    name: 'remove_card_child',
+    args: {parent_card_id: 10, child_card_id: 20},
+    method: 'DELETE',
+    path: '/cards/10/children/20',
+    response: {id: 20},
+  },
+  {
     name: 'list_spaces',
     args: {},
     method: 'GET',

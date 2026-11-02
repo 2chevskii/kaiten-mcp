@@ -68,7 +68,7 @@ export function registerCardRead(registry: ToolRegistry): void {
   );
   registry.add(
     'get_card',
-    'Get a card with its full description, members, tags, properties, external links and checklist references when available. Read comments and checklist items with their dedicated tools.',
+    'Get a card with its full description, members, tags, properties, external links, parent and child card references and checklist references when available. Read comments and checklist items with their dedicated tools.',
     cardInput,
     entityResult(cardDetails),
     read,
