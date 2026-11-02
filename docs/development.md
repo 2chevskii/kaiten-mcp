@@ -100,6 +100,10 @@ fractional and unsafe IDs, including array elements. UUID inputs advertise the
 `uuid` string format without an expanded regex; Zod's UUID validation still
 checks the accepted versions, variants and special nil/max UUIDs before HTTP.
 
+Pagination offsets advertise nonnegative integers with a default of zero,
+without repeating the maximum safe integer. Runtime validation still rejects
+negative, fractional and unsafe offsets; page limits remain bounded to 1–100.
+
 | Path                                    | Responsibility                                                                |
 | --------------------------------------- | ----------------------------------------------------------------------------- |
 | `src/cli.ts`                            | Stdio transport, startup failure handling and shutdown                        |

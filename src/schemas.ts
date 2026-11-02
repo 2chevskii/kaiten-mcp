@@ -9,7 +9,12 @@ export const id = z
 export const text = z.string().min(1);
 export const pageFields = {
   limit: z.number().int().min(1).max(100).default(25),
-  offset: z.number().int().min(0).max(Number.MAX_SAFE_INTEGER).default(0),
+  offset: z
+    .number()
+    .nonnegative()
+    .refine(Number.isSafeInteger, 'Expected a safe integer offset.')
+    .meta({type: 'integer'})
+    .default(0),
 };
 export const pageInput = z.strictObject(pageFields);
 export const cardInput = z.strictObject({card_id: id});
