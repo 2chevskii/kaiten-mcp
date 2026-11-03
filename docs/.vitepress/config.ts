@@ -20,15 +20,15 @@ export default defineConfig({
       lang: 'en',
       themeConfig: {
         nav: [
-          {text: 'Get started', link: '/guide'},
+          {text: 'Guide', link: '/guide'},
           {text: 'Workflows', link: '/workflows'},
           {text: 'Tools', link: '/tools'},
         ],
         sidebar: [
           {
-            text: 'Using Kaiten MCP',
+            text: 'Guide',
             items: [
-              {text: 'Setup', link: '/guide'},
+              {text: 'Installation', link: '/guide'},
               {text: 'Workflows', link: '/workflows'},
               {text: 'Tool reference', link: '/tools'},
               {text: 'Troubleshooting', link: '/troubleshooting'},
@@ -57,15 +57,15 @@ export default defineConfig({
         'Подключите AI-ассистента к карточкам и рабочим процессам Kaiten.',
       themeConfig: {
         nav: [
-          {text: 'Начать работу', link: '/ru/guide'},
+          {text: 'Руководство', link: '/ru/guide'},
           {text: 'Сценарии', link: '/ru/workflows'},
           {text: 'Инструменты', link: '/ru/tools'},
         ],
         sidebar: [
           {
-            text: 'Работа с Kaiten MCP',
+            text: 'Руководство',
             items: [
-              {text: 'Подключение', link: '/ru/guide'},
+              {text: 'Установка', link: '/ru/guide'},
               {text: 'Сценарии', link: '/ru/workflows'},
               {text: 'Справочник инструментов', link: '/ru/tools'},
               {text: 'Решение проблем', link: '/ru/troubleshooting'},

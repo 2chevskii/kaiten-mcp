@@ -1,4 +1,4 @@
-# Setup
+# Installation
 
 Kaiten MCP connects an MCP client to one Kaiten company over stdio. You need
 Node.js 24 or newer, a Kaiten API token, and a client that can launch a local MCP
