@@ -4,16 +4,17 @@
 
 **Your AI assistant, connected to Kaiten.**
 
-[![npm version](https://img.shields.io/npm/v/@2chevskii/kaiten-mcp?style=flat-square)](https://www.npmjs.com/package/@2chevskii/kaiten-mcp)
+[![npm version](https://img.shields.io/npm/v/@2chevskii/kaiten-mcp)][npmjs-page]
 [![CI](https://github.com/2chevskii/kaiten-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/2chevskii/kaiten-mcp/actions/workflows/ci.yml)
-![Node.js 24+](https://img.shields.io/badge/Node.js-24%2B-3c873a?style=flat-square)
+![Node.js 24+](https://img.shields.io/badge/Node.js-24%2B-339933?logo=node.js&logoColor=white)
+![GitHub License](https://img.shields.io/github/license/2chevskii/kaiten-mcp)
 
 Find cards, understand what's blocking them, and keep work moving without leaving
 your assistant. Kaiten MCP runs locally and gives your MCP client **51 tools** for
 working with your Kaiten company through its API.
 
-[Get started](#get-started) ·
-[Documentation](https://2chevskii.github.io/kaiten-mcp/)
+[Read the documentation][docs] ·
+[Kaiten MCP on NPM][npmjs-page]
 
 ## What you can do
 
@@ -28,7 +29,7 @@ working with your Kaiten company through its API.
 - **Use custom fields:** discover existing properties, options and directory
   records, then assign values to cards.
 
-See the [tool reference](https://2chevskii.github.io/kaiten-mcp/tools) for the full
+See the [tool reference][tool-reference] for the full
 list of tools and supported fields.
 
 ## Get started
@@ -40,7 +41,7 @@ can launch a local stdio server**.
 
 Run the command for your client, replacing the company address and token. These
 commands configure Kaiten for your user across projects. For configuration-file
-examples, see the [setup guide](https://2chevskii.github.io/kaiten-mcp/guide).
+examples, see the [setup guide][setup-guide].
 
 #### Codex
 
@@ -64,9 +65,9 @@ Your client should discover 51 tools with the `kaiten_` prefix. Ask your assista
 > Identify my Kaiten user, then list the spaces I can access.
 
 This verifies access to Kaiten with your token. For launch alternatives and setup
-details, see the [setup guide](https://2chevskii.github.io/kaiten-mcp/guide).
+details, see the [setup guide][setup-guide].
 If the server won't connect, start with
-[troubleshooting](https://2chevskii.github.io/kaiten-mcp/troubleshooting).
+[troubleshooting][troubleshooting].
 
 ## Try a task
 
@@ -77,7 +78,7 @@ Once connected, ask your assistant:
 - "Create a release card on the Delivery board and add a checklist for testing,
   documentation and rollout."
 
-The [workflow guide](https://2chevskii.github.io/kaiten-mcp/workflows) shows how
+The [workflow guide][workflows] shows how
 these requests translate into tool calls.
 
 <!-- eslint-disable markdown/no-missing-label-refs -- GitHub alert syntax. -->
@@ -121,7 +122,16 @@ The checks build the server, check types, run tests, lint and formatting checks,
 and build both documentation languages. Tests use the real Kaiten client library
 against a local HTTP fixture.
 
-See the [development guide](https://2chevskii.github.io/kaiten-mcp/development) for
+See the [development guide][development-guide] for
 the project structure and local workflow, and the
-[release guide](https://2chevskii.github.io/kaiten-mcp/releasing) for package channels
+[release guide][release-guide] for package channels
 and publishing.
+
+[npmjs-page]: https://www.npmjs.com/package/@2chevskii/kaiten-mcp
+[docs]: https://2chevskii.github.io/kaiten-mcp/
+[setup-guide]: https://2chevskii.github.io/kaiten-mcp/guide
+[troubleshooting]: https://2chevskii.github.io/kaiten-mcp/troubleshooting
+[tool-reference]: https://2chevskii.github.io/kaiten-mcp/tools
+[workflows]: https://2chevskii.github.io/kaiten-mcp/workflows
+[development-guide]: https://2chevskii.github.io/kaiten-mcp/development
+[release-guide]: https://2chevskii.github.io/kaiten-mcp/releasing
