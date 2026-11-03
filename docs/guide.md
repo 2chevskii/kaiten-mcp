@@ -1,3 +1,12 @@
+<script setup>
+import {ref} from 'vue';
+import ConnectionForm from './.vitepress/components/ConnectionForm.vue';
+import ConnectionExample from './.vitepress/components/ConnectionExample.vue';
+
+const origin = ref('');
+const token = ref('');
+</script>
+
 # Installation
 
 Kaiten MCP connects an MCP client to one Kaiten company over stdio. You need
@@ -20,25 +29,19 @@ examples install the server for your user across projects. Replace the company
 address and token, and merge entries into existing configuration files. Keep real
 tokens out of version control. Restart the client after setup.
 
+<ConnectionForm v-model:origin="origin" v-model:token="token" locale="en" />
+
+CLI commands use POSIX shell syntax.
+
 ### Codex
 
 **CLI:**
 
-```sh
-codex mcp add kaiten --env KAITEN_ORIGIN=https://company.kaiten.ru --env KAITEN_TOKEN=YOUR_KAITEN_TOKEN -- npx --yes @2chevskii/kaiten-mcp
-```
+<ConnectionExample :origin="origin" :token="token" kind="codex-cli" locale="en" />
 
 **Configuration file:** add to `~/.codex/config.toml`:
 
-```toml
-[mcp_servers.kaiten]
-command = "npx"
-args = ["--yes", "@2chevskii/kaiten-mcp"]
-
-[mcp_servers.kaiten.env]
-KAITEN_ORIGIN = "https://company.kaiten.ru"
-KAITEN_TOKEN = "YOUR_KAITEN_TOKEN"
-```
+<ConnectionExample :origin="origin" :token="token" kind="codex-config" locale="en" />
 
 For one trusted project, use `.codex/config.toml` at its root instead. Run
 `codex mcp list` to check registration, or `/mcp` inside Codex for active servers.
@@ -48,28 +51,12 @@ See the [official Codex MCP guide](https://developers.openai.com/codex/mcp/).
 
 **CLI:**
 
-```sh
-claude mcp add --scope user --transport stdio kaiten --env KAITEN_ORIGIN=https://company.kaiten.ru --env KAITEN_TOKEN=YOUR_KAITEN_TOKEN -- npx --yes @2chevskii/kaiten-mcp
-```
+<ConnectionExample :origin="origin" :token="token" kind="claude-cli" locale="en" />
 
 **Configuration file:** merge this entry into the top-level `mcpServers` in
 `~/.claude.json`:
 
-```json
-{
-  "mcpServers": {
-    "kaiten": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["--yes", "@2chevskii/kaiten-mcp"],
-      "env": {
-        "KAITEN_ORIGIN": "https://company.kaiten.ru",
-        "KAITEN_TOKEN": "YOUR_KAITEN_TOKEN"
-      }
-    }
-  }
-}
-```
+<ConnectionExample :origin="origin" :token="token" kind="claude-config" locale="en" />
 
 For a shared project configuration, put the same JSON in `.mcp.json` at the project
 root, or use `--scope project` in the CLI command. Run `claude mcp get kaiten` to
@@ -80,20 +67,7 @@ check status, or `/mcp` inside Claude Code. See the
 
 For clients that accept an `mcpServers` JSON configuration, add:
 
-```json
-{
-  "mcpServers": {
-    "kaiten": {
-      "command": "npx",
-      "args": ["--yes", "@2chevskii/kaiten-mcp"],
-      "env": {
-        "KAITEN_ORIGIN": "https://company.kaiten.ru",
-        "KAITEN_TOKEN": "YOUR_KAITEN_TOKEN"
-      }
-    }
-  }
-}
-```
+<ConnectionExample :origin="origin" :token="token" kind="other-config" locale="en" />
 
 npx resolves the package and downloads it into npm's cache when needed.
 `--yes` suppresses the installation prompt so the MCP client can start the

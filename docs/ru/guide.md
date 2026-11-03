@@ -1,3 +1,12 @@
+<script setup>
+import {ref} from 'vue';
+import ConnectionForm from '../.vitepress/components/ConnectionForm.vue';
+import ConnectionExample from '../.vitepress/components/ConnectionExample.vue';
+
+const origin = ref('');
+const token = ref('');
+</script>
+
 # Установка
 
 Kaiten MCP подключает MCP-клиент к одной компании Kaiten через stdio. Нужны
@@ -20,25 +29,19 @@ npm --version
 и токен, а записи добавьте в существующую конфигурацию. Не сохраняйте настоящие
 токены в системе контроля версий. После настройки перезапустите клиент.
 
+<ConnectionForm v-model:origin="origin" v-model:token="token" locale="ru" />
+
+Команды CLI используют синтаксис POSIX shell.
+
 ### Codex
 
 **CLI:**
 
-```sh
-codex mcp add kaiten --env KAITEN_ORIGIN=https://company.kaiten.ru --env KAITEN_TOKEN=YOUR_KAITEN_TOKEN -- npx --yes @2chevskii/kaiten-mcp
-```
+<ConnectionExample :origin="origin" :token="token" kind="codex-cli" locale="ru" />
 
 **Файл конфигурации:** добавьте в `~/.codex/config.toml`:
 
-```toml
-[mcp_servers.kaiten]
-command = "npx"
-args = ["--yes", "@2chevskii/kaiten-mcp"]
-
-[mcp_servers.kaiten.env]
-KAITEN_ORIGIN = "https://company.kaiten.ru"
-KAITEN_TOKEN = "YOUR_KAITEN_TOKEN"
-```
+<ConnectionExample :origin="origin" :token="token" kind="codex-config" locale="ru" />
 
 Для одного доверенного проекта используйте `.codex/config.toml` в его корне.
 Проверьте регистрацию командой `codex mcp list`, а активные серверы — через `/mcp`
@@ -49,28 +52,12 @@ KAITEN_TOKEN = "YOUR_KAITEN_TOKEN"
 
 **CLI:**
 
-```sh
-claude mcp add --scope user --transport stdio kaiten --env KAITEN_ORIGIN=https://company.kaiten.ru --env KAITEN_TOKEN=YOUR_KAITEN_TOKEN -- npx --yes @2chevskii/kaiten-mcp
-```
+<ConnectionExample :origin="origin" :token="token" kind="claude-cli" locale="ru" />
 
 **Файл конфигурации:** добавьте запись в `mcpServers` верхнего уровня
 в файле `~/.claude.json`:
 
-```json
-{
-  "mcpServers": {
-    "kaiten": {
-      "type": "stdio",
-      "command": "npx",
-      "args": ["--yes", "@2chevskii/kaiten-mcp"],
-      "env": {
-        "KAITEN_ORIGIN": "https://company.kaiten.ru",
-        "KAITEN_TOKEN": "YOUR_KAITEN_TOKEN"
-      }
-    }
-  }
-}
-```
+<ConnectionExample :origin="origin" :token="token" kind="claude-config" locale="ru" />
 
 Для общей конфигурации проекта сохраните тот же JSON в `.mcp.json` в корне проекта
 или используйте `--scope project` в команде CLI. Проверьте статус командой
@@ -81,20 +68,7 @@ claude mcp add --scope user --transport stdio kaiten --env KAITEN_ORIGIN=https:/
 
 Для клиентов с JSON-конфигурацией `mcpServers` добавьте:
 
-```json
-{
-  "mcpServers": {
-    "kaiten": {
-      "command": "npx",
-      "args": ["--yes", "@2chevskii/kaiten-mcp"],
-      "env": {
-        "KAITEN_ORIGIN": "https://company.kaiten.ru",
-        "KAITEN_TOKEN": "YOUR_KAITEN_TOKEN"
-      }
-    }
-  }
-}
-```
+<ConnectionExample :origin="origin" :token="token" kind="other-config" locale="ru" />
 
 npx находит пакет и при необходимости загружает его в кеш npm.
 `--yes` отключает запрос подтверждения установки, чтобы MCP-клиент мог
