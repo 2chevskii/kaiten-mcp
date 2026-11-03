@@ -2,7 +2,7 @@ import {defineConfig} from 'vitepress';
 import {fileURLToPath} from 'node:url';
 
 const repository = 'https://github.com/2chevskii/kaiten-mcp';
-const base = process.env.VITEPRESS_BASE ?? '/';
+const base = '/kaiten-mcp/';
 
 export default defineConfig({
   title: 'Kaiten MCP',

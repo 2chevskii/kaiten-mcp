@@ -158,9 +158,8 @@ Russian pages, their language switch, local search and navigation. Keep matching
 page names under `docs/` and `docs/ru/` so locale switching reaches the equivalent
 page. Update both locale sidebars when adding a page.
 
-`VITEPRESS_BASE` defaults to `/` locally. The Pages workflow sets it to
-`/kaiten-mcp/`. Keep links compatible with that base; the production build writes
-to `docs/.vitepress/dist/` and checks internal page links.
+The site uses `/kaiten-mcp/` as its base path locally and on GitHub Pages.
+The production build writes to `docs/.vitepress/dist/` and checks internal page links.
 The site serves the shared branding from the repository's `assets/` directory;
 the theme lives in `docs/.vitepress/theme/`.
 
