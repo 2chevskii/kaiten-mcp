@@ -2,6 +2,7 @@ import {KaitenClient} from '@2chevskii/kaiten-client';
 import {McpServer} from '@modelcontextprotocol/server';
 import packageJson from '../package.json' with {type: 'json'};
 import type {Configuration} from './config.ts';
+import {modelInstructions} from './model-context.ts';
 import {ToolRegistry} from './tool-registry.ts';
 import {registerNavigation} from './tools/navigation.ts';
 import {registerCardRead} from './tools/card-read.ts';
@@ -21,15 +22,17 @@ export function createServer(
     origin: configuration.origin,
     token: configuration.token,
   });
-  const server = new McpServer({
-    name: 'kaiten-mcp',
-    version: packageJson.version,
-  });
+  const instructions = modelInstructions(configuration.context);
+  const server = new McpServer(
+    {name: 'kaiten-mcp', version: packageJson.version},
+    {instructions},
+  );
   const registry = new ToolRegistry(
     server,
     client,
     configuration.timeoutMs,
     shutdownSignal,
+    instructions,
   );
   registerNavigation(registry);
   registerCardRead(registry);

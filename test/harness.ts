@@ -4,11 +4,11 @@ import {
   type ServerResponse,
 } from 'node:http';
 import {once, EventEmitter} from 'node:events';
-import {tmpdir} from 'node:os';
 import {fileURLToPath} from 'node:url';
 import type {TestContext} from 'node:test';
 import {Client} from '@modelcontextprotocol/client';
 import {StdioClientTransport} from '@modelcontextprotocol/client/stdio';
+import {temporaryDirectory} from './temporary-directory.ts';
 
 export const cliPath = fileURLToPath(new URL('../bin/cli.js', import.meta.url));
 export const token = 'fixture-only-secret';
@@ -21,7 +21,11 @@ export interface CapturedRequest {
   authorization: string | undefined;
 }
 
-export async function startHarness(context: TestContext, timeoutMs = 30_000) {
+export async function startHarness(
+  context: TestContext,
+  timeoutMs = 30_000,
+  environment: Record<string, string> = {},
+) {
   const requests: CapturedRequest[] = [];
   const events = new EventEmitter();
   let respond = (_request: CapturedRequest, response: ServerResponse) => {
@@ -54,24 +58,7 @@ export async function startHarness(context: TestContext, timeoutMs = 30_000) {
   const address = http.address();
   if (!address || typeof address === 'string')
     throw new Error('Expected TCP address.');
-  const transport = new StdioClientTransport({
-    command: process.execPath,
-    args: [cliPath],
-    cwd: tmpdir(),
-    env: {
-      KAITEN_ORIGIN: `http://127.0.0.1:${address.port}`,
-      KAITEN_TOKEN: token,
-      KAITEN_TIMEOUT_MS: String(timeoutMs),
-    },
-    stderr: 'pipe',
-  });
-  let stderr = '';
-  transport.stderr?.on('data', chunk => {
-    stderr += String(chunk);
-  });
   const client = new Client({name: 'kaiten-mcp-tests', version: '1.0.0'});
-  const protocolErrors: Error[] = [];
-  client.onerror = error => protocolErrors.push(error);
   context.after(async () => {
     await client.close();
     http.closeAllConnections();
@@ -79,6 +66,27 @@ export async function startHarness(context: TestContext, timeoutMs = 30_000) {
       http.close(error => (error ? reject(error) : resolve())),
     );
   });
+  const directory = temporaryDirectory(context);
+  const transport = new StdioClientTransport({
+    command: process.execPath,
+    args: [cliPath],
+    cwd: directory,
+    env: {
+      HOME: directory,
+      USERPROFILE: directory,
+      KAITEN_ORIGIN: `http://127.0.0.1:${address.port}`,
+      KAITEN_TOKEN: token,
+      KAITEN_TIMEOUT_MS: String(timeoutMs),
+      ...environment,
+    },
+    stderr: 'pipe',
+  });
+  let stderr = '';
+  transport.stderr?.on('data', chunk => {
+    stderr += String(chunk);
+  });
+  const protocolErrors: Error[] = [];
+  client.onerror = error => protocolErrors.push(error);
   await client.connect(transport);
   return {
     client,

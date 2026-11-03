@@ -5,13 +5,15 @@ import {once} from 'node:events';
 import {tmpdir} from 'node:os';
 import {readConfiguration} from '../src/config.ts';
 import {cliPath} from './harness.ts';
+import {temporaryDirectory} from './temporary-directory.ts';
 
-test('configuration defaults and validation', () => {
+test('configuration defaults and validation', context => {
+  const directory = temporaryDirectory(context);
   const base = {
     KAITEN_ORIGIN: 'https://example.kaiten.ru',
     KAITEN_TOKEN: ' token ',
   };
-  assert.deepEqual(readConfiguration(base), {
+  assert.deepEqual(readConfiguration(base, {cwd: directory, home: directory}), {
     origin: base.KAITEN_ORIGIN,
     token: 'token',
     timeoutMs: 30_000,

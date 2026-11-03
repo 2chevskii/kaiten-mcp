@@ -1,11 +1,19 @@
+import {
+  readModelContext,
+  type ModelContext,
+  type ContextLocations,
+} from './model-context.ts';
+
 export interface Configuration {
   origin: string;
   token: string;
   timeoutMs: number;
+  context?: ModelContext;
 }
 
 export function readConfiguration(
   environment: NodeJS.ProcessEnv = process.env,
+  locations?: ContextLocations,
 ): Configuration {
   const origin = environment.KAITEN_ORIGIN?.trim();
   const token = environment.KAITEN_TOKEN?.trim();
@@ -24,5 +32,11 @@ export function readConfiguration(
       'KAITEN_TIMEOUT_MS must be an integer between 1 and 2147483647.',
     );
   }
-  return {origin, token, timeoutMs};
+  const context = readModelContext(environment.KAITEN_CONTEXT_FILE, locations);
+  return {
+    origin,
+    token,
+    timeoutMs,
+    ...(context === undefined ? {} : {context}),
+  };
 }

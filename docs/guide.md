@@ -120,17 +120,110 @@ For a source checkout, follow [development](./development.md).
 
 ### Environment variables
 
-| Variable            | Required | Value                                                                                            |
-| ------------------- | -------- | ------------------------------------------------------------------------------------------------ |
-| `KAITEN_ORIGIN`     | Yes      | Company origin, such as `https://company.kaiten.ru`; no API path, credentials, query or fragment |
-| `KAITEN_TOKEN`      | Yes      | Kaiten API token; whitespace around the token is trimmed                                         |
-| `KAITEN_TIMEOUT_MS` | No       | Timeout per tool operation in milliseconds; default `30000`, integer from `1` to `2147483647`    |
+| Variable              | Required | Value                                                                                              |
+| --------------------- | -------- | -------------------------------------------------------------------------------------------------- |
+| `KAITEN_ORIGIN`       | Yes      | Company origin, such as `https://company.kaiten.ru`; no API path, credentials, query or fragment   |
+| `KAITEN_TOKEN`        | Yes      | Kaiten API token; whitespace around the token is trimmed                                           |
+| `KAITEN_TIMEOUT_MS`   | No       | Timeout per tool operation in milliseconds; default `30000`, integer from `1` to `2147483647`      |
+| `KAITEN_CONTEXT_FILE` | No       | Comma-separated context file paths, loaded left to right at startup; overrides automatic discovery |
 
 HTTPS is required for a Kaiten company. The client library accepts loopback HTTP
 for local fixtures. REST requests use API v1.
 
 To connect to several companies or tokens, create separate server entries with
 unique names and their own environment variables.
+
+### Identity and connection context
+
+Without additional configuration, “I”, “me” and “my” refer to the account returned
+by `kaiten_get_current_user`. The assistant is instructed to use its Kaiten ID,
+without asking whether its name matches your OpenAI profile, OS username or
+nickname. “My tasks” defaults to `responsible_ids`; explicit requests such as
+“cards I created” take precedence.
+
+For a service token, set `user_id` to the person whose tasks should count as
+yours. This does not change the token account or its permissions:
+`kaiten_get_current_user` always returns the actual token account.
+
+Optionally create `.agents/kaiten-mcp.context.json` in your project or user profile:
+
+```json
+{
+  "user_id": 42,
+  "my_tasks_role": "responsible",
+  "instructions": "Show overdue tasks first. Use the delivery board for delivery work.",
+  "spaces": [{"id": 10, "purpose": "Engineering work"}],
+  "boards": [
+    {
+      "id": 20,
+      "space_id": 10,
+      "purpose": "Delivery work",
+      "guidance": "Choose for delivery requests; use another board for infrastructure."
+    }
+  ]
+}
+```
+
+Without `KAITEN_CONTEXT_FILE`, the server loads existing files in this order:
+
+1. `<user profile>/.agents/kaiten-mcp.context.json`.
+2. `.agents/kaiten-mcp.context.json` in the project root, then each directory down
+   to the server's working directory, with the closest file loaded last.
+
+The project root is the nearest ancestor (including the working directory) with
+a `.git` file or directory, including Git worktrees. Without one, only the working
+directory and user profile are searched. A file reached through both locations is
+loaded once. The MCP client must launch the server with the project's working
+directory for project discovery to work; it does not follow the chat's project
+automatically. Missing automatically discovered files are skipped.
+
+To replace automatic discovery, set `KAITEN_CONTEXT_FILE` in the same environment
+settings as the token. For Codex, add under `[mcp_servers.kaiten.env]`:
+
+```toml
+KAITEN_CONTEXT_FILE = "C:/Users/me/.agents/kaiten-mcp.context.json,.agents/kaiten-mcp.context.json"
+```
+
+Explicit paths load left to right; relative paths resolve against the server's
+working directory. Every explicit file must exist. Whitespace around paths is
+trimmed; empty entries and paths containing commas are not supported. Use an
+explicit file containing `{}` to disable inherited automatic context.
+
+When merging, the last specified `user_id` or `my_tasks_role` wins. `instructions`
+are concatenated in load order; later instructions take precedence on conflicts.
+`spaces` and `boards` merge by `id`, with later records replacing earlier records
+in full, including optional fields. An omitted field preserves the inherited
+value; an empty array clears the corresponding list. The same rules apply to
+automatic discovery and explicit paths.
+
+All JSON fields are optional. `my_tasks_role` accepts `responsible` (default),
+`member` or `owner`, selecting the corresponding search filter. Every space or
+board requires a positive safe integer `id` and nonempty `purpose`; `guidance` is
+optional, as is a board's `space_id`. `user_id` uses the same ID constraints.
+Unknown fields, invalid values, empty explicit paths, unreadable files and malformed
+JSON stop startup with a generic diagnostic on stderr. Files are read once;
+restart the server after edits. Each server entry can use its own files. Their
+merged contents are shared with the model, so keep secrets out.
+
+The server sends this guidance in MCP initialization `instructions` and repeats it
+in the description of `kaiten_get_current_user` for clients that omit server
+instructions. No extra Kaiten requests are made during initialization. A client
+must expose the instructions or tool descriptions to the model; this cannot repair
+tools missing from a client's catalog.
+
+Explicit user requests override connection preferences. For omitted scope, the
+assistant should choose a configured space or board only if its purpose fits
+unambiguously. Otherwise it should discover available scopes and ask when needed.
+Before using configured references, it should check `kaiten_get_space` or
+`kaiten_get_board` and verify a configured board/space relationship with
+`kaiten_list_boards` (following pagination). Missing or inaccessible references
+require reporting the problem and asking for a replacement, without silently
+switching scope. A request for all tasks must not be silently narrowed to a default.
+
+These are instructions to the model, not automatic filter injection or server-side
+access controls. Tools continue to use the IDs and filters supplied by the client;
+Kaiten enforces permissions. No network validation of configured references occurs
+at startup. Actual model behavior needs verification in your MCP client.
 
 ## 3. Verify the connection
 

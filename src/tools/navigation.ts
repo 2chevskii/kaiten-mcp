@@ -90,7 +90,7 @@ export function registerNavigation(registry: ToolRegistry): void {
   );
   registry.add(
     'get_current_user',
-    'Identify the user associated with the configured Kaiten token.',
+    `Identify the user associated with the configured Kaiten token and read connection guidance. Call before searching my Kaiten tasks.\n\n${registry.instructions}`,
     z.strictObject({}),
     entityResult(userView),
     read,
