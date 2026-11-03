@@ -120,12 +120,12 @@ For a source checkout, follow [development](./development.md).
 
 ### Environment variables
 
-| Variable              | Required | Value                                                                                            |
-| --------------------- | -------- | ------------------------------------------------------------------------------------------------ |
-| `KAITEN_ORIGIN`       | Yes      | Company origin, such as `https://company.kaiten.ru`; no API path, credentials, query or fragment |
-| `KAITEN_TOKEN`        | Yes      | Kaiten API token; whitespace around the token is trimmed                                         |
-| `KAITEN_TIMEOUT_MS`   | No       | Timeout per tool operation in milliseconds; default `30000`, integer from `1` to `2147483647`    |
-| `KAITEN_CONTEXT_FILE` | No       | Absolute path to a UTF-8 JSON file with connection guidance; loaded once at startup              |
+| Variable              | Required | Value                                                                                              |
+| --------------------- | -------- | -------------------------------------------------------------------------------------------------- |
+| `KAITEN_ORIGIN`       | Yes      | Company origin, such as `https://company.kaiten.ru`; no API path, credentials, query or fragment   |
+| `KAITEN_TOKEN`        | Yes      | Kaiten API token; whitespace around the token is trimmed                                           |
+| `KAITEN_TIMEOUT_MS`   | No       | Timeout per tool operation in milliseconds; default `30000`, integer from `1` to `2147483647`      |
+| `KAITEN_CONTEXT_FILE` | No       | Comma-separated context file paths, loaded left to right at startup; overrides automatic discovery |
 
 HTTPS is required for a Kaiten company. The client library accepts loopback HTTP
 for local fixtures. REST requests use API v1.
@@ -145,7 +145,7 @@ For a service token, set `user_id` to the person whose tasks should count as
 yours. This does not change the token account or its permissions:
 `kaiten_get_current_user` always returns the actual token account.
 
-Optionally create a local file, for example `C:/Users/me/kaiten-context.json`:
+Optionally create `.agents/kaiten-mcp.context.json` in your project or user profile:
 
 ```json
 {
@@ -164,21 +164,46 @@ Optionally create a local file, for example `C:/Users/me/kaiten-context.json`:
 }
 ```
 
-Add `KAITEN_CONTEXT_FILE` to the same environment settings as the token. For Codex,
-add this line under `[mcp_servers.kaiten.env]`:
+Without `KAITEN_CONTEXT_FILE`, the server loads existing files in this order:
+
+1. `<user profile>/.agents/kaiten-mcp.context.json`.
+2. `.agents/kaiten-mcp.context.json` in the project root, then each directory down
+   to the server's working directory, with the closest file loaded last.
+
+The project root is the nearest ancestor (including the working directory) with
+a `.git` file or directory, including Git worktrees. Without one, only the working
+directory and user profile are searched. A file reached through both locations is
+loaded once. The MCP client must launch the server with the project's working
+directory for project discovery to work; it does not follow the chat's project
+automatically. Missing automatically discovered files are skipped.
+
+To replace automatic discovery, set `KAITEN_CONTEXT_FILE` in the same environment
+settings as the token. For Codex, add under `[mcp_servers.kaiten.env]`:
 
 ```toml
-KAITEN_CONTEXT_FILE = "C:/Users/me/kaiten-context.json"
+KAITEN_CONTEXT_FILE = "C:/Users/me/.agents/kaiten-mcp.context.json,.agents/kaiten-mcp.context.json"
 ```
+
+Explicit paths load left to right; relative paths resolve against the server's
+working directory. Every explicit file must exist. Whitespace around paths is
+trimmed; empty entries and paths containing commas are not supported. Use an
+explicit file containing `{}` to disable inherited automatic context.
+
+When merging, the last specified `user_id` or `my_tasks_role` wins. `instructions`
+are concatenated in load order; later instructions take precedence on conflicts.
+`spaces` and `boards` merge by `id`, with later records replacing earlier records
+in full, including optional fields. An omitted field preserves the inherited
+value; an empty array clears the corresponding list. The same rules apply to
+automatic discovery and explicit paths.
 
 All JSON fields are optional. `my_tasks_role` accepts `responsible` (default),
 `member` or `owner`, selecting the corresponding search filter. Every space or
 board requires a positive safe integer `id` and nonempty `purpose`; `guidance` is
 optional, as is a board's `space_id`. `user_id` uses the same ID constraints.
-Unknown fields, invalid values, empty paths, unreadable files and malformed JSON
-stop startup with a generic diagnostic on stderr. Restart the server after edits.
-Omit `KAITEN_CONTEXT_FILE` entirely when no file is needed. Each server entry can
-use its own file. Its contents are shared with the model, so keep secrets out.
+Unknown fields, invalid values, empty explicit paths, unreadable files and malformed
+JSON stop startup with a generic diagnostic on stderr. Files are read once;
+restart the server after edits. Each server entry can use its own files. Their
+merged contents are shared with the model, so keep secrets out.
 
 The server sends this guidance in MCP initialization `instructions` and repeats it
 in the description of `kaiten_get_current_user` for clients that omit server
