@@ -4,11 +4,11 @@ import {
   type ServerResponse,
 } from 'node:http';
 import {once, EventEmitter} from 'node:events';
-import {tmpdir} from 'node:os';
 import {fileURLToPath} from 'node:url';
 import type {TestContext} from 'node:test';
 import {Client} from '@modelcontextprotocol/client';
 import {StdioClientTransport} from '@modelcontextprotocol/client/stdio';
+import {temporaryDirectory} from './temporary-directory.ts';
 
 export const cliPath = fileURLToPath(new URL('../bin/cli.js', import.meta.url));
 export const token = 'fixture-only-secret';
@@ -58,11 +58,22 @@ export async function startHarness(
   const address = http.address();
   if (!address || typeof address === 'string')
     throw new Error('Expected TCP address.');
+  const client = new Client({name: 'kaiten-mcp-tests', version: '1.0.0'});
+  context.after(async () => {
+    await client.close();
+    http.closeAllConnections();
+    await new Promise<void>((resolve, reject) =>
+      http.close(error => (error ? reject(error) : resolve())),
+    );
+  });
+  const directory = temporaryDirectory(context);
   const transport = new StdioClientTransport({
     command: process.execPath,
     args: [cliPath],
-    cwd: tmpdir(),
+    cwd: directory,
     env: {
+      HOME: directory,
+      USERPROFILE: directory,
       KAITEN_ORIGIN: `http://127.0.0.1:${address.port}`,
       KAITEN_TOKEN: token,
       KAITEN_TIMEOUT_MS: String(timeoutMs),
@@ -74,16 +85,8 @@ export async function startHarness(
   transport.stderr?.on('data', chunk => {
     stderr += String(chunk);
   });
-  const client = new Client({name: 'kaiten-mcp-tests', version: '1.0.0'});
   const protocolErrors: Error[] = [];
   client.onerror = error => protocolErrors.push(error);
-  context.after(async () => {
-    await client.close();
-    http.closeAllConnections();
-    await new Promise<void>((resolve, reject) =>
-      http.close(error => (error ? reject(error) : resolve())),
-    );
-  });
   await client.connect(transport);
   return {
     client,
