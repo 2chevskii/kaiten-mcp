@@ -9,12 +9,14 @@ illustrative: replace them with IDs returned by your company.
 
 > Find my active cards and group them by board. Show overdue work first.
 
-1. Call `kaiten_get_current_user` with `{}` and read `item.id`.
-2. Search using that user ID as an owner filter:
+1. Read the connection guidance in `kaiten_get_current_user` and call it with `{}`.
+   Use `item.id` unless the connection configures a different `user_id`.
+   Do not confirm identity by comparing the returned name with your nickname.
+2. Search using that user ID as a responsible filter (or the configured role):
 
 ```json
 {
-  "owner_ids": [5],
+  "responsible_ids": [5],
   "archived": false,
   "states": [1, 2],
   "limit": 25
@@ -37,7 +39,7 @@ and add `cursor`:
 
 ```json
 {
-  "owner_ids": [5],
+  "responsible_ids": [5],
   "archived": false,
   "states": [1, 2],
   "limit": 25,
