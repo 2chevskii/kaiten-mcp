@@ -13,13 +13,25 @@ const emit = defineEmits(['update:origin', 'update:token']);
       <span>{{
         locale === 'ru' ? 'Адрес компании Kaiten' : 'Kaiten company origin'
       }}</span>
-      <input
-        :value="origin"
-        type="url"
-        placeholder="https://company.kaiten.ru"
-        autocomplete="url"
-        @input="emit('update:origin', $event.target.value)"
-      />
+      <div class="origin-field">
+        <span aria-hidden="true">https://</span>
+        <input
+          :value="origin ? origin.slice(8, -10) : ''"
+          type="text"
+          placeholder="company"
+          autocomplete="off"
+          spellcheck="false"
+          @input="
+            emit(
+              'update:origin',
+              $event.target.value
+                ? `https://${$event.target.value}.kaiten.ru`
+                : '',
+            )
+          "
+        />
+        <span aria-hidden="true">.kaiten.ru</span>
+      </div>
     </label>
     <label>
       <span>{{
@@ -27,7 +39,7 @@ const emit = defineEmits(['update:origin', 'update:token']);
       }}</span>
       <input
         :value="token"
-        type="password"
+        type="text"
         placeholder="YOUR_KAITEN_TOKEN"
         autocomplete="off"
         @input="emit('update:token', $event.target.value)"
@@ -67,6 +79,33 @@ input {
   color: var(--vp-c-text-1);
   font: inherit;
   font-weight: 400;
+}
+.origin-field {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  min-width: 0;
+  border: 1px solid var(--vp-c-border);
+  border-radius: 8px;
+  background: var(--vp-c-bg);
+  font-weight: 400;
+}
+.origin-field span {
+  flex: none;
+  color: var(--vp-c-text-2);
+}
+.origin-field span:first-child {
+  padding-left: 12px;
+}
+.origin-field span:last-child {
+  padding-right: 12px;
+}
+.origin-field input {
+  flex: 1;
+  min-width: 0;
+  padding: 9px 2px;
+  border: 0;
+  background: transparent;
 }
 input:focus-visible {
   outline: 2px solid var(--vp-c-brand-1);
