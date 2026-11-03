@@ -116,28 +116,6 @@ reload procedure depend on your MCP client. Supply the token through the
 client's environment or secret settings where supported. Ensure the client can
 find Node.js and npx in its PATH.
 
-### Alternative: npm exec
-
-Use the same `env` settings with this command and argument list:
-
-```json
-{
-  "command": "npm",
-  "args": [
-    "exec",
-    "--yes",
-    "--package=@2chevskii/kaiten-mcp",
-    "--",
-    "kaiten-mcp"
-  ]
-}
-```
-
-Both forms run the package's `kaiten-mcp` executable. For a fixed release,
-append `@<version>` to the package name. See the
-[npm exec reference](https://docs.npmjs.com/cli/v11/commands/npm-exec/)
-for package resolution and caching behavior.
-
 For a source checkout, follow [development](./development.md).
 
 ### Environment variables
