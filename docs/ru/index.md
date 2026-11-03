@@ -5,6 +5,9 @@ hero:
   name: Kaiten MCP
   text: Ваш ассистент подключён к Kaiten
   tagline: Ищите карточки, читайте обсуждения и управляйте задачами через 51 MCP-инструмент. Сервер работает локально с API-токеном вашей компании.
+  image:
+    src: /kaiten-mcp-artwork.png
+    alt: Соединённые знаки Kaiten и Model Context Protocol
   actions:
     - theme: brand
       text: Начать работу

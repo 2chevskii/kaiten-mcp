@@ -7,7 +7,7 @@ import {defineConfig} from 'eslint/config';
 import prettier from 'eslint-config-prettier/flat';
 
 export default defineConfig([
-  {ignores: ['artifacts/**']},
+  {ignores: ['artifacts/**', '.agents/**', '**/.vitepress/cache/**']},
   {
     files: ['**/*.{js,mjs,ts,d.ts}'],
     ignores: ['bin/**/*', 'lib/**/*', 'docs/.vitepress/dist/**/*'],

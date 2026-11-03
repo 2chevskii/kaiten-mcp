@@ -1,27 +1,34 @@
 import {defineConfig} from 'vitepress';
+import {fileURLToPath} from 'node:url';
 
 const repository = 'https://github.com/2chevskii/kaiten-mcp';
+const base = '/kaiten-mcp/';
 
 export default defineConfig({
   title: 'Kaiten MCP',
   description: 'Connect your AI assistant to Kaiten cards and workflows.',
-  base: process.env.VITEPRESS_BASE ?? '/',
+  base,
   cleanUrls: true,
+  appearance: 'dark',
+  head: [['link', {rel: 'icon', type: 'image/png', href: `${base}icon.png`}]],
+  vite: {
+    publicDir: fileURLToPath(new URL('../../assets', import.meta.url)),
+  },
   locales: {
     root: {
       label: 'English',
       lang: 'en',
       themeConfig: {
         nav: [
-          {text: 'Get started', link: '/guide'},
+          {text: 'Guide', link: '/guide'},
           {text: 'Workflows', link: '/workflows'},
           {text: 'Tools', link: '/tools'},
         ],
         sidebar: [
           {
-            text: 'Using Kaiten MCP',
+            text: 'Guide',
             items: [
-              {text: 'Setup', link: '/guide'},
+              {text: 'Installation', link: '/guide'},
               {text: 'Workflows', link: '/workflows'},
               {text: 'Tool reference', link: '/tools'},
               {text: 'Troubleshooting', link: '/troubleshooting'},
@@ -50,15 +57,15 @@ export default defineConfig({
         'Подключите AI-ассистента к карточкам и рабочим процессам Kaiten.',
       themeConfig: {
         nav: [
-          {text: 'Начать работу', link: '/ru/guide'},
+          {text: 'Руководство', link: '/ru/guide'},
           {text: 'Сценарии', link: '/ru/workflows'},
           {text: 'Инструменты', link: '/ru/tools'},
         ],
         sidebar: [
           {
-            text: 'Работа с Kaiten MCP',
+            text: 'Руководство',
             items: [
-              {text: 'Подключение', link: '/ru/guide'},
+              {text: 'Установка', link: '/ru/guide'},
               {text: 'Сценарии', link: '/ru/workflows'},
               {text: 'Справочник инструментов', link: '/ru/tools'},
               {text: 'Решение проблем', link: '/ru/troubleshooting'},
@@ -89,6 +96,7 @@ export default defineConfig({
     },
   },
   themeConfig: {
+    logo: '/icon.png',
     socialLinks: [{icon: 'github', link: repository}],
     search: {
       provider: 'local',

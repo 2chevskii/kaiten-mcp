@@ -1,4 +1,12 @@
-# Подключение
+<script setup>
+import ConnectionForm from '../.vitepress/components/ConnectionForm.vue';
+import {useConnectionValues} from '../.vitepress/use-connection-values.js';
+
+const {origin, token, shellOrigin, shellToken, configOrigin, configToken} =
+  useConnectionValues();
+</script>
+
+# Установка
 
 Kaiten MCP подключает MCP-клиент к одной компании Kaiten через stdio. Нужны
 Node.js 24 или новее, API-токен Kaiten и клиент, способный запускать локальный
@@ -15,17 +23,85 @@ npm --version
 
 ## 2. Настройте MCP-клиент
 
+Выберите команду CLI или файл конфигурации ниже. Примеры для Codex и Claude Code
+добавляют сервер для вашего пользователя во всех проектах. Замените адрес компании
+и токен, а записи добавьте в существующую конфигурацию. Не сохраняйте настоящие
+токены в системе контроля версий. После настройки перезапустите клиент.
+
+<ConnectionForm v-model:origin="origin" v-model:token="token" locale="ru" />
+
+Команды CLI используют синтаксис POSIX shell.
+
+### Codex
+
+**CLI:**
+
+```sh-vue
+codex mcp add kaiten --env KAITEN_ORIGIN={{ shellOrigin }} --env KAITEN_TOKEN={{ shellToken }} -- npx --yes @2chevskii/kaiten-mcp
+```
+
+**Файл конфигурации:** добавьте в `~/.codex/config.toml`:
+
+```toml-vue
+[mcp_servers.kaiten]
+command = "npx"
+args = ["--yes", "@2chevskii/kaiten-mcp"]
+
+[mcp_servers.kaiten.env]
+KAITEN_ORIGIN = "{{ configOrigin.slice(1, -1) }}"
+KAITEN_TOKEN = "{{ configToken.slice(1, -1) }}"
+```
+
+Для одного доверенного проекта используйте `.codex/config.toml` в его корне.
+Проверьте регистрацию командой `codex mcp list`, а активные серверы — через `/mcp`
+внутри Codex. Подробнее в
+[официальном руководстве Codex по MCP](https://developers.openai.com/codex/mcp/).
+
+### Claude Code
+
+**CLI:**
+
+```sh-vue
+claude mcp add --scope user --transport stdio kaiten --env KAITEN_ORIGIN={{ shellOrigin }} --env KAITEN_TOKEN={{ shellToken }} -- npx --yes @2chevskii/kaiten-mcp
+```
+
+**Файл конфигурации:** добавьте запись в `mcpServers` верхнего уровня
+в файле `~/.claude.json`:
+
+```json-vue
+{
+  "mcpServers": {
+    "kaiten": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["--yes", "@2chevskii/kaiten-mcp"],
+      "env": {
+        "KAITEN_ORIGIN": {{ configOrigin }},
+        "KAITEN_TOKEN": {{ configToken }}
+      }
+    }
+  }
+}
+```
+
+Для общей конфигурации проекта сохраните тот же JSON в `.mcp.json` в корне проекта
+или используйте `--scope project` в команде CLI. Проверьте статус командой
+`claude mcp get kaiten` или через `/mcp` внутри Claude Code. Подробнее в
+[официальном руководстве Claude Code по MCP](https://code.claude.com/docs/en/mcp).
+
+### Другие MCP-клиенты
+
 Для клиентов с JSON-конфигурацией `mcpServers` добавьте:
 
-```json
+```json-vue
 {
   "mcpServers": {
     "kaiten": {
       "command": "npx",
       "args": ["--yes", "@2chevskii/kaiten-mcp"],
       "env": {
-        "KAITEN_ORIGIN": "https://company.kaiten.ru",
-        "KAITEN_TOKEN": "YOUR_KAITEN_TOKEN"
+        "KAITEN_ORIGIN": {{ configOrigin }},
+        "KAITEN_TOKEN": {{ configToken }}
       }
     }
   }
@@ -40,27 +116,6 @@ npx находит пакет и при необходимости загруж�
 перезагрузки зависят от MCP-клиента. Если клиент поддерживает настройки секретов
 или окружения процесса, передавайте токен через них. Убедитесь, что Node.js
 и npx доступны клиенту через PATH.
-
-### Альтернатива: npm exec
-
-Используйте те же настройки `env` с этой командой и аргументами:
-
-```json
-{
-  "command": "npm",
-  "args": [
-    "exec",
-    "--yes",
-    "--package=@2chevskii/kaiten-mcp",
-    "--",
-    "kaiten-mcp"
-  ]
-}
-```
-
-Оба варианта запускают исполняемую команду пакета `kaiten-mcp`. Для фиксированного
-релиза добавьте `@<version>` к имени пакета. Поиск пакета и работа кеша описаны
-в [справочнике npm exec](https://docs.npmjs.com/cli/v11/commands/npm-exec/).
 
 Для запуска из исходников откройте [руководство разработчика](./development.md).
 
