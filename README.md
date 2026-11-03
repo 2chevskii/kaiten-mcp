@@ -1,8 +1,4 @@
-# Kaiten MCP
-
 ![Kaiten and Model Context Protocol marks connected](assets/readme-banner.png)
-
-**Your AI assistant, connected to Kaiten.**
 
 [![npm version](https://img.shields.io/npm/v/@2chevskii/kaiten-mcp)][npmjs-page]
 [![CI](https://github.com/2chevskii/kaiten-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/2chevskii/kaiten-mcp/actions/workflows/ci.yml)
