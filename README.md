@@ -12,7 +12,7 @@ working with your Kaiten company through its API.
 [Read the documentation][docs] ·
 [Kaiten MCP on NPM][npmjs-page]
 
-## What you can do
+## Features
 
 - **Find your work:** browse spaces and boards; search cards by owner, member,
   responsible user, deadline, tag or state.
