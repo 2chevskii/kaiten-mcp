@@ -46,8 +46,8 @@ const emit = defineEmits(['update:origin', 'update:token']);
     <p>
       {{
         locale === 'ru'
-          ? 'Значения остаются на этой странице. Примеры ниже содержат токен открытым текстом.'
-          : 'Values stay on this page. The examples below contain the token in plain text.'
+          ? 'Введённые значения никогда не покидают ваш браузер'
+          : 'Input values never leave your browser'
       }}
     </p>
   </div>
