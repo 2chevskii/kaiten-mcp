@@ -11,9 +11,9 @@ const emit = defineEmits(['update:origin', 'update:token']);
   <div class="connection-form">
     <label>
       <span>{{
-        locale === 'ru' ? 'Адрес компании Kaiten' : 'Kaiten company origin'
+        locale === 'ru' ? 'Поддомен компании' : 'Company subdomain'
       }}</span>
-      <div class="origin-field">
+      <span class="origin-field">
         <span aria-hidden="true">https://</span>
         <input
           :value="origin ? origin.slice(8, -10) : ''"
@@ -31,12 +31,10 @@ const emit = defineEmits(['update:origin', 'update:token']);
           "
         />
         <span aria-hidden="true">.kaiten.ru</span>
-      </div>
+      </span>
     </label>
     <label>
-      <span>{{
-        locale === 'ru' ? 'API-токен Kaiten' : 'Kaiten API token'
-      }}</span>
+      <span>{{ locale === 'ru' ? 'API-токен' : 'API token' }}</span>
       <input
         :value="token"
         type="text"
@@ -66,7 +64,9 @@ const emit = defineEmits(['update:origin', 'update:token']);
 }
 label {
   display: grid;
-  gap: 6px;
+  grid-template-columns: minmax(110px, 160px) minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
   font-size: 14px;
   font-weight: 600;
 }
@@ -95,15 +95,17 @@ input {
   color: var(--vp-c-text-2);
 }
 .origin-field span:first-child {
-  padding-left: 12px;
+  padding: 9px 12px;
+  border-right: 1px solid var(--vp-c-border);
 }
 .origin-field span:last-child {
-  padding-right: 12px;
+  padding: 9px 12px;
+  border-left: 1px solid var(--vp-c-border);
 }
 .origin-field input {
   flex: 1;
   min-width: 0;
-  padding: 9px 2px;
+  padding: 9px 12px;
   border: 0;
   background: transparent;
 }
@@ -116,5 +118,21 @@ input:focus-visible {
   color: var(--vp-c-text-2);
   font-size: 13px;
   line-height: 1.5;
+}
+@media (max-width: 480px) {
+  .connection-form {
+    padding: 12px;
+  }
+  label {
+    grid-template-columns: 90px minmax(0, 1fr);
+    gap: 8px;
+    font-size: 12px;
+  }
+  .origin-field span:first-child,
+  .origin-field span:last-child,
+  .origin-field input {
+    padding-right: 6px;
+    padding-left: 6px;
+  }
 }
 </style>
