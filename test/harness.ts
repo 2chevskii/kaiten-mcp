@@ -21,7 +21,11 @@ export interface CapturedRequest {
   authorization: string | undefined;
 }
 
-export async function startHarness(context: TestContext, timeoutMs = 30_000) {
+export async function startHarness(
+  context: TestContext,
+  timeoutMs = 30_000,
+  environment: Record<string, string> = {},
+) {
   const requests: CapturedRequest[] = [];
   const events = new EventEmitter();
   let respond = (_request: CapturedRequest, response: ServerResponse) => {
@@ -62,6 +66,7 @@ export async function startHarness(context: TestContext, timeoutMs = 30_000) {
       KAITEN_ORIGIN: `http://127.0.0.1:${address.port}`,
       KAITEN_TOKEN: token,
       KAITEN_TIMEOUT_MS: String(timeoutMs),
+      ...environment,
     },
     stderr: 'pipe',
   });

@@ -33,6 +33,7 @@ export class ToolRegistry {
     readonly client: KaitenClient,
     private readonly timeoutMs: number,
     private readonly shutdownSignal: AbortSignal,
+    readonly instructions: string,
   ) {}
 
   add<Input extends z.ZodObject, Output extends z.ZodObject>(

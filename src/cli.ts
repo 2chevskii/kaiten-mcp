@@ -31,7 +31,7 @@ try {
   main();
 } catch {
   logger.error(
-    'Could not start Kaiten MCP. Check KAITEN_ORIGIN, KAITEN_TOKEN and KAITEN_TIMEOUT_MS.',
+    'Could not start Kaiten MCP. Check KAITEN_ORIGIN, KAITEN_TOKEN, KAITEN_TIMEOUT_MS and KAITEN_CONTEXT_FILE.',
   );
   process.exitCode = 1;
 }
