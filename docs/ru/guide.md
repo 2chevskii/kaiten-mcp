@@ -1,10 +1,9 @@
 <script setup>
-import {ref} from 'vue';
 import ConnectionForm from '../.vitepress/components/ConnectionForm.vue';
-import ConnectionExample from '../.vitepress/components/ConnectionExample.vue';
+import {useConnectionValues} from '../.vitepress/use-connection-values.js';
 
-const origin = ref('');
-const token = ref('');
+const {origin, token, shellOrigin, shellToken, configOrigin, configToken} =
+  useConnectionValues();
 </script>
 
 # Установка
@@ -37,11 +36,21 @@ npm --version
 
 **CLI:**
 
-<ConnectionExample :origin="origin" :token="token" kind="codex-cli" locale="ru" />
+```sh-vue
+codex mcp add kaiten --env KAITEN_ORIGIN={{ shellOrigin }} --env KAITEN_TOKEN={{ shellToken }} -- npx --yes @2chevskii/kaiten-mcp
+```
 
 **Файл конфигурации:** добавьте в `~/.codex/config.toml`:
 
-<ConnectionExample :origin="origin" :token="token" kind="codex-config" locale="ru" />
+```toml-vue
+[mcp_servers.kaiten]
+command = "npx"
+args = ["--yes", "@2chevskii/kaiten-mcp"]
+
+[mcp_servers.kaiten.env]
+KAITEN_ORIGIN = "{{ configOrigin.slice(1, -1) }}"
+KAITEN_TOKEN = "{{ configToken.slice(1, -1) }}"
+```
 
 Для одного доверенного проекта используйте `.codex/config.toml` в его корне.
 Проверьте регистрацию командой `codex mcp list`, а активные серверы — через `/mcp`
@@ -52,12 +61,28 @@ npm --version
 
 **CLI:**
 
-<ConnectionExample :origin="origin" :token="token" kind="claude-cli" locale="ru" />
+```sh-vue
+claude mcp add --scope user --transport stdio kaiten --env KAITEN_ORIGIN={{ shellOrigin }} --env KAITEN_TOKEN={{ shellToken }} -- npx --yes @2chevskii/kaiten-mcp
+```
 
 **Файл конфигурации:** добавьте запись в `mcpServers` верхнего уровня
 в файле `~/.claude.json`:
 
-<ConnectionExample :origin="origin" :token="token" kind="claude-config" locale="ru" />
+```json-vue
+{
+  "mcpServers": {
+    "kaiten": {
+      "type": "stdio",
+      "command": "npx",
+      "args": ["--yes", "@2chevskii/kaiten-mcp"],
+      "env": {
+        "KAITEN_ORIGIN": {{ configOrigin }},
+        "KAITEN_TOKEN": {{ configToken }}
+      }
+    }
+  }
+}
+```
 
 Для общей конфигурации проекта сохраните тот же JSON в `.mcp.json` в корне проекта
 или используйте `--scope project` в команде CLI. Проверьте статус командой
@@ -68,7 +93,20 @@ npm --version
 
 Для клиентов с JSON-конфигурацией `mcpServers` добавьте:
 
-<ConnectionExample :origin="origin" :token="token" kind="other-config" locale="ru" />
+```json-vue
+{
+  "mcpServers": {
+    "kaiten": {
+      "command": "npx",
+      "args": ["--yes", "@2chevskii/kaiten-mcp"],
+      "env": {
+        "KAITEN_ORIGIN": {{ configOrigin }},
+        "KAITEN_TOKEN": {{ configToken }}
+      }
+    }
+  }
+}
+```
 
 npx находит пакет и при необходимости загружает его в кеш npm.
 `--yes` отключает запрос подтверждения установки, чтобы MCP-клиент мог
