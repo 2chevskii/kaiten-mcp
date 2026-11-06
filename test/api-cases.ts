@@ -11,6 +11,7 @@ import {timeCases} from './time-cases.ts';
 import {planningCases} from './planning-cases.ts';
 import {serviceDeskCases} from './service-desk-cases.ts';
 import {documentCases} from './document-cases.ts';
+import {automationCases} from './automation-cases.ts';
 
 export const apiCases = [
   ...workspaceCases,
@@ -26,6 +27,7 @@ export const apiCases = [
   ...planningCases,
   ...serviceDeskCases,
   ...documentCases,
+  ...automationCases,
 ];
 
 // These operations have dedicated protocol tests for local computation or pagination.
