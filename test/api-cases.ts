@@ -9,6 +9,7 @@ import {directoryCases} from './directory-cases.ts';
 import {checklistApiCases} from './checklist-api-cases.ts';
 import {timeCases} from './time-cases.ts';
 import {planningCases} from './planning-cases.ts';
+import {serviceDeskCases} from './service-desk-cases.ts';
 
 export const apiCases = [
   ...workspaceCases,
@@ -22,6 +23,7 @@ export const apiCases = [
   ...checklistApiCases,
   ...timeCases,
   ...planningCases,
+  ...serviceDeskCases,
 ];
 
 // These operations have dedicated protocol tests for local computation or pagination.

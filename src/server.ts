@@ -25,6 +25,7 @@ import {registerCustomDirectoryAdministration} from './tools/custom-directory-ad
 import {registerChecklistTemplates} from './tools/checklist-templates.ts';
 import {registerTimeTracking} from './tools/time-tracking.ts';
 import {registerIterationsAndSprints} from './tools/iterations-and-sprints.ts';
+import {registerServiceDesk} from './tools/service-desk.ts';
 
 export function createServer(
   configuration: Configuration,
@@ -88,6 +89,8 @@ export function createServer(
   registerTimeTracking(registry);
   registry.group('navigation');
   registerIterationsAndSprints(registry);
+  registry.group('cards');
+  registerServiceDesk(registry);
   registry.register();
   return {server};
 }
