@@ -104,7 +104,8 @@ idle while it waits for MCP input.
 This version supports cards, related data and [workspace and access management](https://2chevskii.github.io/kaiten-mcp/api).
 It also supports [SCIM provisioning](https://2chevskii.github.io/kaiten-mcp/scim).
 It can [administer custom fields, options and votes](https://2chevskii.github.io/kaiten-mcp/custom-fields).
-Documents, attachments, time tracking, automation, webhooks and directory editing
+[Directories, fields and records](https://2chevskii.github.io/kaiten-mcp/directories) can also be managed.
+Documents, attachments, time tracking, automation and webhooks
 are outside its scope.
 
 ## Development
