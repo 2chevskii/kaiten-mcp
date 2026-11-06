@@ -57,6 +57,8 @@ test('advanced operations cover every public method in the implemented client do
     'spaceTemplateChecklistItems',
     'cardTimeLogs',
     'timesheet',
+    'iterations',
+    'sprints',
   ] as const) {
     for (const method of Object.keys(client[resource])) {
       assert.ok(
