@@ -101,8 +101,8 @@ The server communicates over **stdio**. Your MCP client starts the process and
 sends it tool calls; diagnostics go to stderr. Running it in a terminal may look
 idle while it waits for MCP input.
 
-This version supports cards, related data and [workspace management](https://2chevskii.github.io/kaiten-mcp/api).
-Documents, attachments, time tracking, automation, identity administration, webhooks, and editing custom-field
+This version supports cards, related data and [workspace and access management](https://2chevskii.github.io/kaiten-mcp/api).
+Documents, attachments, time tracking, automation, webhooks, and editing custom-field
 definitions or directories are outside its scope.
 
 ## Development
