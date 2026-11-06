@@ -1,6 +1,6 @@
 # Tool reference
 
-The server exposes 16 tools. See [advanced client operations](./api.md) for
+The server exposes 18 tools. See [advanced client operations](./api.md) for
 complete API fields, workspace management, advanced cards, search, blockers and
 planned relations. See also [identity and access](./identity.md).
 Use [workflows](./workflows.md) for step-by-step

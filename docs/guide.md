@@ -227,7 +227,7 @@ at startup. Actual model behavior needs verification in your MCP client.
 
 ## 3. Verify the connection
 
-Reload your client's MCP configuration and check that it discovers **16 tools**
+Reload your client's MCP configuration and check that it discovers **18 tools**
 with the `kaiten_` prefix. Ask the assistant:
 
 > Identify my Kaiten user, then list the spaces I can access.
@@ -256,7 +256,7 @@ items with their dedicated tools. Lists default to 25 items and accept at most
 
 ## Supported scope
 
-The 16 tools cover navigation, cards, parent and child relationships, external links, comments, memberships, tags,
+The 18 tools cover navigation, cards, parent and child relationships, external links, comments, memberships, tags,
 checklists and existing custom properties. Property definitions, options and directories can be
 read, and values can be assigned to cards.
 
@@ -270,7 +270,10 @@ User profiles, groups, roles, invitations and space access are supported through
 
 [Time tracking](./time-tracking.md) supports card logs and paginated reports.
 
-Documents, attachments, automations,
+[Documents and groups](./documents.md) support content editing, schema discovery,
+cloning, publishing controls and both pagination formats.
+
+Attachments, automations,
 webhooks are outside this
 version. The server exposes tools over stdio; HTTP transport, MCP resources and
 prompts are outside this version.

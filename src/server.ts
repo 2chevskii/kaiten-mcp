@@ -26,6 +26,7 @@ import {registerChecklistTemplates} from './tools/checklist-templates.ts';
 import {registerTimeTracking} from './tools/time-tracking.ts';
 import {registerIterationsAndSprints} from './tools/iterations-and-sprints.ts';
 import {registerServiceDesk} from './tools/service-desk.ts';
+import {registerDocumentsAndGroups} from './tools/documents-and-groups.ts';
 
 export function createServer(
   configuration: Configuration,
@@ -91,6 +92,8 @@ export function createServer(
   registerIterationsAndSprints(registry);
   registry.group('cards');
   registerServiceDesk(registry);
+  registry.group('documents');
+  registerDocumentsAndGroups(registry);
   registry.register();
   return {server};
 }

@@ -62,6 +62,9 @@ test('advanced operations cover every public method in the implemented client do
     'cardServiceDeskExternalRecipients',
     'cardSla',
     'serviceDeskServices',
+    'documents',
+    'documentGroups',
+    'documentSchemas',
   ] as const) {
     for (const method of Object.keys(client[resource])) {
       assert.ok(
