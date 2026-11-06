@@ -128,3 +128,47 @@ HTTP-ошибки содержат `KAITEN_HTTP_ERROR` и исходный ст�
   }
 }
 ```
+
+## Блокировки и связи
+
+Чтение и изменения используют существующие инструменты ниже; общее число
+остаётся равным 16. Все расширенные операции возвращают полный ответ в
+`{result}`. Списки возвращаются целиком, без локальной пагинации.
+
+| Ресурс                  | Операции после `resource.`                                                                               | Группа инструментов и аргументы                                                                                                                  |
+| ----------------------- | -------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `cardAllowedUsers`      | `retrieveUsersList`                                                                                      | `relations_read`: `card_id`, `query?` (`type`, `search`, `orderBy`, `role`, `limit`, `offset`)                                                   |
+| `cardBlockers`          | `blockCard`, `retrieveCardBlockersList`, `updateCardBlockers`, `deleteCardBlockers`                      | `relations_read`/`relations_write`: `card_id`; `body` для создания/изменения; `blocker_id` для изменения/удаления                                |
+| `cardBlockerUsers`      | `addUserToTheCardBlocker`, `removeUser`, `retrieveListOfUsers`, `retrieveBlockersCardsListOnCurrentUser` | `relations_read`/`relations_write`: `blocker_id`; `user_id` для добавления/удаления; без аргументов для блокировок текущего пользователя         |
+| `cardBlockerCategories` | `addBlockerCategory`, `removeCategory`, `retrieveListOfCategories`                                       | `relations_read`/`relations_write`: `blocker_id` и `name` для добавления, `blocker_id` и `category_uuid` для удаления; без аргументов для списка |
+| `cardPlannedRelations`  | `addPlannedRelation`, `updatePlannedRelation`, `removePlannedRelation`                                   | `relations_write`: `card_id`, `body` для добавления/изменения; `target_card_id` для изменения/удаления                                           |
+| `cardMembers`           | `addMemberToCard`, `removeMemberFromCard`, `retrieveListOfCardMembers`, `updateMemberRole`               | `relations_read`/`relations_write`: `card_id`; `user_id` для добавления; `member_id` для удаления/изменения; `type: 2` для изменения роли        |
+| `cardTags`              | `addTag`, `removeTagFromCard`, `rertrieveListOfTags`                                                     | `relations_read`/`relations_write`: `card_id`; `name` для добавления; `tag_id` для удаления                                                      |
+| `cardChildren`          | `addChildren`, `removeChildren`, `retrieveCardChildrenList`                                              | `children_read`/`children_write`: `parent_card_id`, `child_card_id` для добавления; `card_id`, `id` для удаления; `card_id` для списка           |
+| `cardExternalLinks`     | `addExternalLink`, `removeExternalLink`, `retrieveCardExternalLinks`, `updateExternalLink`               | `external_links_read`/`external_links_write`: `card_id`; `url`, `description?` для добавления; `id` для удаления/изменения; `body` для изменения |
+
+Имена групп в таблице имеют префикс `kaiten_`. `rertrieveListOfTags` сохраняет
+написание метода upstream; удобная операция `list_card_tags` также доступна.
+
+Тело блокировки должно содержать `reason` или `blocker_card_id`. Изменение также
+принимает `due_date` и `due_date_time_present`, включая `null`, но контракт
+клиента по-прежнему требует `reason` или `blocker_card_id` в этом запросе.
+
+Плановые связи соединяют `card_id` (предшественник) с `target_card_id`
+(последователь), независимо от иерархии и блокировок. Тело добавления содержит
+`target_card_id` и `type`: `end-start`, `start-start`, `end-end` или `start-end`.
+Можно изменять `type`, знаковый `gap` или `gap_type` (`hours` или `days`). Для
+очистки интервала передайте одновременно `gap: null` и `gap_type: null`.
+Частичное изменение интервала требует, чтобы интервал уже существовал в Kaiten.
+Удаление плановой связи не изменяет даты карточек.
+
+Создание зависимости через `kaiten_relations_write`:
+
+```json
+{
+  "request": {
+    "operation": "cardPlannedRelations.addPlannedRelation",
+    "args": {"card_id": 10, "body": {"target_card_id": 20, "type": "end-start"}}
+  }
+}
+```
