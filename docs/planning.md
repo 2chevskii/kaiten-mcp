@@ -1,7 +1,7 @@
 # Iterations and legacy sprints
 
 These [advanced operations](./api.md) share `kaiten_navigation_read` and
-`kaiten_navigation_write`; the total remains 18 tools. Responses preserve the
+`kaiten_navigation_write`; the total remains 20 tools. Responses preserve the
 complete client JSON in `{result}`.
 
 | Operation                             | Arguments                               | Behavior                                                             |

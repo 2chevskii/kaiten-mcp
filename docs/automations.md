@@ -1,7 +1,7 @@
 # Automations
 
 Automation operations share `kaiten_navigation_read` and
-`kaiten_navigation_write`. The server still exposes 18 tools.
+`kaiten_navigation_write`. The server still exposes 20 tools.
 
 | Operation                          | Arguments                            | Tool                      |
 | ---------------------------------- | ------------------------------------ | ------------------------- |

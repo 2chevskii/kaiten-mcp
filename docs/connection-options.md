@@ -35,4 +35,4 @@ Example server environment (omit `KAITEN_TOKEN` when using its file source):
 
 On Windows, use an absolute Windows path with JSON backslashes escaped, such as
 `C:\\secrets\\kaiten-token`. API version and credential source settings do not
-add MCP tools. The total remains 18 tools.
+add MCP tools. The total remains 20 tools.

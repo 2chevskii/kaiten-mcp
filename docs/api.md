@@ -1,30 +1,22 @@
 # Advanced client operations
 
-[Connection options](./connection-options.md) configure the API version and rotating credential providers.
+The 20 tools form ten domain pairs. Each row names the suffix after `kaiten_`;
+append `_read` or `_write` according to the operation.
 
-[Addon OAuth](./addon-oauth.md) retrieves and refreshes addon user tokens.
+| Domain              | Coverage and reference                                                                                                                                                                                                                                         |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `navigation`        | [Workspace hierarchy](#workspace-management), [identity/access](./identity.md), [SCIM](./scim.md), [types/tags](./taxonomy.md), [iterations](./planning.md), [automations](./automations.md), [activity/audit](./activity.md), [addon OAuth](./addon-oauth.md) |
+| `cards`             | [Advanced card inputs and filters](#advanced-cards-and-search), [blockers/members/tags](#blockers-and-relationships), [time tracking](./time-tracking.md), [service desk/SLA](./service-desk.md), [incoming webhooks](./webhooks.md)                           |
+| `comments`          | [Text workflows](./tools.md) and [complete JSON/FormData](./files.md#comments-and-formdata)                                                                                                                                                                    |
+| `external_links`    | [Card external links](#blockers-and-relationships)                                                                                                                                                                                                             |
+| `relations`         | [Parents, blockers and planned relations](#blockers-and-relationships)                                                                                                                                                                                         |
+| `children`          | [Child cards](#blockers-and-relationships)                                                                                                                                                                                                                     |
+| `checklists`        | [Card checklists](./tools.md) and [shared/template checklists](./checklist-templates.md)                                                                                                                                                                       |
+| `custom_properties` | [Definitions/options/scores/votes](./custom-fields.md) and [directories](./directories.md)                                                                                                                                                                     |
+| `documents`         | [Documents, groups and schemas](./documents.md)                                                                                                                                                                                                                |
+| `files`             | [File metadata, uploads, downloads and deletion](./files.md)                                                                                                                                                                                                   |
 
-[Incoming card webhooks](./webhooks.md) create cards through configured webhook URLs.
-
-[Activity and audit logs](./activity.md) support page reads and bounded activity snapshots.
-
-[Automation management](./automations.md) extends the navigation tools.
-
-[Documents, groups and schemas](./documents.md) use their own read/write tools.
-
-[Service desk and SLA](./service-desk.md) extend service workflows.
-
-[Iterations and legacy sprints](./planning.md) extend planning workflows.
-
-[Time tracking and reports](./time-tracking.md) extend the card tools.
-
-[Shared checklists and space templates](./checklist-templates.md) extend the checklist tools.
-
-See also [identity and access](./identity.md).
-Card type administration and tag creation are described in
-[card types and tags](./taxonomy.md).
-See [custom-field administration](./custom-fields.md) for definitions, options,
-scores and votes.
+[Connection options](./connection-options.md) select the API version and rotating credentials.
 
 Advanced operations expose the complete public contracts of the pinned
 `@2chevskii/kaiten-client` **1.1.0**. Use these when you need fields beyond the
@@ -33,7 +25,8 @@ convenient operations in the [tool reference](./tools.md).
 Select the exact `resource.method` name in `request.operation`. Top-level
 arguments use the client's parameter names converted to `snake_case`. Nested
 `body` and `query` fields retain their upstream spelling, including camelCase
-where the Kaiten API uses it. The advertised tool schema lists every accepted
+where the Kaiten API uses it. Binary uploads and FormData use the portable
+[file-transfer contracts](./files.md). The advertised tool schema lists every accepted
 field, enum, required value and nullable value. Unknown fields are rejected,
 including inside typed bodies. JSON maps accept arbitrary keys.
 
@@ -51,7 +44,7 @@ for example, 403 means insufficient access and 404 means an unavailable entity.
 ## Workspace management
 
 Reads use `kaiten_navigation_read`; mutations use `kaiten_navigation_write`.
-The server now exposes **18 tools**, with a hard maximum of 20.
+The server now exposes **20 tools**, with a hard maximum of 20.
 
 | Resource      | Operations after `resource.`                                                            | Arguments                                                                                                     |
 | ------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
@@ -97,7 +90,7 @@ Read full column configuration with `kaiten_navigation_read`:
 ## Advanced cards and search
 
 All card reads below use `kaiten_cards_read`; mutations use `kaiten_cards_write`.
-These operations reuse existing tools, so the total remains 18.
+These operations reuse existing tools, so the total remains 20.
 
 | Operation                             | Arguments                | Behavior                                                                                                                           |
 | ------------------------------------- | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
@@ -155,7 +148,7 @@ Read a v2 page with `kaiten_cards_read`:
 
 ## Blockers and relationships
 
-Reads and writes use the existing tools indicated below; the total remains 18.
+Reads and writes use the existing tools indicated below; the total remains 20.
 All advanced operations return the full response in `{result}`. List reads
 return the complete upstream list, with no local pagination.
 
@@ -196,3 +189,25 @@ Create a dependency with `kaiten_relations_write`:
   }
 }
 ```
+
+## Client coverage and limits
+
+The runtime inventory test checks every resource and public method on
+`KaitenClient` and `KaitenScimClient` against the advertised operations. The
+surface also includes `encodeCardFilter`, `sendCardWebhook`, and both public
+`AddonOAuthClient` token methods. Server configuration exposes REST API-version
+selection and token providers; timeout/cancellation supplies the public signal
+option and upload filenames map to the client's upload options.
+
+The upstream `metadata`, `imports` and `addons` subpaths and outgoing webhook
+event declarations export types, not executable services. In particular, the
+addon browser runtime is supplied by Kaiten, and the package has no import job
+runner or user-metadata HTTP client to expose as MCP operations. Custom fetch
+injection is a library integration hook, not a tool accepting executable code.
+
+The pinned client's comment and card time-log methods do not expose server
+pagination parameters. See [comments/files](./files.md#comments-and-formdata) and
+[time tracking](./time-tracking.md) for the practical limits and report alternatives.
+Kaiten permissions, plan settings, beta availability, and installation limits
+still apply. All verification here uses real client calls against local fixtures;
+no live Kaiten account is used.

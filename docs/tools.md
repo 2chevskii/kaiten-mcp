@@ -1,6 +1,6 @@
 # Tool reference
 
-The server exposes 18 tools. See [advanced client operations](./api.md) for
+The server exposes 20 tools. See [advanced client operations](./api.md) for
 complete API fields, workspace management, advanced cards, search, blockers and
 planned relations. See also [identity and access](./identity.md).
 Use [workflows](./workflows.md) for step-by-step
@@ -37,8 +37,10 @@ in a text entry in `content`. These examples show the structured payload only:
 ```
 
 Each operation validates its output against its own result schema. The shared MCP output schema accepts the result envelopes described below.
-Optional fields appear only when returned by Kaiten; unknown upstream fields
-are stripped. A missing field differs from an explicit `null`.
+In convenient projections below, optional fields appear only when returned by
+Kaiten and unknown upstream fields are stripped. [Advanced operations](./api.md)
+preserve complete JSON. [File downloads](./files.md) also return an embedded
+binary resource. A missing field differs from an explicit `null`.
 
 Read tools advertise `readOnlyHint: true` and `idempotentHint: true`. Write tools advertise `destructiveHint: true` because they group creation, updates, and removals. All write tools advertise `readOnlyHint: false` and
 `idempotentHint: false`. All tools use `openWorldHint: true`. These annotations
