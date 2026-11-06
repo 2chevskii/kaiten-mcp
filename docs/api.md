@@ -3,6 +3,8 @@
 See also [identity and access](./identity.md).
 Card type administration and tag creation are described in
 [card types and tags](./taxonomy.md).
+See [custom-field administration](./custom-fields.md) for definitions, options,
+scores and votes.
 
 Advanced operations expose the complete public contracts of the pinned
 `@2chevskii/kaiten-client` **1.1.0**. Use these when you need fields beyond the
