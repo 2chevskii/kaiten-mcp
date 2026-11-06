@@ -4,6 +4,7 @@ import {cardRelationCases} from './card-relation-cases.ts';
 import {identityCases} from './identity-cases.ts';
 import {scimCases} from './scim-cases.ts';
 import {taxonomyCases} from './taxonomy-cases.ts';
+import {propertyCases} from './property-cases.ts';
 
 export const apiCases = [
   ...workspaceCases,
@@ -12,6 +13,7 @@ export const apiCases = [
   ...identityCases,
   ...scimCases,
   ...taxonomyCases,
+  ...propertyCases,
 ];
 
 // These operations have dedicated protocol tests for local computation or pagination.
