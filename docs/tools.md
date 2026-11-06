@@ -1,7 +1,7 @@
 # Tool reference
 
 The server exposes 16 tools. See [advanced client operations](./api.md) for
-complete API fields and workspace management. Use [workflows](./workflows.md) for step-by-step
+complete API fields, workspace management, advanced cards and search. Use [workflows](./workflows.md) for step-by-step
 examples and [troubleshooting](./troubleshooting.md) for operational failures.
 
 All names below have the `kaiten_` prefix. Arguments use `snake_case`.
