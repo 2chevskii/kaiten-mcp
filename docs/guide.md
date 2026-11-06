@@ -120,16 +120,19 @@ For a source checkout, follow [development](./development.md).
 
 ### Environment variables
 
-| Variable              | Required | Value                                                                                                 |
-| --------------------- | -------- | ----------------------------------------------------------------------------------------------------- |
-| `KAITEN_ORIGIN`       | Yes      | Company origin, such as `https://company.kaiten.ru`; no API path, credentials, query or fragment      |
-| `KAITEN_TOKEN`        | Yes      | Kaiten API token; whitespace around the token is trimmed                                              |
-| `KAITEN_TIMEOUT_MS`   | No       | Timeout per tool operation in milliseconds; default `30000`, integer from `1` to `2147483647`         |
-| `KAITEN_CONTEXT_FILE` | No       | Comma-separated context file paths, loaded left to right at startup; overrides automatic discovery    |
-| `KAITEN_ADDON_SECRET` | No       | Addon secret for the optional [addon OAuth operations](./addon-oauth.md); separate from the API token |
+| Variable                   | Required      | Value                                                                                                 |
+| -------------------------- | ------------- | ----------------------------------------------------------------------------------------------------- |
+| `KAITEN_ORIGIN`            | Yes           | Company origin, such as `https://company.kaiten.ru`; no API path, credentials, query or fragment      |
+| `KAITEN_TOKEN`             | Either source | Kaiten API token; whitespace around the token is trimmed                                              |
+| `KAITEN_TIMEOUT_MS`        | No            | Timeout per tool operation in milliseconds; default `30000`, integer from `1` to `2147483647`         |
+| `KAITEN_CONTEXT_FILE`      | No            | Comma-separated context file paths, loaded left to right at startup; overrides automatic discovery    |
+| `KAITEN_ADDON_SECRET`      | No            | Addon secret for the optional [addon OAuth operations](./addon-oauth.md); separate from the API token |
+| `KAITEN_TOKEN_FILE`        | Alternative   | Plain UTF-8 API token file, read before each request; mutually exclusive with `KAITEN_TOKEN`          |
+| `KAITEN_ADDON_SECRET_FILE` | No            | Rotating addon secret file; mutually exclusive with `KAITEN_ADDON_SECRET`                             |
+| `KAITEN_API_VERSION`       | No            | REST prefix: `v1` (default) or `latest`                                                               |
 
 HTTPS is required for a Kaiten company. The client library accepts loopback HTTP
-for local fixtures. REST requests use API v1.
+for local fixtures. REST requests use API v1 by default. See [connection options](./connection-options.md) for API-version selection and rotating credentials.
 
 To connect to several companies or tokens, create separate server entries with
 unique names and their own environment variables.
