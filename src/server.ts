@@ -15,6 +15,7 @@ import {registerChecklists} from './tools/checklists.ts';
 import {registerCustomProperties} from './tools/custom-properties.ts';
 import {registerWorkspaceManagement} from './tools/workspace-management.ts';
 import {registerAdvancedCardOperations} from './tools/advanced-card-operations.ts';
+import {registerCardBlockersAndRelations} from './tools/card-blockers-and-relations.ts';
 
 export function createServer(
   configuration: Configuration,
@@ -58,6 +59,7 @@ export function createServer(
   registerWorkspaceManagement(registry);
   registry.group('cards');
   registerAdvancedCardOperations(registry);
+  registerCardBlockersAndRelations(registry);
   registry.register();
   return {server};
 }
