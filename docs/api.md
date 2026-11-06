@@ -67,3 +67,62 @@ Read full column configuration with `kaiten_navigation_read`:
 ```json
 {"request": {"operation": "columns.getListOfColumns", "args": {"board_id": 2}}}
 ```
+
+## Advanced cards and search
+
+All card reads below use `kaiten_cards_read`; mutations use `kaiten_cards_write`.
+These operations reuse existing tools, so the total remains 16.
+
+| Operation                             | Arguments                | Behavior                                                                                                                           |
+| ------------------------------------- | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
+| `cards.createNewCard`, `cards.create` | `body`                   | Equivalent client entry points; includes responsible user, owner email, service, external ID, position, text format and properties |
+| `cards.updateCard`                    | `card_id`, `body`        | Full update contract, including workload, planning recalculation, comment flag, ordering and text format                           |
+| `cards.deleteCard`                    | `card_id`                | Delete and preserve the complete response                                                                                          |
+| `cards.retrieveCard`                  | `card_id`, `broken_api?` | Full card response, including file and relationship references                                                                     |
+| `cards.retrieveCardBaselines`         | `card_id`                | Unarchived baselines of unarchived projects                                                                                        |
+| `cards.retrieveCardLocationHistory`   | `card_id`                | Card movement history                                                                                                              |
+| `cards.batchUpdateForCards`           | `body`                   | Update cards matching a selector, or sort a column/lane; returns the upstream job ID, not a completed-job promise                  |
+| `cards.retrieveCardList`              | `query?`                 | Full search contract, including exclusions, ordering, text projections and v1/v2 pagination                                        |
+| `cards.iterate`                       | `query?`, `max_items?`   | Client v2 iterator across pages, bounded to 100 items by default (1–1,000)                                                         |
+| `encodeCardFilter`                    | `filter`                 | Local structured-filter encoding; no HTTP request                                                                                  |
+
+Batch updates require `attributes` and at least one selector (`board_id`,
+`column_id`, `lane_id`, `owner_id`, `type_id`, `condition`), or all three of
+`column_id`, `lane_id`, `order_by`. The operation can affect many cards.
+
+Search v1 returns an array; v2 returns `{result: [...], position: "..."}` inside
+the outer `{result}` envelope. For the next v2 page, keep the same filters and
+pass the returned `position` as `query.start_position`. An empty position marks
+the final page. `query.filter` accepts either a pre-encoded string or the
+client's structured two-level `and`/`or` filter; the client performs UTF-8 base64
+encoding. Predicates cover native fields, paths, dates, source and custom
+properties. Numeric custom-property comparison values are strings.
+
+`cards.iterate` returns `{result: {items, truncated}}`. It closes the client
+iterator on completion, error or limit; it may read one additional item to
+determine truncation. The snapshot has no continuation token. Use
+`cards.retrieveCardList` for resumable pagination. The original operation timeout
+and cancellation apply to the entire iteration.
+
+Read a v2 page with `kaiten_cards_read`:
+
+```json
+{
+  "request": {
+    "operation": "cards.retrieveCardList",
+    "args": {
+      "query": {
+        "version": 2,
+        "board_id": 2,
+        "additional_card_fields": ["description"],
+        "filter": {
+          "key": "and",
+          "value": [
+            {"key": "and", "value": [{"key": "asap", "comparison": "true"}]}
+          ]
+        }
+      }
+    }
+  }
+}
+```
