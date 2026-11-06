@@ -20,6 +20,7 @@ import {registerCardBlockersAndRelations} from './tools/card-blockers-and-relati
 import {registerIdentityAndAccess} from './tools/identity-and-access.ts';
 import {registerScimProvisioning} from './tools/scim-provisioning.ts';
 import {registerCardTypesAndTags} from './tools/card-types-and-tags.ts';
+import {registerCustomFieldAdministration} from './tools/custom-field-administration.ts';
 
 export function createServer(
   configuration: Configuration,
@@ -74,6 +75,8 @@ export function createServer(
     }),
   );
   registerCardTypesAndTags(registry);
+  registry.group('custom_properties');
+  registerCustomFieldAdministration(registry);
   registry.register();
   return {server};
 }

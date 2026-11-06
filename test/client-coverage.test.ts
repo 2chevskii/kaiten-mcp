@@ -40,6 +40,12 @@ test('advanced operations cover every public method in the implemented client do
     'cardTypes',
     'cardTypeTreeEntities',
     'tags',
+    'customProperties',
+    'customPropertyCatalogValues',
+    'customPropertyCollectiveScoreValues',
+    'customPropertyCollectiveVoteValues',
+    'customPropertySelectValues',
+    'customPropertyTreeEntities',
   ] as const) {
     for (const method of Object.keys(client[resource])) {
       assert.ok(
