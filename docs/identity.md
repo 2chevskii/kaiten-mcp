@@ -1,6 +1,7 @@
 # Identity and access
 
 See also [SCIM provisioning](./scim.md).
+Time-tracking [role inputs](./time-tracking.md) accept the built-in Employee ID `-1`.
 
 These [advanced operations](./api.md) share `kaiten_navigation_read` and
 `kaiten_navigation_write`; the server still exposes 16 tools. Mutations use the

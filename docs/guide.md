@@ -268,7 +268,9 @@ User profiles, groups, roles, invitations and space access are supported through
 
 [SCIM provisioning](./scim.md) supports users, groups and typed patch operations.
 
-Documents, attachments, time tracking, automations,
+[Time tracking](./time-tracking.md) supports card logs and paginated reports.
+
+Documents, attachments, automations,
 webhooks are outside this
 version. The server exposes tools over stdio; HTTP transport, MCP resources and
 prompts are outside this version.
