@@ -1,7 +1,7 @@
 # Time tracking and reports
 
 These [advanced operations](./api.md) share `kaiten_cards_read` and
-`kaiten_cards_write`; the server still exposes 18 tools. Responses preserve the
+`kaiten_cards_write`; the server still exposes 20 tools. Responses preserve the
 complete upstream JSON in `{result}`, including report aggregates.
 
 | Operation                      | Arguments                           | Behavior                                                              |

@@ -13,6 +13,7 @@ import {serviceDeskCases} from './service-desk-cases.ts';
 import {documentCases} from './document-cases.ts';
 import {automationCases} from './automation-cases.ts';
 import {activityCases} from './activity-cases.ts';
+import {fileCases} from './file-cases.ts';
 
 export const apiCases = [
   ...workspaceCases,
@@ -30,6 +31,7 @@ export const apiCases = [
   ...documentCases,
   ...automationCases,
   ...activityCases,
+  ...fileCases,
 ];
 
 // These operations have dedicated protocol tests for local computation or pagination.
@@ -47,4 +49,10 @@ export const specialOperations = [
   'sendCardWebhook',
   'addonOAuth.getToken',
   'addonOAuth.refreshToken',
+  'list_card_files',
+  'get_legacy_card_file',
+  'download_card_file',
+  'download_comment_file',
+  'download_custom_property_file',
+  'download_legacy_card_file',
 ];

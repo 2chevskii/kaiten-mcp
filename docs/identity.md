@@ -4,7 +4,7 @@ See also [SCIM provisioning](./scim.md).
 Time-tracking [role inputs](./time-tracking.md) accept the built-in Employee ID `-1`.
 
 These [advanced operations](./api.md) share `kaiten_navigation_read` and
-`kaiten_navigation_write`; the server still exposes 18 tools. Mutations use the
+`kaiten_navigation_write`; the server still exposes 20 tools. Mutations use the
 configured token's Kaiten administrative permissions. Responses preserve the
 complete upstream JSON in `{result}`.
 

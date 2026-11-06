@@ -2,7 +2,7 @@
 
 SCIM operations use the public `KaitenScimClient` with the configured company
 origin and `KAITEN_TOKEN`. Reads share `kaiten_navigation_read`; creates and
-patches share `kaiten_navigation_write`. The server still exposes 18 tools.
+patches share `kaiten_navigation_write`. The server still exposes 20 tools.
 
 Calls use the [advanced operation envelope](./api.md). Top-level argument names
 are `snake_case`; nested SCIM payloads and responses preserve their native

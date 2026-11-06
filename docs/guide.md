@@ -120,16 +120,17 @@ For a source checkout, follow [development](./development.md).
 
 ### Environment variables
 
-| Variable                   | Required      | Value                                                                                                 |
-| -------------------------- | ------------- | ----------------------------------------------------------------------------------------------------- |
-| `KAITEN_ORIGIN`            | Yes           | Company origin, such as `https://company.kaiten.ru`; no API path, credentials, query or fragment      |
-| `KAITEN_TOKEN`             | Either source | Kaiten API token; whitespace around the token is trimmed                                              |
-| `KAITEN_TIMEOUT_MS`        | No            | Timeout per tool operation in milliseconds; default `30000`, integer from `1` to `2147483647`         |
-| `KAITEN_CONTEXT_FILE`      | No            | Comma-separated context file paths, loaded left to right at startup; overrides automatic discovery    |
-| `KAITEN_ADDON_SECRET`      | No            | Addon secret for the optional [addon OAuth operations](./addon-oauth.md); separate from the API token |
-| `KAITEN_TOKEN_FILE`        | Alternative   | Plain UTF-8 API token file, read before each request; mutually exclusive with `KAITEN_TOKEN`          |
-| `KAITEN_ADDON_SECRET_FILE` | No            | Rotating addon secret file; mutually exclusive with `KAITEN_ADDON_SECRET`                             |
-| `KAITEN_API_VERSION`       | No            | REST prefix: `v1` (default) or `latest`                                                               |
+| Variable                   | Required      | Value                                                                                                                    |
+| -------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `KAITEN_ORIGIN`            | Yes           | Company origin, such as `https://company.kaiten.ru`; no API path, credentials, query or fragment                         |
+| `KAITEN_TOKEN`             | Either source | Kaiten API token; whitespace around the token is trimmed                                                                 |
+| `KAITEN_TIMEOUT_MS`        | No            | Timeout per tool operation in milliseconds; default `30000`, integer from `1` to `2147483647`                            |
+| `KAITEN_CONTEXT_FILE`      | No            | Comma-separated context file paths, loaded left to right at startup; overrides automatic discovery                       |
+| `KAITEN_ADDON_SECRET`      | No            | Addon secret for the optional [addon OAuth operations](./addon-oauth.md); separate from the API token                    |
+| `KAITEN_TOKEN_FILE`        | Alternative   | Plain UTF-8 API token file, read before each request; mutually exclusive with `KAITEN_TOKEN`                             |
+| `KAITEN_ADDON_SECRET_FILE` | No            | Rotating addon secret file; mutually exclusive with `KAITEN_ADDON_SECRET`                                                |
+| `KAITEN_API_VERSION`       | No            | REST prefix: `v1` (default) or `latest`                                                                                  |
+| `KAITEN_MAX_FILE_BYTES`    | No            | Binary upload/download cap; default `5242880` (5 MiB), range `1`–`104857600`; also caps combined comment-form file bytes |
 
 HTTPS is required for a Kaiten company. The client library accepts loopback HTTP
 for local fixtures. REST requests use API v1 by default. See [connection options](./connection-options.md) for API-version selection and rotating credentials.
@@ -231,7 +232,7 @@ at startup. Actual model behavior needs verification in your MCP client.
 
 ## 3. Verify the connection
 
-Reload your client's MCP configuration and check that it discovers **18 tools**
+Reload your client's MCP configuration and check that it discovers **20 tools**
 with the `kaiten_` prefix. Ask the assistant:
 
 > Identify my Kaiten user, then list the spaces I can access.
@@ -260,33 +261,23 @@ items with their dedicated tools. Lists default to 25 items and accept at most
 
 ## Supported scope
 
-The 18 tools cover navigation, cards, parent and child relationships, external links, comments, memberships, tags,
-checklists and existing custom properties. Property definitions, options and directories can be
-read, and values can be assigned to cards.
+The server exposes **20 tools** as ten read/write domain pairs. The original
+convenient card workflows and every public REST/SCIM resource method in
+`@2chevskii/kaiten-client` **1.1.0** are available. [Advanced operations](./api.md)
+retain complete API inputs and JSON responses.
 
-Spaces, boards, columns, subcolumns and lanes can also be created, updated and
-removed through [advanced client operations](./api.md).
+- Workspace hierarchy, profiles, groups, roles and access; [SCIM provisioning](./scim.md).
+- Cards, filters, blockers, dependencies, relationships, members, tags and types.
+- [Custom fields](./custom-fields.md), options, scores, votes and [directories](./directories.md).
+- [Shared checklists and templates](./checklist-templates.md), [time tracking](./time-tracking.md), [iterations and sprints](./planning.md), and [service desk/SLA](./service-desk.md).
+- [Documents, groups and schemas](./documents.md), [automations](./automations.md), and [activity/audit logs](./activity.md).
+- [File upload, metadata, download and deletion](./files.md), including comment and custom-property files.
+- [Incoming card webhooks](./webhooks.md), [addon OAuth](./addon-oauth.md), and [connection options/rotating credentials](./connection-options.md).
 
-User profiles, groups, roles, invitations and space access are supported through
-[identity and access operations](./identity.md).
-
-[SCIM provisioning](./scim.md) supports users, groups and typed patch operations.
-
-[Time tracking](./time-tracking.md) supports card logs and paginated reports.
-
-[Documents and groups](./documents.md) support content editing, schema discovery,
-cloning, publishing controls and both pagination formats.
-
-[Automations](./automations.md) support event, date and on-demand definitions.
-
-[Incoming card webhooks](./webhooks.md) are supported.
-
-Attachments are outside this
-version. The server exposes tools over stdio; HTTP transport, MCP resources and
-prompts are outside this version.
-
-[Custom-field administration](./custom-fields.md) supports definitions, options,
-scores, votes and availability bindings.
-
-[Custom directories](./directories.md) support directory, field and record
-administration, nested record filters and linked-card lookup.
+The server runs over stdio and can return embedded binary file resources.
+It does not provide an HTTP MCP endpoint, a resource-read service, prompts,
+or a webhook listener. Upstream metadata/import/addon browser declarations
+are types, not executable API services; see [client coverage](./api.md#client-coverage-and-limits).
+Kaiten permissions, plan availability and the pinned client's pagination limits
+still apply. Protocol tests use local HTTP fixtures; they do not verify a live
+Kaiten account.
