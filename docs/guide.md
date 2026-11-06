@@ -120,12 +120,13 @@ For a source checkout, follow [development](./development.md).
 
 ### Environment variables
 
-| Variable              | Required | Value                                                                                              |
-| --------------------- | -------- | -------------------------------------------------------------------------------------------------- |
-| `KAITEN_ORIGIN`       | Yes      | Company origin, such as `https://company.kaiten.ru`; no API path, credentials, query or fragment   |
-| `KAITEN_TOKEN`        | Yes      | Kaiten API token; whitespace around the token is trimmed                                           |
-| `KAITEN_TIMEOUT_MS`   | No       | Timeout per tool operation in milliseconds; default `30000`, integer from `1` to `2147483647`      |
-| `KAITEN_CONTEXT_FILE` | No       | Comma-separated context file paths, loaded left to right at startup; overrides automatic discovery |
+| Variable              | Required | Value                                                                                                 |
+| --------------------- | -------- | ----------------------------------------------------------------------------------------------------- |
+| `KAITEN_ORIGIN`       | Yes      | Company origin, such as `https://company.kaiten.ru`; no API path, credentials, query or fragment      |
+| `KAITEN_TOKEN`        | Yes      | Kaiten API token; whitespace around the token is trimmed                                              |
+| `KAITEN_TIMEOUT_MS`   | No       | Timeout per tool operation in milliseconds; default `30000`, integer from `1` to `2147483647`         |
+| `KAITEN_CONTEXT_FILE` | No       | Comma-separated context file paths, loaded left to right at startup; overrides automatic discovery    |
+| `KAITEN_ADDON_SECRET` | No       | Addon secret for the optional [addon OAuth operations](./addon-oauth.md); separate from the API token |
 
 HTTPS is required for a Kaiten company. The client library accepts loopback HTTP
 for local fixtures. REST requests use API v1.

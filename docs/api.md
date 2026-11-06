@@ -1,5 +1,7 @@
 # Advanced client operations
 
+[Addon OAuth](./addon-oauth.md) retrieves and refreshes addon user tokens.
+
 [Incoming card webhooks](./webhooks.md) create cards through configured webhook URLs.
 
 [Activity and audit logs](./activity.md) support page reads and bounded activity snapshots.

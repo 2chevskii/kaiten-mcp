@@ -1,6 +1,19 @@
 import {KaitenHttpError, KaitenResponseError} from '@2chevskii/kaiten-client';
 import {ZodError} from 'zod/v4';
 
+/** Only constant, deliberately public messages belong in an OperationError. */
+export class OperationError extends Error {
+  readonly code: string;
+  readonly status?: number;
+
+  constructor(code: string, message: string, status?: number) {
+    super(message);
+    this.name = 'OperationError';
+    this.code = code;
+    if (status !== undefined) this.status = status;
+  }
+}
+
 export function describeError(error: unknown, signal: AbortSignal) {
   if (signal.aborted) {
     const timeout =
@@ -8,6 +21,13 @@ export function describeError(error: unknown, signal: AbortSignal) {
     return {
       code: timeout ? 'TIMEOUT' : 'CANCELLED',
       message: timeout ? 'Kaiten request timed out.' : 'Request cancelled.',
+    };
+  }
+  if (error instanceof OperationError) {
+    return {
+      code: error.code,
+      message: error.message,
+      ...(error.status === undefined ? {} : {status: error.status}),
     };
   }
   if (error instanceof KaitenHttpError) {
