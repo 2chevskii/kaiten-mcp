@@ -5,11 +5,13 @@ an MCP client; paste the natural-language request into your assistant, or use th
 arguments in a client that provides a tool-call interface. All IDs below are
 illustrative: replace them with IDs returned by your company.
 
+Examples show the contents of `args`; pass them inside `request` with the indicated `operation` value. See the [tool reference](./tools.md).
+
 ## Find my active cards
 
 > Find my active cards and group them by board. Show overdue work first.
 
-1. Read the connection guidance in `kaiten_get_current_user` and call it with `{}`.
+1. Read the connection guidance in `kaiten_navigation_read` (`get_current_user`) and call it with `{}`.
    Use `item.id` unless the connection configures a different `user_id`.
    Do not confirm identity by comparing the returned name with your nickname.
 2. Search using that user ID as a responsible filter (or the configured role):
@@ -23,10 +25,10 @@ illustrative: replace them with IDs returned by your company.
 }
 ```
 
-Use these arguments with `kaiten_search_cards`. State `1` is queued, `2` is in
+Use these arguments with `kaiten_cards_read` (`search_cards`). State `1` is queued, `2` is in
 progress, and `3` is done. Add `overdue: true` for an overdue-only search.
-For a board-specific request, discover the board ID through `kaiten_list_spaces`
-and `kaiten_list_boards`, then add `board_id`.
+For a board-specific request, discover the board ID through `kaiten_navigation_read` (`list_spaces`)
+and `kaiten_navigation_read` (`list_boards`), then add `board_id`.
 
 Ownership, membership and responsibility have separate filters: `owner_ids`,
 `member_ids` and `responsible_ids`. Choose the relation the request means.
@@ -59,23 +61,23 @@ filters and `limit`, until `next_offset` is `null`.
 
 > Read card 123, its comments and checklists. Summarize the blocker and unfinished tasks.
 
-| Step                            | Tool                   | Arguments                          |
-| ------------------------------- | ---------------------- | ---------------------------------- |
-| Read description and references | `kaiten_get_card`      | `{"card_id":123}`                  |
-| Read discussion                 | `kaiten_list_comments` | `{"card_id":123,"limit":100}`      |
-| Read a referenced checklist     | `kaiten_get_checklist` | `{"card_id":123,"checklist_id":8}` |
+| Step                            | Tool                                       | Arguments                          |
+| ------------------------------- | ------------------------------------------ | ---------------------------------- |
+| Read description and references | `kaiten_cards_read` (`get_card`)           | `{"card_id":123}`                  |
+| Read discussion                 | `kaiten_comments_read` (`list_comments`)   | `{"card_id":123,"limit":100}`      |
+| Read a referenced checklist     | `kaiten_checklists_read` (`get_checklist`) | `{"card_id":123,"checklist_id":8}` |
 
 Follow comment pagination. Fetch each checklist referenced in the card;
-`kaiten_list_checklists` can also list those references. Card details contain
-checklist references, while `kaiten_get_checklist` returns the item text and
+`kaiten_checklists_read` (`list_checklists`) can also list those references. Card details contain
+checklist references, while `kaiten_checklists_read` (`get_checklist`) returns the item text and
 completion flags. Card search summaries omit descriptions and discussions.
 
 ## Create a card and checklist
 
 > Create a release card on the Delivery board with an Implementation checklist.
 
-First discover the space and board. Read `kaiten_get_board` to obtain valid
-column and lane IDs belonging to that board. Then call `kaiten_create_card`:
+First discover the space and board. Read `kaiten_navigation_read` (`get_board`) to obtain valid
+column and lane IDs belonging to that board. Then call `kaiten_cards_write` (`create_card`):
 
 ```json
 {
@@ -89,8 +91,8 @@ column and lane IDs belonging to that board. Then call `kaiten_create_card`:
 ```
 
 Use the returned `item.id` for subsequent calls. For a card with ID `123`, call
-`kaiten_create_checklist` with `{"card_id":123,"name":"Implementation"}`.
-Use its returned checklist ID in `kaiten_add_checklist_item`:
+`kaiten_checklists_write` (`create_checklist`) with `{"card_id":123,"name":"Implementation"}`.
+Use its returned checklist ID in `kaiten_checklists_write` (`add_checklist_item`):
 
 ```json
 {
@@ -101,7 +103,7 @@ Use its returned checklist ID in `kaiten_add_checklist_item`:
 }
 ```
 
-To complete the returned item, call `kaiten_update_checklist_item`:
+To complete the returned item, call `kaiten_checklists_write` (`update_checklist_item`):
 
 ```json
 {
@@ -118,14 +120,14 @@ checklist items before repeating it; the server performs no automatic retries.
 
 ## Move, update or archive a card
 
-Use `kaiten_move_card` with all four location IDs:
+Use `kaiten_cards_write` (`move_card`) with all four location IDs:
 
 ```json
 {"card_id": 123, "board_id": 2, "column_id": 30, "lane_id": 40}
 ```
 
 Read the target board first to discover its columns and lanes. To edit content,
-use `kaiten_update_card` with a nonempty `changes` object:
+use `kaiten_cards_write` (`update_card`) with a nonempty `changes` object:
 
 ```json
 {
@@ -135,25 +137,25 @@ use `kaiten_update_card` with a nonempty `changes` object:
 ```
 
 Omitted fields retain their values. `null` clears supported fields; see the
-[editable fields](./tools.md#cards). Archive with `kaiten_archive_card` and restore
-with `kaiten_restore_card`, each using `{"card_id":123}`. Archiving changes the
+[editable fields](./tools.md#cards). Archive with `kaiten_cards_write` (`archive_card`) and restore
+with `kaiten_cards_write` (`restore_card`), each using `{"card_id":123}`. Archiving changes the
 card condition; the queued/in-progress/done state is a separate field.
 
 ## Assign members and custom properties
 
-To add an existing user, call `kaiten_add_card_member` with `card_id` and
+To add an existing user, call `kaiten_relations_write` (`add_card_member`) with `card_id` and
 `user_id`. To make that member responsible, obtain the membership's `id` from
-`kaiten_list_card_members` and use it as `member_id` in
-`kaiten_update_card_member_role` with `type: 2`.
+`kaiten_relations_read` (`list_card_members`) and use it as `member_id` in
+`kaiten_relations_write` (`update_card_member_role`) with `type: 2`.
 
 For custom fields:
 
-1. Read `kaiten_get_board` for the board's property configuration.
-2. Find the property with `kaiten_list_custom_properties` and inspect it with
-   `kaiten_get_custom_property`.
-3. Read existing options using `kaiten_list_select_values`,
-   `kaiten_list_catalog_values` or the custom-directory tools as appropriate.
-4. Call `kaiten_set_card_properties` using the discovered IDs:
+1. Read `kaiten_navigation_read` (`get_board`) for the board's property configuration.
+2. Find the property with `kaiten_custom_properties_read` (`list_custom_properties`) and inspect it with
+   `kaiten_custom_properties_read` (`get_custom_property`).
+3. Read existing options using `kaiten_custom_properties_read` (`list_select_values`),
+   `kaiten_custom_properties_read` (`list_catalog_values`) or the custom-directory tools as appropriate.
+4. Call `kaiten_custom_properties_write` (`set_card_properties`) using the discovered IDs:
 
 ```json
 {"card_id": 123, "properties": {"id_7": [12, 13], "id_8": null}}

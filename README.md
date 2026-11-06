@@ -6,7 +6,7 @@
 ![GitHub License](https://img.shields.io/github/license/2chevskii/kaiten-mcp)
 
 Find cards, understand what's blocking them, and keep work moving without leaving
-your assistant. Kaiten MCP runs locally and gives your MCP client **51 tools** for
+your assistant. Kaiten MCP runs locally and gives your MCP client **15 tools** for
 working with your Kaiten company through its API.
 
 [Read the documentation][docs] ·
@@ -56,7 +56,7 @@ Use the client's secret settings for the token where supported.
 
 ### 2. Check the connection
 
-Your client should discover 51 tools with the `kaiten_` prefix. Ask your assistant:
+Your client should discover 15 tools with the `kaiten_` prefix. Ask your assistant:
 
 > Identify my Kaiten user, then list the spaces I can access.
 
