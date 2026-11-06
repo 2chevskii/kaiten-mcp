@@ -35,7 +35,7 @@ test('single-request operations call the real library with the expected HTTP con
         item.method === 'GET',
         'HTTP reads and mutations must be exposed in their respective tool groups',
       );
-      harness.reply(item.response);
+      harness.reply(item.response, item.status);
       const count = harness.requests.length;
       const result = await harness.call(item.name, item.args);
       assert.notEqual(result.isError, true, JSON.stringify(result));

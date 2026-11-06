@@ -19,6 +19,7 @@ import {registerAdvancedCardOperations} from './tools/advanced-card-operations.t
 import {registerCardBlockersAndRelations} from './tools/card-blockers-and-relations.ts';
 import {registerIdentityAndAccess} from './tools/identity-and-access.ts';
 import {registerScimProvisioning} from './tools/scim-provisioning.ts';
+import {registerCardTypesAndTags} from './tools/card-types-and-tags.ts';
 
 export function createServer(
   configuration: Configuration,
@@ -72,6 +73,7 @@ export function createServer(
       token: configuration.token,
     }),
   );
+  registerCardTypesAndTags(registry);
   registry.register();
   return {server};
 }
