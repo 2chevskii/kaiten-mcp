@@ -14,6 +14,7 @@ import {registerCardChildren} from './tools/card-children.ts';
 import {registerChecklists} from './tools/checklists.ts';
 import {registerCustomProperties} from './tools/custom-properties.ts';
 import {registerWorkspaceManagement} from './tools/workspace-management.ts';
+import {registerAdvancedCardOperations} from './tools/advanced-card-operations.ts';
 
 export function createServer(
   configuration: Configuration,
@@ -55,6 +56,8 @@ export function createServer(
   registerCustomProperties(registry);
   registry.group('navigation');
   registerWorkspaceManagement(registry);
+  registry.group('cards');
+  registerAdvancedCardOperations(registry);
   registry.register();
   return {server};
 }
