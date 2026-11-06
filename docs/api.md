@@ -126,3 +126,47 @@ Read a v2 page with `kaiten_cards_read`:
   }
 }
 ```
+
+## Blockers and relationships
+
+Reads and writes use the existing tools indicated below; the total remains 16.
+All advanced operations return the full response in `{result}`. List reads
+return the complete upstream list, with no local pagination.
+
+| Resource                | Operations after `resource.`                                                                             | Tool group and arguments                                                                                                                |
+| ----------------------- | -------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `cardAllowedUsers`      | `retrieveUsersList`                                                                                      | `relations_read`: `card_id`, `query?` (`type`, `search`, `orderBy`, `role`, `limit`, `offset`)                                          |
+| `cardBlockers`          | `blockCard`, `retrieveCardBlockersList`, `updateCardBlockers`, `deleteCardBlockers`                      | `relations_read`/`relations_write`: `card_id`; `body` for create/update; `blocker_id` for update/delete                                 |
+| `cardBlockerUsers`      | `addUserToTheCardBlocker`, `removeUser`, `retrieveListOfUsers`, `retrieveBlockersCardsListOnCurrentUser` | `relations_read`/`relations_write`: `blocker_id`; `user_id` for add/remove; no arguments for current-user blockers                      |
+| `cardBlockerCategories` | `addBlockerCategory`, `removeCategory`, `retrieveListOfCategories`                                       | `relations_read`/`relations_write`: `blocker_id` and `name` for add, `blocker_id` and `category_uuid` for remove; no arguments for list |
+| `cardPlannedRelations`  | `addPlannedRelation`, `updatePlannedRelation`, `removePlannedRelation`                                   | `relations_write`: `card_id`, `body` for add/update; `target_card_id` for update/remove                                                 |
+| `cardMembers`           | `addMemberToCard`, `removeMemberFromCard`, `retrieveListOfCardMembers`, `updateMemberRole`               | `relations_read`/`relations_write`: `card_id`; `user_id` for add; `member_id` for remove/update; `type: 2` for role update              |
+| `cardTags`              | `addTag`, `removeTagFromCard`, `rertrieveListOfTags`                                                     | `relations_read`/`relations_write`: `card_id`; `name` for add; `tag_id` for remove                                                      |
+| `cardChildren`          | `addChildren`, `removeChildren`, `retrieveCardChildrenList`                                              | `children_read`/`children_write`: `parent_card_id`, `child_card_id` for add; `card_id`, `id` for remove; `card_id` for list             |
+| `cardExternalLinks`     | `addExternalLink`, `removeExternalLink`, `retrieveCardExternalLinks`, `updateExternalLink`               | `external_links_read`/`external_links_write`: `card_id`; `url`, `description?` for add; `id` for remove/update; `body` for update       |
+
+Tool groups above have the `kaiten_` prefix. `rertrieveListOfTags` retains the
+upstream method's spelling; the convenient `list_card_tags` operation also
+remains available.
+
+A blocker body must contain `reason` or `blocker_card_id`. Updating also accepts
+`due_date` and `due_date_time_present`, including `null`, but the client's
+contract still requires `reason` or `blocker_card_id` in that update.
+
+Planned relations connect `card_id` (predecessor) to `target_card_id` (successor),
+independently of hierarchy and blockers. The add body contains `target_card_id`
+and `type`: `end-start`, `start-start`, `end-end`, or `start-end`. Updates can
+change `type`, a signed `gap`, or `gap_type` (`hours` or `days`). Clear a gap with
+both `gap: null` and `gap_type: null`. A partial gap update requires an existing
+gap in Kaiten. Removing a planned relation does not change card dates.
+
+Create a dependency with `kaiten_relations_write`:
+
+```json
+{
+  "request": {
+    "operation": "cardPlannedRelations.addPlannedRelation",
+    "args": {"card_id": 10, "body": {"target_card_id": 20, "type": "end-start"}}
+  }
+}
+```
