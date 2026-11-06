@@ -266,7 +266,9 @@ removed through [advanced client operations](./api.md).
 User profiles, groups, roles, invitations and space access are supported through
 [identity and access operations](./identity.md).
 
-Documents, attachments, time tracking, automations, SCIM,
+[SCIM provisioning](./scim.md) supports users, groups and typed patch operations.
+
+Documents, attachments, time tracking, automations,
 webhooks, property-definition editing and directory editing are outside this
 version. The server exposes tools over stdio; HTTP transport, MCP resources and
 prompts are outside this version.
