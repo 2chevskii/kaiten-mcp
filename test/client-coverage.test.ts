@@ -66,6 +66,8 @@ test('advanced operations cover every public method in the implemented client do
     'documentGroups',
     'documentSchemas',
     'automations',
+    'activity',
+    'auditLogs',
   ] as const) {
     for (const method of Object.keys(client[resource])) {
       assert.ok(
