@@ -263,7 +263,10 @@ read, and values can be assigned to cards.
 Spaces, boards, columns, subcolumns and lanes can also be created, updated and
 removed through [advanced client operations](./api.md).
 
-Documents, attachments, time tracking, automations, identity administration, SCIM,
+User profiles, groups, roles, invitations and space access are supported through
+[identity and access operations](./identity.md).
+
+Documents, attachments, time tracking, automations, SCIM,
 webhooks, property-definition editing and directory editing are outside this
 version. The server exposes tools over stdio; HTTP transport, MCP resources and
 prompts are outside this version.

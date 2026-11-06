@@ -1,5 +1,7 @@
 # Advanced client operations
 
+See also [identity and access](./identity.md).
+
 Advanced operations expose the complete public contracts of the pinned
 `@2chevskii/kaiten-client` **1.1.0**. Use these when you need fields beyond the
 convenient operations in the [tool reference](./tools.md).
