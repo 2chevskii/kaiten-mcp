@@ -1,5 +1,7 @@
 # Advanced client operations
 
+[Documents, groups and schemas](./documents.md) use their own read/write tools.
+
 [Service desk and SLA](./service-desk.md) extend service workflows.
 
 [Iterations and legacy sprints](./planning.md) extend planning workflows.
@@ -39,7 +41,7 @@ for example, 403 means insufficient access and 404 means an unavailable entity.
 ## Workspace management
 
 Reads use `kaiten_navigation_read`; mutations use `kaiten_navigation_write`.
-The server now exposes **16 tools**, with a hard maximum of 20.
+The server now exposes **18 tools**, with a hard maximum of 20.
 
 | Resource      | Operations after `resource.`                                                            | Arguments                                                                                                     |
 | ------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
@@ -85,7 +87,7 @@ Read full column configuration with `kaiten_navigation_read`:
 ## Advanced cards and search
 
 All card reads below use `kaiten_cards_read`; mutations use `kaiten_cards_write`.
-These operations reuse existing tools, so the total remains 16.
+These operations reuse existing tools, so the total remains 18.
 
 | Operation                             | Arguments                | Behavior                                                                                                                           |
 | ------------------------------------- | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
@@ -143,7 +145,7 @@ Read a v2 page with `kaiten_cards_read`:
 
 ## Blockers and relationships
 
-Reads and writes use the existing tools indicated below; the total remains 16.
+Reads and writes use the existing tools indicated below; the total remains 18.
 All advanced operations return the full response in `{result}`. List reads
 return the complete upstream list, with no local pagination.
 

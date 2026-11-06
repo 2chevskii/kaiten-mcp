@@ -1,7 +1,7 @@
 # Пользовательские справочники
 
 Эти [расширенные операции](./api.md) используют `kaiten_custom_properties_read`
-и `kaiten_custom_properties_write`; общее число остаётся равным 16. ID
+и `kaiten_custom_properties_write`; общее число остаётся равным 18. ID
 справочников, полей и записей — UUID. Полный JSON-ответ upstream сохраняется
 в `{result}`. API справочников помечен upstream как beta.
 

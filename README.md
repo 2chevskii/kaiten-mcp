@@ -8,7 +8,7 @@
 ![GitHub License](https://img.shields.io/github/license/2chevskii/kaiten-mcp)
 
 Find cards, understand what's blocking them, and keep work moving without leaving
-your assistant. Kaiten MCP runs locally and gives your MCP client **16 tools** for
+your assistant. Kaiten MCP runs locally and gives your MCP client **18 tools** for
 working with your Kaiten company through its API.
 
 [Read the documentation][docs] ·
@@ -58,7 +58,7 @@ Use the client's secret settings for the token where supported.
 
 ### 2. Check the connection
 
-Your client should discover 16 tools with the `kaiten_` prefix. Ask your assistant:
+Your client should discover 18 tools with the `kaiten_` prefix. Ask your assistant:
 
 > Identify my Kaiten user, then list the spaces I can access.
 
@@ -108,7 +108,8 @@ It also supports [SCIM provisioning](https://2chevskii.github.io/kaiten-mcp/scim
 It can [administer custom fields, options and votes](https://2chevskii.github.io/kaiten-mcp/custom-fields).
 [Directories, fields and records](https://2chevskii.github.io/kaiten-mcp/directories) can also be managed.
 [Time tracking and reports](https://2chevskii.github.io/kaiten-mcp/time-tracking) are supported.
-Documents, attachments, automation and webhooks
+[Documents, groups and schemas](https://2chevskii.github.io/kaiten-mcp/documents) are supported.
+Attachments, automation and webhooks
 are outside its scope.
 
 ## Development
