@@ -8,9 +8,9 @@ The total remains 18 tools.
 | `addonOAuth.getToken`     | `kaiten_navigation_read`  | `addon_uid`, `user_id`, `company_id` |
 | `addonOAuth.refreshToken` | `kaiten_navigation_write` | Same token key                       |
 
-Configure `KAITEN_ADDON_SECRET` in the server environment. It authenticates these
+Configure `KAITEN_ADDON_SECRET` or `KAITEN_ADDON_SECRET_FILE` in the server environment. See [connection options](./connection-options.md) for rotating file credentials. It authenticates these
 two operations against the configured `KAITEN_ORIGIN`; regular REST and SCIM
-requests still use `KAITEN_TOKEN`. The addon secret cannot be supplied as a tool
+requests still use `KAITEN_TOKEN` or its file provider. The addon secret cannot be supplied as a tool
 argument. A configured secret must be nonempty after trimming. Without it, both
 operations remain advertised and return `CONFIGURATION_ERROR` before HTTP.
 The usual server connection configuration remains required.

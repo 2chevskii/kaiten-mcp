@@ -3,12 +3,15 @@ import {
   type ModelContext,
   type ContextLocations,
 } from './model-context.ts';
+import type {TokenProvider} from '@2chevskii/kaiten-client';
+import {configuredToken} from './token-provider.ts';
 
 export interface Configuration {
   origin: string;
-  token: string;
+  token: TokenProvider;
   timeoutMs: number;
-  addonSecret?: string;
+  addonSecret?: TokenProvider;
+  apiVersion?: 'v1' | 'latest';
   context?: ModelContext;
 }
 
@@ -17,10 +20,15 @@ export function readConfiguration(
   locations?: ContextLocations,
 ): Configuration {
   const origin = environment.KAITEN_ORIGIN?.trim();
-  const token = environment.KAITEN_TOKEN?.trim();
+  const token = configuredToken(
+    environment,
+    'KAITEN_TOKEN',
+    'KAITEN_TOKEN_FILE',
+    locations?.cwd ?? process.cwd(),
+  );
   if (!origin || !token) {
     throw new Error(
-      'Set KAITEN_ORIGIN and KAITEN_TOKEN before starting Kaiten MCP.',
+      'Set KAITEN_ORIGIN and either KAITEN_TOKEN or KAITEN_TOKEN_FILE before starting Kaiten MCP.',
     );
   }
   const timeoutMs = Number(environment.KAITEN_TIMEOUT_MS ?? 30_000);
@@ -34,15 +42,26 @@ export function readConfiguration(
     );
   }
   const context = readModelContext(environment.KAITEN_CONTEXT_FILE, locations);
-  const addonSecret = environment.KAITEN_ADDON_SECRET?.trim();
-  if (environment.KAITEN_ADDON_SECRET !== undefined && !addonSecret) {
-    throw new Error('KAITEN_ADDON_SECRET must be nonempty when configured.');
+  const addonSecret = configuredToken(
+    environment,
+    'KAITEN_ADDON_SECRET',
+    'KAITEN_ADDON_SECRET_FILE',
+    locations?.cwd ?? process.cwd(),
+  );
+  const apiVersion = environment.KAITEN_API_VERSION?.trim();
+  if (
+    apiVersion !== undefined &&
+    apiVersion !== 'v1' &&
+    apiVersion !== 'latest'
+  ) {
+    throw new Error('KAITEN_API_VERSION must be v1 or latest.');
   }
   return {
     origin,
     token,
     timeoutMs,
     ...(addonSecret === undefined ? {} : {addonSecret}),
+    ...(apiVersion === undefined ? {} : {apiVersion}),
     ...(context === undefined ? {} : {context}),
   };
 }
