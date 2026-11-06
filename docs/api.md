@@ -1,5 +1,7 @@
 # Advanced client operations
 
+[Connection options](./connection-options.md) configure the API version and rotating credential providers.
+
 [Addon OAuth](./addon-oauth.md) retrieves and refreshes addon user tokens.
 
 [Incoming card webhooks](./webhooks.md) create cards through configured webhook URLs.
