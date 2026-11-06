@@ -8,6 +8,7 @@ export interface Configuration {
   origin: string;
   token: string;
   timeoutMs: number;
+  addonSecret?: string;
   context?: ModelContext;
 }
 
@@ -33,10 +34,15 @@ export function readConfiguration(
     );
   }
   const context = readModelContext(environment.KAITEN_CONTEXT_FILE, locations);
+  const addonSecret = environment.KAITEN_ADDON_SECRET?.trim();
+  if (environment.KAITEN_ADDON_SECRET !== undefined && !addonSecret) {
+    throw new Error('KAITEN_ADDON_SECRET must be nonempty when configured.');
+  }
   return {
     origin,
     token,
     timeoutMs,
+    ...(addonSecret === undefined ? {} : {addonSecret}),
     ...(context === undefined ? {} : {context}),
   };
 }

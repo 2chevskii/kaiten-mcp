@@ -45,4 +45,6 @@ export const specialOperations = [
   'activity.iterateCompanyActivity',
   'activity.iterateSpaceActivity',
   'sendCardWebhook',
+  'addonOAuth.getToken',
+  'addonOAuth.refreshToken',
 ];
