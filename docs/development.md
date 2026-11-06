@@ -1,7 +1,7 @@
 # Development
 
 The project is a Node.js 24+ TypeScript ESM server. All Kaiten requests go through
-`@2chevskii/kaiten-client`, pinned to `1.0.3` from public npm. The documentation is
+`@2chevskii/kaiten-client`, pinned to `1.1.0` from public npm. The documentation is
 a private npm workspace using VitePress `2.0.0-alpha.20`.
 
 ## Build from a checkout
@@ -143,7 +143,7 @@ and presentation focused. Repository conventions are in the root `AGENTS.md`.
 
 Protocol tests launch the compiled CLI from a different working directory and
 connect the official MCP client. Calls go through the installed Kaiten library
-to a local HTTP server. The suite covers all 51 operation contracts, a stateful card
+to a local HTTP server. The suite covers all advertised operation contracts, a stateful card
 workflow, pagination, input validation, nullable response fields, sanitized
 failures, cancellation and shutdown.
 
