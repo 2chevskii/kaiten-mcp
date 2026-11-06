@@ -27,6 +27,7 @@ import {registerTimeTracking} from './tools/time-tracking.ts';
 import {registerIterationsAndSprints} from './tools/iterations-and-sprints.ts';
 import {registerServiceDesk} from './tools/service-desk.ts';
 import {registerDocumentsAndGroups} from './tools/documents-and-groups.ts';
+import {registerAutomations} from './tools/automations.ts';
 
 export function createServer(
   configuration: Configuration,
@@ -94,6 +95,8 @@ export function createServer(
   registerServiceDesk(registry);
   registry.group('documents');
   registerDocumentsAndGroups(registry);
+  registry.group('navigation');
+  registerAutomations(registry);
   registry.register();
   return {server};
 }
