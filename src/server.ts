@@ -40,6 +40,9 @@ export function createServer(
   const client = new KaitenClient({
     origin: configuration.origin,
     token: configuration.token,
+    ...(configuration.apiVersion === undefined
+      ? {}
+      : {apiVersion: configuration.apiVersion}),
   });
   const instructions = modelInstructions(configuration.context);
   const server = new McpServer(
