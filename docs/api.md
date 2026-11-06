@@ -1,5 +1,7 @@
 # Advanced client operations
 
+[Shared checklists and space templates](./checklist-templates.md) extend the checklist tools.
+
 See also [identity and access](./identity.md).
 Card type administration and tag creation are described in
 [card types and tags](./taxonomy.md).
