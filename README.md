@@ -6,7 +6,7 @@
 ![GitHub License](https://img.shields.io/github/license/2chevskii/kaiten-mcp)
 
 Find cards, understand what's blocking them, and keep work moving without leaving
-your assistant. Kaiten MCP runs locally and gives your MCP client **15 tools** for
+your assistant. Kaiten MCP runs locally and gives your MCP client **16 tools** for
 working with your Kaiten company through its API.
 
 [Read the documentation][docs] ·
@@ -56,7 +56,7 @@ Use the client's secret settings for the token where supported.
 
 ### 2. Check the connection
 
-Your client should discover 15 tools with the `kaiten_` prefix. Ask your assistant:
+Your client should discover 16 tools with the `kaiten_` prefix. Ask your assistant:
 
 > Identify my Kaiten user, then list the spaces I can access.
 
@@ -101,8 +101,8 @@ The server communicates over **stdio**. Your MCP client starts the process and
 sends it tool calls; diagnostics go to stderr. Running it in a terminal may look
 idle while it waits for MCP input.
 
-This version focuses on cards and related data. Documents, attachments, time
-tracking, automation, administration, webhooks, and editing custom-field
+This version supports cards, related data and [workspace management](https://2chevskii.github.io/kaiten-mcp/api).
+Documents, attachments, time tracking, automation, identity administration, webhooks, and editing custom-field
 definitions or directories are outside its scope.
 
 ## Development
