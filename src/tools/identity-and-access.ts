@@ -1,5 +1,5 @@
 import * as z from 'zod/v4';
-import {id, pageFields, text} from '../schemas.ts';
+import {id, pageFields, text, userRoleId} from '../schemas.ts';
 import {read, change, type ToolRegistry} from '../tool-registry.ts';
 import {apiResult, collectItems} from '../results.ts';
 
@@ -470,7 +470,7 @@ export function registerIdentityAndAccess(registry: ToolRegistry): void {
   registry.add(
     'userRoles.getUserRole',
     'Get user role (userRoles); full API fields and JSON response.',
-    z.strictObject({role_id: id}),
+    z.strictObject({role_id: userRoleId}),
     apiResult,
     read,
     async (args, options) => ({
@@ -480,7 +480,7 @@ export function registerIdentityAndAccess(registry: ToolRegistry): void {
   registry.add(
     'userRoles.removeUserRole',
     'Remove user role (userRoles); full API fields and JSON response.',
-    z.strictObject({role_id: id, replace_role_id: id}),
+    z.strictObject({role_id: userRoleId, replace_role_id: userRoleId}),
     apiResult,
     change,
     async (args, options) => ({
@@ -494,7 +494,7 @@ export function registerIdentityAndAccess(registry: ToolRegistry): void {
   registry.add(
     'userRoles.updateUserRole',
     'Update user role (userRoles); full API fields and JSON response.',
-    z.strictObject({role_id: id, name: z.string()}),
+    z.strictObject({role_id: userRoleId, name: z.string()}),
     apiResult,
     change,
     async (args, options) => ({
