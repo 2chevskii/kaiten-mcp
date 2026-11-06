@@ -1,5 +1,8 @@
 import * as z from 'zod/v4';
 
+/** Advanced operations preserve the public client's complete JSON response. */
+export const apiResult = z.object({result: z.json()});
+
 export function entityResult<Schema extends z.ZodType>(schema: Schema) {
   return z.object({item: schema});
 }

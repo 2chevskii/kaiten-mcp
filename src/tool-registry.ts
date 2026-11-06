@@ -75,6 +75,9 @@ export class ToolRegistry {
   }
 
   register(): void {
+    if (this.groups.size > 20) {
+      throw new Error('The MCP surface must not exceed 20 tools.');
+    }
     for (const [group, operations] of this.groups) {
       const variants = operations.map(operation =>
         z.strictObject({

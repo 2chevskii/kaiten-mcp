@@ -2,15 +2,17 @@ import assert from 'node:assert/strict';
 import {test} from 'node:test';
 import {startHarness, token} from './harness.ts';
 import {toolCases} from './tool-cases.ts';
+import {apiCases} from './api-cases.ts';
 
 test('every advertised tool calls the real library with the expected HTTP contract', async context => {
   const harness = await startHarness(context);
   assert.equal(harness.client.getServerVersion()?.name, 'kaiten-mcp');
   const {tools} = await harness.client.listTools();
-  assert.equal(tools.length, 15);
+  assert.equal(tools.length, 16);
+  assert.ok(tools.length <= 20);
   assert.deepEqual(
     [...harness.operations.keys()].sort(),
-    toolCases.map(item => item.name).sort(),
+    [...toolCases, ...apiCases].map(item => item.name).sort(),
   );
   for (const tool of tools) {
     assert.ok(tool.description);
@@ -22,13 +24,15 @@ test('every advertised tool calls the real library with the expected HTTP contra
       tool.name.endsWith('_write'),
     );
   }
-  for (const item of toolCases) {
+  for (const item of [...toolCases, ...apiCases]) {
     await context.test(item.name, async () => {
       harness.reply(item.response);
       const count = harness.requests.length;
       const result = await harness.call(item.name, item.args);
       assert.notEqual(result.isError, true, JSON.stringify(result));
       assert.ok(result.structuredContent);
+      if (apiCases.includes(item))
+        assert.deepEqual(result.structuredContent, {result: item.response});
       const text = result.content[0];
       assert.equal(text?.type, 'text');
       if (text?.type === 'text')
