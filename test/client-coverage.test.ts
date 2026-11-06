@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
 import {KaitenClient} from '@2chevskii/kaiten-client';
+import {KaitenScimClient} from '@2chevskii/kaiten-client/scim';
 import {startHarness} from './harness.ts';
 
 test('advanced operations cover every public method in the implemented client domains', async context => {
@@ -41,6 +42,18 @@ test('advanced operations cover every public method in the implemented client do
       assert.ok(
         harness.operations.has(`${resource}.${method}`),
         `${resource}.${method} is missing`,
+      );
+    }
+  }
+  const scim = new KaitenScimClient({
+    origin: 'https://example.invalid',
+    token: 'fixture',
+  });
+  for (const resource of ['users', 'groups'] as const) {
+    for (const method of Object.keys(scim[resource])) {
+      assert.ok(
+        harness.operations.has(`scim.${resource}.${method}`),
+        `scim.${resource}.${method} is missing`,
       );
     }
   }

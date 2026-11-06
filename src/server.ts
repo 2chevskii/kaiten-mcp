@@ -1,4 +1,5 @@
 import {KaitenClient} from '@2chevskii/kaiten-client';
+import {KaitenScimClient} from '@2chevskii/kaiten-client/scim';
 import {McpServer} from '@modelcontextprotocol/server';
 import packageJson from '../package.json' with {type: 'json'};
 import type {Configuration} from './config.ts';
@@ -17,6 +18,7 @@ import {registerWorkspaceManagement} from './tools/workspace-management.ts';
 import {registerAdvancedCardOperations} from './tools/advanced-card-operations.ts';
 import {registerCardBlockersAndRelations} from './tools/card-blockers-and-relations.ts';
 import {registerIdentityAndAccess} from './tools/identity-and-access.ts';
+import {registerScimProvisioning} from './tools/scim-provisioning.ts';
 
 export function createServer(
   configuration: Configuration,
@@ -63,6 +65,13 @@ export function createServer(
   registerCardBlockersAndRelations(registry);
   registry.group('navigation');
   registerIdentityAndAccess(registry);
+  registerScimProvisioning(
+    registry,
+    new KaitenScimClient({
+      origin: configuration.origin,
+      token: configuration.token,
+    }),
+  );
   registry.register();
   return {server};
 }

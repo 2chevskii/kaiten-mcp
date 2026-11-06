@@ -1,5 +1,7 @@
 # Identity and access
 
+See also [SCIM provisioning](./scim.md).
+
 These [advanced operations](./api.md) share `kaiten_navigation_read` and
 `kaiten_navigation_write`; the server still exposes 16 tools. Mutations use the
 configured token's Kaiten administrative permissions. Responses preserve the
