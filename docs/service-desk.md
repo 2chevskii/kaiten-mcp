@@ -1,7 +1,7 @@
 # Service desk and SLA
 
 These [advanced operations](./api.md) share `kaiten_cards_read` and
-`kaiten_cards_write`; the total remains 16 tools. Full client responses are
+`kaiten_cards_write`; the total remains 18 tools. Full client responses are
 preserved in `{result}`.
 
 | Operation                                           | Arguments                   | Tool                 |
