@@ -273,8 +273,9 @@ User profiles, groups, roles, invitations and space access are supported through
 [Documents and groups](./documents.md) support content editing, schema discovery,
 cloning, publishing controls and both pagination formats.
 
-Attachments, automations,
-webhooks are outside this
+[Automations](./automations.md) support event, date and on-demand definitions.
+
+Attachments and webhooks are outside this
 version. The server exposes tools over stdio; HTTP transport, MCP resources and
 prompts are outside this version.
 
