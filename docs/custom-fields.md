@@ -1,5 +1,7 @@
 # Custom-field administration
 
+See also [custom directories](./directories.md) for directory, field and record management.
+
 These [advanced operations](./api.md) share `kaiten_custom_properties_read` and
 `kaiten_custom_properties_write`; the server still exposes 16 tools. Results
 preserve the complete client response in `{result}`. Existing convenient reads

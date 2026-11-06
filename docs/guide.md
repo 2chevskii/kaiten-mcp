@@ -269,9 +269,12 @@ User profiles, groups, roles, invitations and space access are supported through
 [SCIM provisioning](./scim.md) supports users, groups and typed patch operations.
 
 Documents, attachments, time tracking, automations,
-webhooks and directory editing are outside this
+webhooks are outside this
 version. The server exposes tools over stdio; HTTP transport, MCP resources and
 prompts are outside this version.
 
 [Custom-field administration](./custom-fields.md) supports definitions, options,
 scores, votes and availability bindings.
+
+[Custom directories](./directories.md) support directory, field and record
+administration, nested record filters and linked-card lookup.
