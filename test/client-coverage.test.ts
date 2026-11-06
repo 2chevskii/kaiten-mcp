@@ -46,6 +46,9 @@ test('advanced operations cover every public method in the implemented client do
     'customPropertyCollectiveVoteValues',
     'customPropertySelectValues',
     'customPropertyTreeEntities',
+    'customDirectories',
+    'customDirectoryFields',
+    'customDirectoryRecords',
   ] as const) {
     for (const method of Object.keys(client[resource])) {
       assert.ok(
