@@ -34,14 +34,24 @@ export function createServer(
     shutdownSignal,
     instructions,
   );
+  registry.group('navigation');
   registerNavigation(registry);
+  registry.group('cards');
   registerCardRead(registry);
+  registry.group('cards');
   registerCardWrite(registry);
+  registry.group('comments');
   registerComments(registry);
+  registry.group('external_links');
   registerCardExternalLinks(registry);
+  registry.group('relations');
   registerCardRelations(registry);
+  registry.group('children');
   registerCardChildren(registry);
+  registry.group('checklists');
   registerChecklists(registry);
+  registry.group('custom_properties');
   registerCustomProperties(registry);
+  registry.register();
   return {server};
 }
