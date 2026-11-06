@@ -22,7 +22,7 @@ test('advertised date schemas retain formats without calendar patterns', async c
     }
   }
   tools.forEach(tool => inspect(tool.inputSchema));
-  assert.equal(dates, 6);
+  assert.equal(dates, 11);
   assert.equal(dateTimes, 6);
 });
 
