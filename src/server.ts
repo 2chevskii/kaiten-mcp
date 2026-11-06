@@ -23,6 +23,7 @@ import {registerCardTypesAndTags} from './tools/card-types-and-tags.ts';
 import {registerCustomFieldAdministration} from './tools/custom-field-administration.ts';
 import {registerCustomDirectoryAdministration} from './tools/custom-directory-administration.ts';
 import {registerChecklistTemplates} from './tools/checklist-templates.ts';
+import {registerTimeTracking} from './tools/time-tracking.ts';
 
 export function createServer(
   configuration: Configuration,
@@ -82,6 +83,8 @@ export function createServer(
   registerCustomDirectoryAdministration(registry);
   registry.group('checklists');
   registerChecklistTemplates(registry);
+  registry.group('cards');
+  registerTimeTracking(registry);
   registry.register();
   return {server};
 }

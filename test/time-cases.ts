@@ -1,0 +1,91 @@
+import type {ToolCase} from './tool-cases.ts';
+
+const log = {
+  id: 9,
+  card_id: 10,
+  user_id: 5,
+  role_id: -1,
+  time_spent: 60,
+  for_date: '2026-11-06',
+  comment: '',
+  extra: 'preserved',
+};
+
+export const timeCases: ToolCase[] = [
+  {
+    name: 'cardTimeLogs.addTimeLog',
+    args: {
+      card_id: 10,
+      body: {role_id: -1, time_spent: 60, for_date: '2026-11-06', comment: ''},
+    },
+    method: 'POST',
+    path: '/cards/10/time-logs',
+    body: {role_id: -1, time_spent: 60, for_date: '2026-11-06', comment: ''},
+    response: log,
+  },
+  {
+    name: 'cardTimeLogs.getTimeLogs',
+    args: {card_id: 10, for_date: '2026-11-06', personal: false},
+    method: 'GET',
+    path: '/cards/10/time-logs',
+    query: {for_date: '2026-11-06', personal: 'false'},
+    response: [log],
+  },
+  {
+    name: 'cardTimeLogs.updateLogRecord',
+    args: {
+      card_id: 10,
+      time_log_id: 9,
+      body: {role_id: -1, time_spent: 0, for_date: '2026-11-06', comment: ''},
+    },
+    method: 'PATCH',
+    path: '/cards/10/time-logs/9',
+    body: {role_id: -1, time_spent: 0, for_date: '2026-11-06', comment: ''},
+    response: log,
+  },
+  {
+    name: 'cardTimeLogs.removeTimeLog',
+    args: {card_id: 10, time_log_id: 9},
+    method: 'DELETE',
+    path: '/cards/10/time-logs/9',
+    response: {id: 9},
+  },
+  {
+    name: 'timesheet.getList',
+    args: {
+      query: {
+        from: '2026-11-01',
+        to: '2026-11-06',
+        card_ids: [10, 20],
+        user_ids: '5,6',
+        visible_column_ids: [3],
+        limit: 200,
+        offset: 0,
+        condition: 0,
+        group_by: 1,
+        time_unit: 1,
+        time_precision: 0,
+        with_daily_distribution: 1,
+        only_general_sum: 0,
+      },
+    },
+    method: 'GET',
+    path: '/time-logs',
+    query: {
+      from: '2026-11-01',
+      to: '2026-11-06',
+      card_ids: '10,20',
+      user_ids: '5,6',
+      visible_column_ids: '3',
+      limit: '200',
+      offset: '0',
+      condition: '0',
+      group_by: '1',
+      time_unit: '1',
+      time_precision: '0',
+      with_daily_distribution: '1',
+      only_general_sum: '0',
+    },
+    response: [log],
+  },
+];

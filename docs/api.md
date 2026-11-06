@@ -1,5 +1,7 @@
 # Advanced client operations
 
+[Time tracking and reports](./time-tracking.md) extend the card tools.
+
 [Shared checklists and space templates](./checklist-templates.md) extend the checklist tools.
 
 See also [identity and access](./identity.md).
