@@ -10,6 +10,7 @@ import {checklistApiCases} from './checklist-api-cases.ts';
 import {timeCases} from './time-cases.ts';
 import {planningCases} from './planning-cases.ts';
 import {serviceDeskCases} from './service-desk-cases.ts';
+import {documentCases} from './document-cases.ts';
 
 export const apiCases = [
   ...workspaceCases,
@@ -24,6 +25,7 @@ export const apiCases = [
   ...timeCases,
   ...planningCases,
   ...serviceDeskCases,
+  ...documentCases,
 ];
 
 // These operations have dedicated protocol tests for local computation or pagination.
@@ -34,4 +36,6 @@ export const specialOperations = [
   'scim.users.iterate',
   'scim.groups.iterate',
   'tags.iterate',
+  'documents.iterate',
+  'documentGroups.iterate',
 ];

@@ -8,7 +8,7 @@ test('single-request operations call the real library with the expected HTTP con
   const harness = await startHarness(context);
   assert.equal(harness.client.getServerVersion()?.name, 'kaiten-mcp');
   const {tools} = await harness.client.listTools();
-  assert.equal(tools.length, 16);
+  assert.equal(tools.length, 18);
   assert.ok(tools.length <= 20);
   assert.deepEqual(
     [...harness.operations.keys()].sort(),
