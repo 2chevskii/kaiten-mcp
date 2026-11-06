@@ -1,5 +1,7 @@
 # Advanced client operations
 
+[Activity and audit logs](./activity.md) support page reads and bounded activity snapshots.
+
 [Automation management](./automations.md) extends the navigation tools.
 
 [Documents, groups and schemas](./documents.md) use their own read/write tools.
