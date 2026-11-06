@@ -17,6 +17,15 @@ test('advanced operations cover every public method in the implemented client do
     'subcolumn',
     'lanes',
     'cards',
+    'cardAllowedUsers',
+    'cardBlockerCategories',
+    'cardBlockerUsers',
+    'cardBlockers',
+    'cardPlannedRelations',
+    'cardMembers',
+    'cardTags',
+    'cardChildren',
+    'cardExternalLinks',
   ] as const) {
     for (const method of Object.keys(client[resource])) {
       assert.ok(
