@@ -13,6 +13,7 @@ import {registerCardRelations} from './tools/card-relations.ts';
 import {registerCardChildren} from './tools/card-children.ts';
 import {registerChecklists} from './tools/checklists.ts';
 import {registerCustomProperties} from './tools/custom-properties.ts';
+import {registerWorkspaceManagement} from './tools/workspace-management.ts';
 
 export function createServer(
   configuration: Configuration,
@@ -52,6 +53,8 @@ export function createServer(
   registerChecklists(registry);
   registry.group('custom_properties');
   registerCustomProperties(registry);
+  registry.group('navigation');
+  registerWorkspaceManagement(registry);
   registry.register();
   return {server};
 }
