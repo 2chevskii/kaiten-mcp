@@ -88,7 +88,32 @@ export async function startHarness(
   const protocolErrors: Error[] = [];
   client.onerror = error => protocolErrors.push(error);
   await client.connect(transport);
+  const {tools} = await client.listTools();
+  const operations = new Map<
+    string,
+    {tool: string; schema: Record<string, unknown>}
+  >();
+  for (const tool of tools) {
+    const request = (
+      tool.inputSchema.properties as Record<string, {anyOf?: unknown[]}>
+    ).request!;
+    for (const variant of request.anyOf ?? [request]) {
+      const properties = (
+        variant as {
+          properties: {
+            operation: {const: string};
+            args: Record<string, unknown>;
+          };
+        }
+      ).properties;
+      operations.set(properties.operation.const, {
+        tool: tool.name,
+        schema: properties.args,
+      });
+    }
+  }
   return {
+    operations,
     client,
     transport,
     requests,
@@ -107,7 +132,12 @@ export async function startHarness(
       respond = handler;
     },
     call(name: string, args: Record<string, unknown> = {}) {
-      return client.callTool({name: `kaiten_${name}`, arguments: args});
+      const operation = operations.get(name);
+      if (!operation) throw new Error(`Unknown operation: ${name}`);
+      return client.callTool({
+        name: operation.tool,
+        arguments: {request: {operation: name, args}},
+      });
     },
   };
 }

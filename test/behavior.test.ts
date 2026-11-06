@@ -580,7 +580,10 @@ test('client cancellation aborts the outgoing HTTP request', async context => {
     signal: AbortSignal.timeout(5000),
   });
   const pending = harness.client.callTool(
-    {name: 'kaiten_get_card', arguments: {card_id: 10}},
+    {
+      name: 'kaiten_cards_read',
+      arguments: {request: {operation: 'get_card', args: {card_id: 10}}},
+    },
     {signal: controller.signal},
   );
   const rejected = assert.rejects(pending);
