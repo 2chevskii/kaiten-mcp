@@ -1,5 +1,7 @@
 # Advanced client operations
 
+[Automation management](./automations.md) extends the navigation tools.
+
 [Documents, groups and schemas](./documents.md) use their own read/write tools.
 
 [Service desk and SLA](./service-desk.md) extend service workflows.
