@@ -49,7 +49,7 @@ test('single-request operations call the real library with the expected HTTP con
       assert.equal(harness.requests.length, count + 1);
       assert.deepEqual(harness.requests.at(-1), {
         method: item.method,
-        path: `/api/v1${item.path}`,
+        path: `${item.api_prefix ?? '/api/v1'}${item.path}`,
         query: item.query ?? {},
         body: item.body,
         authorization: `Bearer ${token}`,
