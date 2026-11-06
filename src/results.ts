@@ -3,6 +3,19 @@ import * as z from 'zod/v4';
 /** Advanced operations preserve the public client's complete JSON response. */
 export const apiResult = z.object({result: z.json()});
 
+/** Materialize a bounded snapshot while closing the client's iterator on exit. */
+export async function collectItems<Item>(
+  items: AsyncIterable<Item>,
+  maximum: number,
+) {
+  const selected: Item[] = [];
+  for await (const item of items) {
+    if (selected.length === maximum) return {items: selected, truncated: true};
+    selected.push(item);
+  }
+  return {items: selected, truncated: false};
+}
+
 export function entityResult<Schema extends z.ZodType>(schema: Schema) {
   return z.object({item: schema});
 }

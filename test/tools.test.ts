@@ -2,9 +2,9 @@ import assert from 'node:assert/strict';
 import {test} from 'node:test';
 import {startHarness, token} from './harness.ts';
 import {toolCases} from './tool-cases.ts';
-import {apiCases} from './api-cases.ts';
+import {apiCases, specialOperations} from './api-cases.ts';
 
-test('every advertised tool calls the real library with the expected HTTP contract', async context => {
+test('single-request operations call the real library with the expected HTTP contract', async context => {
   const harness = await startHarness(context);
   assert.equal(harness.client.getServerVersion()?.name, 'kaiten-mcp');
   const {tools} = await harness.client.listTools();
@@ -12,7 +12,11 @@ test('every advertised tool calls the real library with the expected HTTP contra
   assert.ok(tools.length <= 20);
   assert.deepEqual(
     [...harness.operations.keys()].sort(),
-    [...toolCases, ...apiCases].map(item => item.name).sort(),
+    [
+      ...toolCases.map(item => item.name),
+      ...apiCases.map(item => item.name),
+      ...specialOperations,
+    ].sort(),
   );
   for (const tool of tools) {
     assert.ok(tool.description);
@@ -26,6 +30,11 @@ test('every advertised tool calls the real library with the expected HTTP contra
   }
   for (const item of [...toolCases, ...apiCases]) {
     await context.test(item.name, async () => {
+      assert.equal(
+        harness.operations.get(item.name)?.tool.endsWith('_read'),
+        item.method === 'GET',
+        'HTTP reads and mutations must be exposed in their respective tool groups',
+      );
       harness.reply(item.response);
       const count = harness.requests.length;
       const result = await harness.call(item.name, item.args);
