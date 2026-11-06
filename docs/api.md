@@ -1,5 +1,7 @@
 # Advanced client operations
 
+[Service desk and SLA](./service-desk.md) extend service workflows.
+
 [Iterations and legacy sprints](./planning.md) extend planning workflows.
 
 [Time tracking and reports](./time-tracking.md) extend the card tools.
