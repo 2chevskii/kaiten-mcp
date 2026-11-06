@@ -1,5 +1,7 @@
 ![Kaiten and Model Context Protocol marks connected](assets/readme-banner.png)
 
+[![Kaiten MCP server on Glama](https://glama.ai/mcp/servers/2chevskii/kaiten-mcp/badges/card.svg)](https://glama.ai/mcp/servers/2chevskii/kaiten-mcp)
+
 [![npm version](https://img.shields.io/npm/v/@2chevskii/kaiten-mcp)][npmjs-page]
 [![CI](https://github.com/2chevskii/kaiten-mcp/actions/workflows/ci.yml/badge.svg)](https://github.com/2chevskii/kaiten-mcp/actions/workflows/ci.yml)
 ![Node.js 24+](https://img.shields.io/badge/Node.js-24%2B-339933?logo=node.js&logoColor=white)
