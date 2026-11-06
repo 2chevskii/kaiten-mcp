@@ -16,6 +16,7 @@ import {registerCustomProperties} from './tools/custom-properties.ts';
 import {registerWorkspaceManagement} from './tools/workspace-management.ts';
 import {registerAdvancedCardOperations} from './tools/advanced-card-operations.ts';
 import {registerCardBlockersAndRelations} from './tools/card-blockers-and-relations.ts';
+import {registerIdentityAndAccess} from './tools/identity-and-access.ts';
 
 export function createServer(
   configuration: Configuration,
@@ -60,6 +61,8 @@ export function createServer(
   registry.group('cards');
   registerAdvancedCardOperations(registry);
   registerCardBlockersAndRelations(registry);
+  registry.group('navigation');
+  registerIdentityAndAccess(registry);
   registry.register();
   return {server};
 }
