@@ -12,6 +12,7 @@ export interface Configuration {
   timeoutMs: number;
   addonSecret?: TokenProvider;
   apiVersion?: 'v1' | 'latest';
+  maxFileBytes?: number;
   context?: ModelContext;
 }
 
@@ -56,12 +57,27 @@ export function readConfiguration(
   ) {
     throw new Error('KAITEN_API_VERSION must be v1 or latest.');
   }
+  const maxFileBytes =
+    environment.KAITEN_MAX_FILE_BYTES === undefined
+      ? undefined
+      : Number(environment.KAITEN_MAX_FILE_BYTES);
+  if (
+    maxFileBytes !== undefined &&
+    (!Number.isSafeInteger(maxFileBytes) ||
+      maxFileBytes < 1 ||
+      maxFileBytes > 100 * 1024 * 1024)
+  ) {
+    throw new Error(
+      'KAITEN_MAX_FILE_BYTES must be an integer between 1 and 104857600.',
+    );
+  }
   return {
     origin,
     token,
     timeoutMs,
     ...(addonSecret === undefined ? {} : {addonSecret}),
     ...(apiVersion === undefined ? {} : {apiVersion}),
+    ...(maxFileBytes === undefined ? {} : {maxFileBytes}),
     ...(context === undefined ? {} : {context}),
   };
 }

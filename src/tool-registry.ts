@@ -7,6 +7,7 @@ import type {
 } from '@modelcontextprotocol/server';
 import * as z from 'zod/v4';
 import {describeError} from './errors.ts';
+import {ToolResponse} from './results.ts';
 
 export const read: ToolAnnotations = {
   readOnlyHint: true,
@@ -120,11 +121,16 @@ export class ToolRegistry {
               item => item.name === request.operation,
             )!;
             const result = await operation.execute(request.args, {signal});
-            const structuredContent = operation.output.parse(result);
+            const structuredContent = operation.output.parse(
+              result instanceof ToolResponse
+                ? result.structuredContent
+                : result,
+            );
             return {
               structuredContent,
               content: [
                 {type: 'text', text: JSON.stringify(structuredContent)},
+                ...(result instanceof ToolResponse ? result.content : []),
               ],
             };
           } catch (error) {

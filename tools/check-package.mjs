@@ -64,6 +64,10 @@ try {
   assert(tools.some(tool => tool.name === 'kaiten_navigation_read'));
   assert(tools.some(tool => tool.name === 'kaiten_navigation_write'));
   assert(tools.some(tool => tool.name === 'kaiten_cards_write'));
+  assert(tools.some(tool => tool.name === 'kaiten_documents_read'));
+  assert(tools.some(tool => tool.name === 'kaiten_documents_write'));
+  assert(tools.some(tool => tool.name === 'kaiten_files_read'));
+  assert(tools.some(tool => tool.name === 'kaiten_files_write'));
   console.log(
     `Installed ${installed.name}@${installed.version}: MCP handshake and tools/list passed.`,
   );
