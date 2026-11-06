@@ -1,5 +1,6 @@
 import {KaitenClient} from '@2chevskii/kaiten-client';
 import {KaitenScimClient} from '@2chevskii/kaiten-client/scim';
+import {AddonOAuthClient} from '@2chevskii/kaiten-client/addon-oauth';
 import {McpServer} from '@modelcontextprotocol/server';
 import packageJson from '../package.json' with {type: 'json'};
 import type {Configuration} from './config.ts';
@@ -30,6 +31,7 @@ import {registerDocumentsAndGroups} from './tools/documents-and-groups.ts';
 import {registerAutomations} from './tools/automations.ts';
 import {registerActivityAndAudit} from './tools/activity-and-audit.ts';
 import {registerIncomingCardWebhooks} from './tools/incoming-card-webhooks.ts';
+import {registerAddonOAuth} from './tools/addon-oauth.ts';
 
 export function createServer(
   configuration: Configuration,
@@ -102,6 +104,16 @@ export function createServer(
   registerActivityAndAudit(registry);
   registry.group('cards');
   registerIncomingCardWebhooks(registry);
+  registry.group('navigation');
+  registerAddonOAuth(
+    registry,
+    configuration.addonSecret === undefined
+      ? undefined
+      : new AddonOAuthClient({
+          origin: configuration.origin,
+          addonSecret: configuration.addonSecret,
+        }),
+  );
   registry.register();
   return {server};
 }
