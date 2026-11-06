@@ -32,6 +32,9 @@ import {registerAutomations} from './tools/automations.ts';
 import {registerActivityAndAudit} from './tools/activity-and-audit.ts';
 import {registerIncomingCardWebhooks} from './tools/incoming-card-webhooks.ts';
 import {registerAddonOAuth} from './tools/addon-oauth.ts';
+import {registerFiles} from './tools/files.ts';
+import {registerAdvancedComments} from './tools/advanced-comments.ts';
+import {defaultMaxFileBytes} from './file-transfer.ts';
 
 export function createServer(
   configuration: Configuration,
@@ -117,6 +120,11 @@ export function createServer(
           addonSecret: configuration.addonSecret,
         }),
   );
+  const maximum = configuration.maxFileBytes ?? defaultMaxFileBytes;
+  registry.group('comments');
+  registerAdvancedComments(registry, maximum);
+  registry.group('files');
+  registerFiles(registry, maximum, configuration.origin);
   registry.register();
   return {server};
 }

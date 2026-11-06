@@ -1,4 +1,16 @@
 import * as z from 'zod/v4';
+import type {CallToolResult} from '@modelcontextprotocol/server';
+
+/** Structured output is still validated; extra MCP content carries binary resources. */
+export class ToolResponse {
+  readonly structuredContent: unknown;
+  readonly content: CallToolResult['content'];
+
+  constructor(structuredContent: unknown, content: CallToolResult['content']) {
+    this.structuredContent = structuredContent;
+    this.content = content;
+  }
+}
 
 /** Advanced operations preserve the public client's complete JSON response. */
 export const apiResult = z.object({result: z.json()});

@@ -4,71 +4,13 @@ import {KaitenClient} from '@2chevskii/kaiten-client';
 import {KaitenScimClient} from '@2chevskii/kaiten-client/scim';
 import {startHarness} from './harness.ts';
 
-test('advanced operations cover every public method in the implemented client domains', async context => {
+test('advanced operations cover every public REST and SCIM resource method', async context => {
   const harness = await startHarness(context);
   const client = new KaitenClient({
     origin: 'https://example.invalid',
     token: 'fixture',
   });
-  for (const resource of [
-    'spaces',
-    'spaceBoards',
-    'boards',
-    'columns',
-    'subcolumn',
-    'lanes',
-    'cards',
-    'cardAllowedUsers',
-    'cardBlockerCategories',
-    'cardBlockerUsers',
-    'cardBlockers',
-    'cardPlannedRelations',
-    'cardMembers',
-    'cardTags',
-    'cardChildren',
-    'cardExternalLinks',
-    'companyUsers',
-    'users',
-    'groups',
-    'groupAdmins',
-    'groupEntities',
-    'groupUsers',
-    'userRoles',
-    'spaceUsers',
-    'treeEntities',
-    'treeEntityRoles',
-    'cardTypes',
-    'cardTypeTreeEntities',
-    'tags',
-    'customProperties',
-    'customPropertyCatalogValues',
-    'customPropertyCollectiveScoreValues',
-    'customPropertyCollectiveVoteValues',
-    'customPropertySelectValues',
-    'customPropertyTreeEntities',
-    'customDirectories',
-    'customDirectoryFields',
-    'customDirectoryRecords',
-    'cardChecklists',
-    'cardChecklistItems',
-    'checklistItems',
-    'checklists',
-    'spaceTemplateChecklist',
-    'spaceTemplateChecklistItems',
-    'cardTimeLogs',
-    'timesheet',
-    'iterations',
-    'sprints',
-    'cardServiceDeskExternalRecipients',
-    'cardSla',
-    'serviceDeskServices',
-    'documents',
-    'documentGroups',
-    'documentSchemas',
-    'automations',
-    'activity',
-    'auditLogs',
-  ] as const) {
+  for (const resource of Object.keys(client) as (keyof KaitenClient)[]) {
     for (const method of Object.keys(client[resource])) {
       assert.ok(
         harness.operations.has(`${resource}.${method}`),
@@ -80,7 +22,7 @@ test('advanced operations cover every public method in the implemented client do
     origin: 'https://example.invalid',
     token: 'fixture',
   });
-  for (const resource of ['users', 'groups'] as const) {
+  for (const resource of Object.keys(scim) as (keyof KaitenScimClient)[]) {
     for (const method of Object.keys(scim[resource])) {
       assert.ok(
         harness.operations.has(`scim.${resource}.${method}`),

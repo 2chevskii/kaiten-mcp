@@ -41,12 +41,41 @@ export async function startHarness(
     const chunks: Buffer[] = [];
     for await (const chunk of request) chunks.push(Buffer.from(chunk));
     const url = new URL(request.url!, 'http://localhost');
-    const body = Buffer.concat(chunks).toString();
+    const bytes = Buffer.concat(chunks);
+    const contentType = request.headers['content-type'];
+    let body: unknown;
+    if (contentType?.startsWith('multipart/form-data')) {
+      const form = await new Request('http://localhost', {
+        method: request.method!,
+        headers: {'Content-Type': contentType},
+        body: new Uint8Array(bytes),
+      }).formData();
+      const parts: unknown[] = [];
+      for (const [name, value] of form.entries()) {
+        parts.push(
+          typeof value === 'string'
+            ? {name, value}
+            : {
+                name,
+                filename: value.name,
+                mime_type: value.type,
+                data_base64: Buffer.from(await value.arrayBuffer()).toString(
+                  'base64',
+                ),
+              },
+        );
+      }
+      body = {parts};
+    } else {
+      body = bytes.length
+        ? (JSON.parse(bytes.toString()) as unknown)
+        : undefined;
+    }
     const captured = {
       method: request.method!,
       path: url.pathname,
       query: Object.fromEntries(url.searchParams),
-      body: body ? (JSON.parse(body) as unknown) : undefined,
+      body,
       authorization: request.headers.authorization,
     };
     requests.push(captured);
