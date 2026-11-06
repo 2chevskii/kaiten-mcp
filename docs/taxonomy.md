@@ -1,7 +1,7 @@
 # Card types and tags
 
 These [advanced operations](./api.md) use `kaiten_navigation_read` and
-`kaiten_navigation_write`; the total remains 18 tools. They return the full
+`kaiten_navigation_write`; the total remains 20 tools. They return the full
 client response in `{result}`.
 
 | Resource               | Operations after `resource.`                                                                 | Arguments                                                                                                        |

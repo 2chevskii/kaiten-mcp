@@ -1,7 +1,7 @@
 # Custom directories
 
 These [advanced operations](./api.md) share `kaiten_custom_properties_read` and
-`kaiten_custom_properties_write`; the total remains 18 tools. Directory, field
+`kaiten_custom_properties_write`; the total remains 20 tools. Directory, field
 and record IDs are UUIDs. All results preserve the complete upstream JSON in
 `{result}`. The directory API is marked beta upstream.
 

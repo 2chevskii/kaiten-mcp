@@ -1,6 +1,6 @@
 # Activity and audit logs
 
-All five operations use `kaiten_navigation_read`; the total remains 18 tools.
+All five operations use `kaiten_navigation_read`; the total remains 20 tools.
 Responses preserve complete JSON, including native event details.
 
 | Operation                          | Arguments                                 | Result                                  |

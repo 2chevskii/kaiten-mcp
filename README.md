@@ -8,7 +8,7 @@
 ![GitHub License](https://img.shields.io/github/license/2chevskii/kaiten-mcp)
 
 Find cards, understand what's blocking them, and keep work moving without leaving
-your assistant. Kaiten MCP runs locally and gives your MCP client **18 tools** for
+your assistant. Kaiten MCP runs locally and gives your MCP client **20 tools** for
 working with your Kaiten company through its API.
 
 [Read the documentation][docs] ·
@@ -58,7 +58,7 @@ Use the client's secret settings for the token where supported.
 
 ### 2. Check the connection
 
-Your client should discover 18 tools with the `kaiten_` prefix. Ask your assistant:
+Your client should discover 20 tools with the `kaiten_` prefix. Ask your assistant:
 
 > Identify my Kaiten user, then list the spaces I can access.
 
@@ -90,11 +90,11 @@ these requests translate into tool calls.
 
 ## Configuration
 
-| Variable            | Required | Description                                                                                     |
-| ------------------- | -------- | ----------------------------------------------------------------------------------------------- |
-| `KAITEN_ORIGIN`     | Yes      | Company origin, such as `https://company.kaiten.ru`, without an API path, query or fragment.    |
-| `KAITEN_TOKEN`      | Yes      | Kaiten API token used for all requests.                                                         |
-| `KAITEN_TIMEOUT_MS` | No       | Timeout per tool operation in milliseconds. Default: `30000`. Integer from `1` to `2147483647`. |
+| Variable            | Required      | Description                                                                                     |
+| ------------------- | ------------- | ----------------------------------------------------------------------------------------------- |
+| `KAITEN_ORIGIN`     | Yes           | Company origin, such as `https://company.kaiten.ru`, without an API path, query or fragment.    |
+| `KAITEN_TOKEN`      | Either source | Kaiten API token for REST/SCIM; alternatively use `KAITEN_TOKEN_FILE`.                          |
+| `KAITEN_TIMEOUT_MS` | No            | Timeout per tool operation in milliseconds. Default: `30000`. Integer from `1` to `2147483647`. |
 
 Each server entry connects to one company with one token. Add separate entries
 with unique names to connect to several companies.
@@ -103,16 +103,18 @@ The server communicates over **stdio**. Your MCP client starts the process and
 sends it tool calls; diagnostics go to stderr. Running it in a terminal may look
 idle while it waits for MCP input.
 
-This version supports cards, related data and [workspace and access management](https://2chevskii.github.io/kaiten-mcp/api).
-It also supports [SCIM provisioning](https://2chevskii.github.io/kaiten-mcp/scim).
-It can [administer custom fields, options and votes](https://2chevskii.github.io/kaiten-mcp/custom-fields).
-[Directories, fields and records](https://2chevskii.github.io/kaiten-mcp/directories) can also be managed.
-[Time tracking and reports](https://2chevskii.github.io/kaiten-mcp/time-tracking) are supported.
-[Documents, groups and schemas](https://2chevskii.github.io/kaiten-mcp/documents) are supported.
-[Automation management](https://2chevskii.github.io/kaiten-mcp/automations) is supported.
-[Incoming card webhooks](https://2chevskii.github.io/kaiten-mcp/webhooks) are supported.
-Attachments
-are outside its scope.
+The **20 grouped tools** cover every public REST/SCIM resource method in the
+pinned `@2chevskii/kaiten-client` **1.1.0**, alongside the original convenient
+workflows. They include workspace and access management, cards and dependencies,
+custom fields and directories, checklists, time tracking, planning, service desk,
+documents, automations, activity and audit logs, incoming webhooks and addon OAuth.
+See the [advanced operation map](https://2chevskii.github.io/kaiten-mcp/api).
+
+[File operations](https://2chevskii.github.io/kaiten-mcp/files) support metadata,
+upload, download and deletion for card, comment and custom-property attachments.
+Uploads use base64 arguments; downloads return embedded MCP binary resources.
+[Connection options](https://2chevskii.github.io/kaiten-mcp/connection-options)
+include API-version selection and rotating credentials from files.
 
 ## Development
 

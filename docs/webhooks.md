@@ -2,7 +2,7 @@
 
 `sendCardWebhook` in `kaiten_cards_write` calls the public client's incoming
 webhook helper. It creates a card through an existing Kaiten webhook URL.
-The total remains 18 tools.
+The total remains 20 tools.
 
 Arguments are `webhook_url` and `body`. The body requires `title` and supports
 `description`, `asap`, `due_date`, `owner_id`, `links` (each with `url` and

@@ -1,7 +1,7 @@
 # Addon OAuth
 
 The public `AddonOAuthClient` is available through the existing navigation tools.
-The total remains 18 tools.
+The total remains 20 tools.
 
 | Operation                 | Tool                      | Arguments                            |
 | ------------------------- | ------------------------- | ------------------------------------ |

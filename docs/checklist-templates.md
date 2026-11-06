@@ -1,7 +1,7 @@
 # Shared checklists and space templates
 
 These [advanced operations](./api.md) share `kaiten_checklists_read` and
-`kaiten_checklists_write`; the total remains 18 tools. Responses preserve the
+`kaiten_checklists_write`; the total remains 20 tools. Responses preserve the
 complete client JSON in `{result}`. Existing convenient checklist operations
 remain available.
 

@@ -1,6 +1,6 @@
 # Documents, groups and schemas
 
-The server exposes **18 tools**. Document reads use `kaiten_documents_read` and
+The server exposes **20 tools**. Document reads use `kaiten_documents_read` and
 mutations use `kaiten_documents_write`, within the 20-tool ceiling. These
 [advanced operations](./api.md) return the complete client JSON in `{result}`.
 
