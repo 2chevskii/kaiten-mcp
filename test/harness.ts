@@ -113,6 +113,7 @@ export async function startHarness(
     }
   }
   return {
+    origin: `http://127.0.0.1:${address.port}`,
     operations,
     client,
     transport,

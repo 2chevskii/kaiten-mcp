@@ -275,7 +275,9 @@ cloning, publishing controls and both pagination formats.
 
 [Automations](./automations.md) support event, date and on-demand definitions.
 
-Attachments and webhooks are outside this
+[Incoming card webhooks](./webhooks.md) are supported.
+
+Attachments are outside this
 version. The server exposes tools over stdio; HTTP transport, MCP resources and
 prompts are outside this version.
 

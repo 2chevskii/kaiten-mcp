@@ -44,4 +44,5 @@ export const specialOperations = [
   'documentGroups.iterate',
   'activity.iterateCompanyActivity',
   'activity.iterateSpaceActivity',
+  'sendCardWebhook',
 ];

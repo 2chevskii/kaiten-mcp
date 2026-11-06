@@ -108,7 +108,8 @@ It can [administer custom fields, options and votes](https://2chevskii.github.io
 [Time tracking and reports](https://2chevskii.github.io/kaiten-mcp/time-tracking) are supported.
 [Documents, groups and schemas](https://2chevskii.github.io/kaiten-mcp/documents) are supported.
 [Automation management](https://2chevskii.github.io/kaiten-mcp/automations) is supported.
-Attachments and webhooks
+[Incoming card webhooks](https://2chevskii.github.io/kaiten-mcp/webhooks) are supported.
+Attachments
 are outside its scope.
 
 ## Development

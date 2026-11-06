@@ -29,6 +29,7 @@ import {registerServiceDesk} from './tools/service-desk.ts';
 import {registerDocumentsAndGroups} from './tools/documents-and-groups.ts';
 import {registerAutomations} from './tools/automations.ts';
 import {registerActivityAndAudit} from './tools/activity-and-audit.ts';
+import {registerIncomingCardWebhooks} from './tools/incoming-card-webhooks.ts';
 
 export function createServer(
   configuration: Configuration,
@@ -99,6 +100,8 @@ export function createServer(
   registry.group('navigation');
   registerAutomations(registry);
   registerActivityAndAudit(registry);
+  registry.group('cards');
+  registerIncomingCardWebhooks(registry);
   registry.register();
   return {server};
 }
