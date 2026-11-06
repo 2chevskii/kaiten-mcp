@@ -73,7 +73,7 @@ export function registerCardWrite(registry: ToolRegistry): void {
   );
   registry.add(
     'archive_card',
-    'Archive a card. The card can be restored with kaiten_restore_card.',
+    'Archive a card. The card can be restored with kaiten_cards_write operation restore_card.',
     cardInput,
     entityResult(cardDetails),
     change,

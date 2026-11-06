@@ -4,10 +4,9 @@ import {startHarness} from './harness.ts';
 
 test('pagination advertises compact offsets and retains its limit contract', async context => {
   const harness = await startHarness(context);
-  const {tools} = await harness.client.listTools();
   let offsets = 0;
-  for (const tool of tools) {
-    const fields = tool.inputSchema.properties as Record<string, unknown>;
+  for (const operation of harness.operations.values()) {
+    const fields = operation.schema.properties as Record<string, unknown>;
     if (!('offset' in fields)) continue;
     assert.deepEqual(fields.offset, {type: 'integer', minimum: 0, default: 0});
     assert.deepEqual(fields.limit, {

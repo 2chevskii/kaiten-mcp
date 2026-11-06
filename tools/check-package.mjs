@@ -60,8 +60,8 @@ try {
   await client.connect(transport);
   assert.equal(client.getServerVersion()?.version, packageJson.version);
   const {tools} = await client.listTools();
-  assert(tools.some(tool => tool.name === 'kaiten_list_spaces'));
-  assert(tools.some(tool => tool.name === 'kaiten_create_card'));
+  assert(tools.some(tool => tool.name === 'kaiten_navigation_read'));
+  assert(tools.some(tool => tool.name === 'kaiten_cards_write'));
   console.log(
     `Installed ${installed.name}@${installed.version}: MCP handshake and tools/list passed.`,
   );

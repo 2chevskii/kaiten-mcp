@@ -4,14 +4,13 @@ import {cardFixture, startHarness} from './harness.ts';
 
 test('ID and UUID schemas advertise compact contracts', async context => {
   const harness = await startHarness(context);
-  const {tools} = await harness.client.listTools();
-  const card = tools.find(tool => tool.name === 'kaiten_get_card')!;
-  const properties = card.inputSchema.properties as Record<string, unknown>;
+  const card = harness.operations.get('get_card')!.schema;
+  const properties = card.properties as Record<string, unknown>;
   assert.deepEqual(properties.card_id, {type: 'integer', exclusiveMinimum: 0});
-  const directory = tools.find(
-    tool => tool.name === 'kaiten_list_custom_directory_records',
-  )!;
-  const fields = directory.inputSchema.properties as Record<string, unknown>;
+  const directory = harness.operations.get(
+    'list_custom_directory_records',
+  )!.schema;
+  const fields = directory.properties as Record<string, unknown>;
   assert.deepEqual(fields.directory_id, {type: 'string', format: 'uuid'});
 });
 

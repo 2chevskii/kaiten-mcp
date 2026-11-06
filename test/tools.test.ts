@@ -7,17 +7,20 @@ test('every advertised tool calls the real library with the expected HTTP contra
   const harness = await startHarness(context);
   assert.equal(harness.client.getServerVersion()?.name, 'kaiten-mcp');
   const {tools} = await harness.client.listTools();
+  assert.equal(tools.length, 15);
   assert.deepEqual(
-    tools.map(tool => tool.name).sort(),
-    toolCases.map(item => `kaiten_${item.name}`).sort(),
+    [...harness.operations.keys()].sort(),
+    toolCases.map(item => item.name).sort(),
   );
   for (const tool of tools) {
     assert.ok(tool.description);
     assert.ok(tool.outputSchema);
     assert.equal(tool.inputSchema.additionalProperties, false);
     assert.equal(typeof tool.annotations?.readOnlyHint, 'boolean');
-    if (tool.name.includes('delete_'))
-      assert.equal(tool.annotations?.destructiveHint, true);
+    assert.equal(
+      tool.annotations?.destructiveHint,
+      tool.name.endsWith('_write'),
+    );
   }
   for (const item of toolCases) {
     await context.test(item.name, async () => {
@@ -42,4 +45,21 @@ test('every advertised tool calls the real library with the expected HTTP contra
   }
   assert.equal(harness.stderr, '');
   assert.deepEqual(harness.protocolErrors, []);
+});
+
+test('grouped tools reject unknown operations and mismatched arguments before HTTP', async context => {
+  const harness = await startHarness(context);
+  for (const request of [
+    {operation: 'unknown', args: {}},
+    {operation: 'get_card', args: {board_id: 2}},
+    {operation: 'create_card', args: {title: 'Wrong group', board_id: 2}},
+    {operation: 'get_card', args: {card_id: 10, unexpected: true}},
+  ]) {
+    const result = await harness.client.callTool({
+      name: 'kaiten_cards_read',
+      arguments: {request},
+    });
+    assert.equal(result.isError, true);
+  }
+  assert.equal(harness.requests.length, 0);
 });
