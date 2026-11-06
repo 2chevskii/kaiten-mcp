@@ -136,14 +136,14 @@ unique names and their own environment variables.
 ### Identity and connection context
 
 Without additional configuration, “I”, “me” and “my” refer to the account returned
-by `kaiten_get_current_user`. The assistant is instructed to use its Kaiten ID,
+by `kaiten_navigation_read` (`get_current_user`). The assistant is instructed to use its Kaiten ID,
 without asking whether its name matches your OpenAI profile, OS username or
 nickname. “My tasks” defaults to `responsible_ids`; explicit requests such as
 “cards I created” take precedence.
 
 For a service token, set `user_id` to the person whose tasks should count as
 yours. This does not change the token account or its permissions:
-`kaiten_get_current_user` always returns the actual token account.
+`kaiten_navigation_read` (`get_current_user`) always returns the actual token account.
 
 Optionally create `.agents/kaiten-mcp.context.json` in your project or user profile:
 
@@ -206,7 +206,7 @@ restart the server after edits. Each server entry can use its own files. Their
 merged contents are shared with the model, so keep secrets out.
 
 The server sends this guidance in MCP initialization `instructions` and repeats it
-in the description of `kaiten_get_current_user` for clients that omit server
+in the description of `kaiten_navigation_read` (`get_current_user`) for clients that omit server
 instructions. No extra Kaiten requests are made during initialization. A client
 must expose the instructions or tool descriptions to the model; this cannot repair
 tools missing from a client's catalog.
@@ -214,9 +214,9 @@ tools missing from a client's catalog.
 Explicit user requests override connection preferences. For omitted scope, the
 assistant should choose a configured space or board only if its purpose fits
 unambiguously. Otherwise it should discover available scopes and ask when needed.
-Before using configured references, it should check `kaiten_get_space` or
-`kaiten_get_board` and verify a configured board/space relationship with
-`kaiten_list_boards` (following pagination). Missing or inaccessible references
+Before using configured references, it should check `kaiten_navigation_read` (`get_space`) or
+`kaiten_navigation_read` (`get_board`) and verify a configured board/space relationship with
+`kaiten_navigation_read` (`list_boards`) (following pagination). Missing or inaccessible references
 require reporting the problem and asking for a replacement, without silently
 switching scope. A request for all tasks must not be silently narrowed to a default.
 
@@ -227,12 +227,12 @@ at startup. Actual model behavior needs verification in your MCP client.
 
 ## 3. Verify the connection
 
-Reload your client's MCP configuration and check that it discovers **51 tools**
+Reload your client's MCP configuration and check that it discovers **15 tools**
 with the `kaiten_` prefix. Ask the assistant:
 
 > Identify my Kaiten user, then list the spaces I can access.
 
-This uses `kaiten_get_current_user` and `kaiten_list_spaces` and verifies a real
+This uses `kaiten_navigation_read` (`get_current_user`) and `kaiten_navigation_read` (`list_spaces`) and verifies a real
 read through the configured token. A successful MCP connection alone verifies
 process startup and tool discovery; the first tool call verifies Kaiten access.
 
@@ -256,7 +256,7 @@ items with their dedicated tools. Lists default to 25 items and accept at most
 
 ## Supported scope
 
-The 51 tools cover navigation, cards, parent and child relationships, external links, comments, memberships, tags,
+The 15 tools cover navigation, cards, parent and child relationships, external links, comments, memberships, tags,
 checklists and existing custom properties. Property definitions, options and directories can be
 read, and values can be assigned to cards.
 
