@@ -107,7 +107,8 @@ This version supports cards, related data and [workspace and access management](
 It also supports [SCIM provisioning](https://2chevskii.github.io/kaiten-mcp/scim).
 It can [administer custom fields, options and votes](https://2chevskii.github.io/kaiten-mcp/custom-fields).
 [Directories, fields and records](https://2chevskii.github.io/kaiten-mcp/directories) can also be managed.
-Documents, attachments, time tracking, automation and webhooks
+[Time tracking and reports](https://2chevskii.github.io/kaiten-mcp/time-tracking) are supported.
+Documents, attachments, automation and webhooks
 are outside its scope.
 
 ## Development
