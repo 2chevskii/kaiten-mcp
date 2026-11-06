@@ -15,7 +15,7 @@ export function registerAddonOAuth(
     if (!client)
       throw new OperationError(
         'CONFIGURATION_ERROR',
-        'Configure KAITEN_ADDON_SECRET to use addon OAuth operations.',
+        'Configure KAITEN_ADDON_SECRET or KAITEN_ADDON_SECRET_FILE to use addon OAuth operations.',
       );
     return client;
   };
