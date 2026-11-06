@@ -9,6 +9,7 @@ export interface ToolCase {
   query?: Record<string, string>;
   body?: unknown;
   response: unknown;
+  status?: number;
 }
 
 const page = {limit: '25', offset: '0'};
