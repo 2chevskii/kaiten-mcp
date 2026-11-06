@@ -12,6 +12,7 @@ import {planningCases} from './planning-cases.ts';
 import {serviceDeskCases} from './service-desk-cases.ts';
 import {documentCases} from './document-cases.ts';
 import {automationCases} from './automation-cases.ts';
+import {activityCases} from './activity-cases.ts';
 
 export const apiCases = [
   ...workspaceCases,
@@ -28,6 +29,7 @@ export const apiCases = [
   ...serviceDeskCases,
   ...documentCases,
   ...automationCases,
+  ...activityCases,
 ];
 
 // These operations have dedicated protocol tests for local computation or pagination.
@@ -40,4 +42,6 @@ export const specialOperations = [
   'tags.iterate',
   'documents.iterate',
   'documentGroups.iterate',
+  'activity.iterateCompanyActivity',
+  'activity.iterateSpaceActivity',
 ];

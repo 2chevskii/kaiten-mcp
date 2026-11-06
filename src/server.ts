@@ -28,6 +28,7 @@ import {registerIterationsAndSprints} from './tools/iterations-and-sprints.ts';
 import {registerServiceDesk} from './tools/service-desk.ts';
 import {registerDocumentsAndGroups} from './tools/documents-and-groups.ts';
 import {registerAutomations} from './tools/automations.ts';
+import {registerActivityAndAudit} from './tools/activity-and-audit.ts';
 
 export function createServer(
   configuration: Configuration,
@@ -97,6 +98,7 @@ export function createServer(
   registerDocumentsAndGroups(registry);
   registry.group('navigation');
   registerAutomations(registry);
+  registerActivityAndAudit(registry);
   registry.register();
   return {server};
 }
