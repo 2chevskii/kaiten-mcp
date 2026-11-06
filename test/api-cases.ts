@@ -6,6 +6,7 @@ import {scimCases} from './scim-cases.ts';
 import {taxonomyCases} from './taxonomy-cases.ts';
 import {propertyCases} from './property-cases.ts';
 import {directoryCases} from './directory-cases.ts';
+import {checklistApiCases} from './checklist-api-cases.ts';
 
 export const apiCases = [
   ...workspaceCases,
@@ -16,6 +17,7 @@ export const apiCases = [
   ...taxonomyCases,
   ...propertyCases,
   ...directoryCases,
+  ...checklistApiCases,
 ];
 
 // These operations have dedicated protocol tests for local computation or pagination.

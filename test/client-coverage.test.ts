@@ -49,6 +49,12 @@ test('advanced operations cover every public method in the implemented client do
     'customDirectories',
     'customDirectoryFields',
     'customDirectoryRecords',
+    'cardChecklists',
+    'cardChecklistItems',
+    'checklistItems',
+    'checklists',
+    'spaceTemplateChecklist',
+    'spaceTemplateChecklistItems',
   ] as const) {
     for (const method of Object.keys(client[resource])) {
       assert.ok(
