@@ -29,9 +29,9 @@ Keep protocol stdout clean and send diagnostics to stderr.
 ## Delivery
 
 Use a dedicated branch and small Conventional Commits after each completed logical
-block. Document public behavior in English and Russian. Push changes and open a
-pull request for implementation tasks; monitor hosted checks. Report local and
-hosted checks separately from any live Kaiten verification.
+block. Push changes and open a pull request for implementation tasks; monitor
+hosted checks. Report local and hosted checks separately from any live Kaiten
+verification.
 
 ## CI/CD and releases
 
