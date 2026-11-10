@@ -69,16 +69,16 @@ booleans must use JSON numbers and booleans. Update `changes` must be nonempty.
 Use `YYYY-MM-DD` or an ISO timestamp with a timezone for dates.
 
 For member-role changes, `member_id` is the membership ID from
-`kaiten_list_card_members`; `type` accepts only `2`. For property values,
+`kaiten_relations_read` (`list_card_members`); `type` accepts only `2`. For property values,
 keys must have the form `id_7` and the object passed to
-`kaiten_set_card_properties` must contain at least one entry.
+`kaiten_custom_properties_write` (`set_card_properties`) must contain at least one entry.
 
 ## Search results are incomplete or a cursor is rejected
 
 Follow `next_cursor` until it is `null`, retaining your filters. For other lists,
 follow `next_offset`. Omitted search filters use Kaiten's defaults; use
 `archived: false` explicitly for live cards. Read full descriptions through
-`kaiten_get_card`.
+`kaiten_cards_read` (`get_card`).
 
 Search uses API v1 with `offset:N` cursors. Old OpenSearch cursors cannot continue
 it: restart without `cursor`. Local pagination fetches the upstream list again

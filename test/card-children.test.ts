@@ -201,8 +201,13 @@ test('cancelling a hierarchy mutation aborts its HTTP request', async context =>
   });
   const pending = harness.client.callTool(
     {
-      name: 'kaiten_add_card_child',
-      arguments: {parent_card_id: 10, child_card_id: 20},
+      name: 'kaiten_children_write',
+      arguments: {
+        request: {
+          operation: 'add_card_child',
+          args: {parent_card_id: 10, child_card_id: 20},
+        },
+      },
     },
     {signal: controller.signal},
   );

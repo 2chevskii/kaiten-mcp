@@ -199,15 +199,15 @@ test('initialization and tool discovery expose personal identity guidance withou
   assert.ok(instructions);
   assert.match(
     instructions.slice(0, 512),
-    /token user returned by kaiten_get_current_user/,
+    /token user returned by kaiten_navigation_read operation get_current_user/,
   );
   assert.match(instructions.slice(0, 512), /Do not compare Kaiten names/);
   assert.match(instructions, /responsible_ids/);
   const {tools} = await harness.client.listTools();
-  const identity = tools.find(tool => tool.name === 'kaiten_get_current_user');
+  const identity = tools.find(tool => tool.name === 'kaiten_navigation_read');
   assert.ok(identity?.description?.includes(instructions));
   assert.match(
-    tools.find(tool => tool.name === 'kaiten_search_cards')!.description!,
+    tools.find(tool => tool.name === 'kaiten_cards_read')!.description!,
     /my tasks/,
   );
   assert.equal(harness.requests.length, 0);
@@ -250,13 +250,13 @@ test('connection preferences reach MCP clients and preserve the actual token ide
   assert.match(instructions, /not an access restriction/);
   assert.match(
     instructions,
-    /validate it with kaiten_get_space or kaiten_get_board/,
+    /validate it with kaiten_navigation_read operation get_space or kaiten_navigation_read operation get_board/,
   );
   assert.match(instructions, /do not silently substitute/);
   const {tools} = await harness.client.listTools();
   assert.ok(
     tools
-      .find(tool => tool.name === 'kaiten_get_current_user')
+      .find(tool => tool.name === 'kaiten_navigation_read')
       ?.description?.includes(instructions),
   );
   assert.equal(harness.requests.length, 0);

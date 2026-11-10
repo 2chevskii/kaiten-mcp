@@ -20,6 +20,26 @@ test('configuration defaults and validation', context => {
   });
   assert.throws(() => readConfiguration({}));
   assert.throws(() => readConfiguration({...base, KAITEN_TOKEN: ' '}));
+  assert.equal(
+    readConfiguration(
+      {...base, KAITEN_ADDON_SECRET: ' addon-secret '},
+      {cwd: directory, home: directory},
+    ).addonSecret,
+    'addon-secret',
+  );
+  assert.throws(() => readConfiguration({...base, KAITEN_ADDON_SECRET: ' '}));
+  for (const value of ['0', '-1', '1.5', 'NaN', '', '104857601']) {
+    assert.throws(() =>
+      readConfiguration({...base, KAITEN_MAX_FILE_BYTES: value}),
+    );
+  }
+  assert.equal(
+    readConfiguration(
+      {...base, KAITEN_MAX_FILE_BYTES: '104857600'},
+      {cwd: directory, home: directory},
+    ).maxFileBytes,
+    104857600,
+  );
   for (const value of ['0', '-1', '1.5', 'NaN', '', '2147483648']) {
     assert.throws(() => readConfiguration({...base, KAITEN_TIMEOUT_MS: value}));
   }

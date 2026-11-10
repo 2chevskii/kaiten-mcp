@@ -41,12 +41,41 @@ export async function startHarness(
     const chunks: Buffer[] = [];
     for await (const chunk of request) chunks.push(Buffer.from(chunk));
     const url = new URL(request.url!, 'http://localhost');
-    const body = Buffer.concat(chunks).toString();
+    const bytes = Buffer.concat(chunks);
+    const contentType = request.headers['content-type'];
+    let body: unknown;
+    if (contentType?.startsWith('multipart/form-data')) {
+      const form = await new Request('http://localhost', {
+        method: request.method!,
+        headers: {'Content-Type': contentType},
+        body: new Uint8Array(bytes),
+      }).formData();
+      const parts: unknown[] = [];
+      for (const [name, value] of form.entries()) {
+        parts.push(
+          typeof value === 'string'
+            ? {name, value}
+            : {
+                name,
+                filename: value.name,
+                mime_type: value.type,
+                data_base64: Buffer.from(await value.arrayBuffer()).toString(
+                  'base64',
+                ),
+              },
+        );
+      }
+      body = {parts};
+    } else {
+      body = bytes.length
+        ? (JSON.parse(bytes.toString()) as unknown)
+        : undefined;
+    }
     const captured = {
       method: request.method!,
       path: url.pathname,
       query: Object.fromEntries(url.searchParams),
-      body: body ? (JSON.parse(body) as unknown) : undefined,
+      body,
       authorization: request.headers.authorization,
     };
     requests.push(captured);
@@ -88,7 +117,33 @@ export async function startHarness(
   const protocolErrors: Error[] = [];
   client.onerror = error => protocolErrors.push(error);
   await client.connect(transport);
+  const {tools} = await client.listTools();
+  const operations = new Map<
+    string,
+    {tool: string; schema: Record<string, unknown>}
+  >();
+  for (const tool of tools) {
+    const request = (
+      tool.inputSchema.properties as Record<string, {anyOf?: unknown[]}>
+    ).request!;
+    for (const variant of request.anyOf ?? [request]) {
+      const properties = (
+        variant as {
+          properties: {
+            operation: {const: string};
+            args: Record<string, unknown>;
+          };
+        }
+      ).properties;
+      operations.set(properties.operation.const, {
+        tool: tool.name,
+        schema: properties.args,
+      });
+    }
+  }
   return {
+    origin: `http://127.0.0.1:${address.port}`,
+    operations,
     client,
     transport,
     requests,
@@ -107,7 +162,12 @@ export async function startHarness(
       respond = handler;
     },
     call(name: string, args: Record<string, unknown> = {}) {
-      return client.callTool({name: `kaiten_${name}`, arguments: args});
+      const operation = operations.get(name);
+      if (!operation) throw new Error(`Unknown operation: ${name}`);
+      return client.callTool({
+        name: operation.tool,
+        arguments: {request: {operation: name, args}},
+      });
     },
   };
 }

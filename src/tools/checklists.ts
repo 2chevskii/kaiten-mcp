@@ -29,7 +29,7 @@ export function registerChecklists(registry: ToolRegistry): void {
   const {client} = registry;
   registry.add(
     'list_checklists',
-    'List checklist references on a card. Fetch item details with kaiten_get_checklist.',
+    'List checklist references on a card. Fetch item details with kaiten_checklists_read operation get_checklist.',
     z.strictObject({card_id: id, ...pageFields}),
     pageResult(checklistView),
     read,

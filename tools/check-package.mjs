@@ -60,8 +60,14 @@ try {
   await client.connect(transport);
   assert.equal(client.getServerVersion()?.version, packageJson.version);
   const {tools} = await client.listTools();
-  assert(tools.some(tool => tool.name === 'kaiten_list_spaces'));
-  assert(tools.some(tool => tool.name === 'kaiten_create_card'));
+  assert(tools.length <= 20, 'The MCP surface must not exceed 20 tools.');
+  assert(tools.some(tool => tool.name === 'kaiten_navigation_read'));
+  assert(tools.some(tool => tool.name === 'kaiten_navigation_write'));
+  assert(tools.some(tool => tool.name === 'kaiten_cards_write'));
+  assert(tools.some(tool => tool.name === 'kaiten_documents_read'));
+  assert(tools.some(tool => tool.name === 'kaiten_documents_write'));
+  assert(tools.some(tool => tool.name === 'kaiten_files_read'));
+  assert(tools.some(tool => tool.name === 'kaiten_files_write'));
   console.log(
     `Installed ${installed.name}@${installed.version}: MCP handshake and tools/list passed.`,
   );

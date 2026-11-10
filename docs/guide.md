@@ -120,15 +120,20 @@ For a source checkout, follow [development](./development.md).
 
 ### Environment variables
 
-| Variable              | Required | Value                                                                                              |
-| --------------------- | -------- | -------------------------------------------------------------------------------------------------- |
-| `KAITEN_ORIGIN`       | Yes      | Company origin, such as `https://company.kaiten.ru`; no API path, credentials, query or fragment   |
-| `KAITEN_TOKEN`        | Yes      | Kaiten API token; whitespace around the token is trimmed                                           |
-| `KAITEN_TIMEOUT_MS`   | No       | Timeout per tool operation in milliseconds; default `30000`, integer from `1` to `2147483647`      |
-| `KAITEN_CONTEXT_FILE` | No       | Comma-separated context file paths, loaded left to right at startup; overrides automatic discovery |
+| Variable                   | Required      | Value                                                                                                                    |
+| -------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| `KAITEN_ORIGIN`            | Yes           | Company origin, such as `https://company.kaiten.ru`; no API path, credentials, query or fragment                         |
+| `KAITEN_TOKEN`             | Either source | Kaiten API token; whitespace around the token is trimmed                                                                 |
+| `KAITEN_TIMEOUT_MS`        | No            | Timeout per tool operation in milliseconds; default `30000`, integer from `1` to `2147483647`                            |
+| `KAITEN_CONTEXT_FILE`      | No            | Comma-separated context file paths, loaded left to right at startup; overrides automatic discovery                       |
+| `KAITEN_ADDON_SECRET`      | No            | Addon secret for the optional [addon OAuth operations](./addon-oauth.md); separate from the API token                    |
+| `KAITEN_TOKEN_FILE`        | Alternative   | Plain UTF-8 API token file, read before each request; mutually exclusive with `KAITEN_TOKEN`                             |
+| `KAITEN_ADDON_SECRET_FILE` | No            | Rotating addon secret file; mutually exclusive with `KAITEN_ADDON_SECRET`                                                |
+| `KAITEN_API_VERSION`       | No            | REST prefix: `v1` (default) or `latest`                                                                                  |
+| `KAITEN_MAX_FILE_BYTES`    | No            | Binary upload/download cap; default `5242880` (5 MiB), range `1`–`104857600`; also caps combined comment-form file bytes |
 
 HTTPS is required for a Kaiten company. The client library accepts loopback HTTP
-for local fixtures. REST requests use API v1.
+for local fixtures. REST requests use API v1 by default. See [connection options](./connection-options.md) for API-version selection and rotating credentials.
 
 To connect to several companies or tokens, create separate server entries with
 unique names and their own environment variables.
@@ -136,14 +141,14 @@ unique names and their own environment variables.
 ### Identity and connection context
 
 Without additional configuration, “I”, “me” and “my” refer to the account returned
-by `kaiten_get_current_user`. The assistant is instructed to use its Kaiten ID,
+by `kaiten_navigation_read` (`get_current_user`). The assistant is instructed to use its Kaiten ID,
 without asking whether its name matches your OpenAI profile, OS username or
 nickname. “My tasks” defaults to `responsible_ids`; explicit requests such as
 “cards I created” take precedence.
 
 For a service token, set `user_id` to the person whose tasks should count as
 yours. This does not change the token account or its permissions:
-`kaiten_get_current_user` always returns the actual token account.
+`kaiten_navigation_read` (`get_current_user`) always returns the actual token account.
 
 Optionally create `.agents/kaiten-mcp.context.json` in your project or user profile:
 
@@ -206,7 +211,7 @@ restart the server after edits. Each server entry can use its own files. Their
 merged contents are shared with the model, so keep secrets out.
 
 The server sends this guidance in MCP initialization `instructions` and repeats it
-in the description of `kaiten_get_current_user` for clients that omit server
+in the description of `kaiten_navigation_read` (`get_current_user`) for clients that omit server
 instructions. No extra Kaiten requests are made during initialization. A client
 must expose the instructions or tool descriptions to the model; this cannot repair
 tools missing from a client's catalog.
@@ -214,9 +219,9 @@ tools missing from a client's catalog.
 Explicit user requests override connection preferences. For omitted scope, the
 assistant should choose a configured space or board only if its purpose fits
 unambiguously. Otherwise it should discover available scopes and ask when needed.
-Before using configured references, it should check `kaiten_get_space` or
-`kaiten_get_board` and verify a configured board/space relationship with
-`kaiten_list_boards` (following pagination). Missing or inaccessible references
+Before using configured references, it should check `kaiten_navigation_read` (`get_space`) or
+`kaiten_navigation_read` (`get_board`) and verify a configured board/space relationship with
+`kaiten_navigation_read` (`list_boards`) (following pagination). Missing or inaccessible references
 require reporting the problem and asking for a replacement, without silently
 switching scope. A request for all tasks must not be silently narrowed to a default.
 
@@ -227,12 +232,12 @@ at startup. Actual model behavior needs verification in your MCP client.
 
 ## 3. Verify the connection
 
-Reload your client's MCP configuration and check that it discovers **51 tools**
+Reload your client's MCP configuration and check that it discovers **20 tools**
 with the `kaiten_` prefix. Ask the assistant:
 
 > Identify my Kaiten user, then list the spaces I can access.
 
-This uses `kaiten_get_current_user` and `kaiten_list_spaces` and verifies a real
+This uses `kaiten_navigation_read` (`get_current_user`) and `kaiten_navigation_read` (`list_spaces`) and verifies a real
 read through the configured token. A successful MCP connection alone verifies
 process startup and tool discovery; the first tool call verifies Kaiten access.
 
@@ -256,11 +261,23 @@ items with their dedicated tools. Lists default to 25 items and accept at most
 
 ## Supported scope
 
-The 51 tools cover navigation, cards, parent and child relationships, external links, comments, memberships, tags,
-checklists and existing custom properties. Property definitions, options and directories can be
-read, and values can be assigned to cards.
+The server exposes **20 tools** as ten read/write domain pairs. The original
+convenient card workflows and every public REST/SCIM resource method in
+`@2chevskii/kaiten-client` **1.1.0** are available. [Advanced operations](./api.md)
+retain complete API inputs and JSON responses.
 
-Documents, attachments, time tracking, automations, administration, SCIM,
-webhooks, property-definition editing and directory editing are outside this
-version. The server exposes tools over stdio; HTTP transport, MCP resources and
-prompts are outside this version.
+- Workspace hierarchy, profiles, groups, roles and access; [SCIM provisioning](./scim.md).
+- Cards, filters, blockers, dependencies, relationships, members, tags and types.
+- [Custom fields](./custom-fields.md), options, scores, votes and [directories](./directories.md).
+- [Shared checklists and templates](./checklist-templates.md), [time tracking](./time-tracking.md), [iterations and sprints](./planning.md), and [service desk/SLA](./service-desk.md).
+- [Documents, groups and schemas](./documents.md), [automations](./automations.md), and [activity/audit logs](./activity.md).
+- [File upload, metadata, download and deletion](./files.md), including comment and custom-property files.
+- [Incoming card webhooks](./webhooks.md), [addon OAuth](./addon-oauth.md), and [connection options/rotating credentials](./connection-options.md).
+
+The server runs over stdio and can return embedded binary file resources.
+It does not provide an HTTP MCP endpoint, a resource-read service, prompts,
+or a webhook listener. Upstream metadata/import/addon browser declarations
+are types, not executable API services; see [client coverage](./api.md#client-coverage-and-limits).
+Kaiten permissions, plan availability and the pinned client's pagination limits
+still apply. Protocol tests use local HTTP fixtures; they do not verify a live
+Kaiten account.

@@ -5,9 +5,11 @@ export interface ToolCase {
   args: Record<string, unknown>;
   method: string;
   path: string;
+  api_prefix?: string;
   query?: Record<string, string>;
   body?: unknown;
   response: unknown;
+  status?: number;
 }
 
 const page = {limit: '25', offset: '0'};
