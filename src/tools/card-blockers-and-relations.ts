@@ -3,12 +3,13 @@ import {hasChanges, id, pageFields} from '../schemas.ts';
 import {read, change, type ToolRegistry} from '../tool-registry.ts';
 import {apiResult} from '../results.ts';
 
+const linkUrl = z.url().max(16_384);
+const linkDescription = z.string().max(512).nullable().optional();
+
 export function registerCardBlockersAndRelations(registry: ToolRegistry): void {
   const {client} = registry;
-  registry.group('relations');
   registry.add(
     'cardAllowedUsers.retrieveUsersList',
-    'Retrieve users list (cardAllowedUsers); full API fields and JSON response.',
     z.strictObject({
       card_id: id,
       query: z
@@ -36,7 +37,6 @@ export function registerCardBlockersAndRelations(registry: ToolRegistry): void {
   );
   registry.add(
     'cardBlockerCategories.addBlockerCategory',
-    'Add blocker category (cardBlockerCategories); full API fields and JSON response.',
     z.strictObject({blocker_id: id, name: z.string()}),
     apiResult,
     change,
@@ -50,7 +50,6 @@ export function registerCardBlockersAndRelations(registry: ToolRegistry): void {
   );
   registry.add(
     'cardBlockerCategories.removeCategory',
-    'Remove category (cardBlockerCategories); full API fields and JSON response.',
     z.strictObject({blocker_id: id, category_uuid: z.string()}),
     apiResult,
     change,
@@ -64,7 +63,6 @@ export function registerCardBlockersAndRelations(registry: ToolRegistry): void {
   );
   registry.add(
     'cardBlockerCategories.retrieveListOfCategories',
-    'Retrieve list of categories (cardBlockerCategories); full API fields and JSON response.',
     z.strictObject({}),
     apiResult,
     read,
@@ -75,7 +73,6 @@ export function registerCardBlockersAndRelations(registry: ToolRegistry): void {
   );
   registry.add(
     'cardBlockerUsers.addUserToTheCardBlocker',
-    'Add user to the card blocker (cardBlockerUsers); full API fields and JSON response.',
     z.strictObject({blocker_id: id, user_id: id}),
     apiResult,
     change,
@@ -89,7 +86,6 @@ export function registerCardBlockersAndRelations(registry: ToolRegistry): void {
   );
   registry.add(
     'cardBlockerUsers.removeUser',
-    'Remove user (cardBlockerUsers); full API fields and JSON response.',
     z.strictObject({blocker_id: id, user_id: id}),
     apiResult,
     change,
@@ -102,21 +98,7 @@ export function registerCardBlockersAndRelations(registry: ToolRegistry): void {
     }),
   );
   registry.add(
-    'cardBlockerUsers.retrieveBlockersCardsListOnCurrentUser',
-    'Retrieve blockers cards list on current user (cardBlockerUsers); full API fields and JSON response.',
-    z.strictObject({}),
-    apiResult,
-    read,
-    async (_args, options) => ({
-      result:
-        await client.cardBlockerUsers.retrieveBlockersCardsListOnCurrentUser(
-          options,
-        ),
-    }),
-  );
-  registry.add(
     'cardBlockerUsers.retrieveListOfUsers',
-    'Retrieve list of users (cardBlockerUsers); full API fields and JSON response.',
     z.strictObject({blocker_id: id}),
     apiResult,
     read,
@@ -129,7 +111,6 @@ export function registerCardBlockersAndRelations(registry: ToolRegistry): void {
   );
   registry.add(
     'cardBlockers.blockCard',
-    'Block card (cardBlockers); full API fields and JSON response.',
     z.strictObject({
       card_id: id,
       body: z
@@ -151,7 +132,6 @@ export function registerCardBlockersAndRelations(registry: ToolRegistry): void {
   );
   registry.add(
     'cardBlockers.deleteCardBlockers',
-    'Delete card blockers (cardBlockers); full API fields and JSON response.',
     z.strictObject({card_id: id, blocker_id: id}),
     apiResult,
     change,
@@ -164,21 +144,7 @@ export function registerCardBlockersAndRelations(registry: ToolRegistry): void {
     }),
   );
   registry.add(
-    'cardBlockers.retrieveCardBlockersList',
-    'Retrieve card blockers list (cardBlockers); full API fields and JSON response.',
-    z.strictObject({card_id: id}),
-    apiResult,
-    read,
-    async (args, options) => ({
-      result: await client.cardBlockers.retrieveCardBlockersList(
-        args.card_id,
-        options,
-      ),
-    }),
-  );
-  registry.add(
     'cardBlockers.updateCardBlockers',
-    'Update card blockers (cardBlockers); full API fields and JSON response.',
     z.strictObject({
       card_id: id,
       blocker_id: id,
@@ -208,10 +174,8 @@ export function registerCardBlockersAndRelations(registry: ToolRegistry): void {
       ),
     }),
   );
-  registry.group('children');
   registry.add(
     'cardChildren.addChildren',
-    'Add children (cardChildren); full API fields and JSON response.',
     z.strictObject({parent_card_id: id, child_card_id: id}),
     apiResult,
     change,
@@ -225,7 +189,6 @@ export function registerCardBlockersAndRelations(registry: ToolRegistry): void {
   );
   registry.add(
     'cardChildren.removeChildren',
-    'Remove children (cardChildren); full API fields and JSON response.',
     z.strictObject({card_id: id, id: id}),
     apiResult,
     change,
@@ -238,26 +201,11 @@ export function registerCardBlockersAndRelations(registry: ToolRegistry): void {
     }),
   );
   registry.add(
-    'cardChildren.retrieveCardChildrenList',
-    'Retrieve card children list (cardChildren); full API fields and JSON response.',
-    z.strictObject({card_id: id}),
-    apiResult,
-    read,
-    async (args, options) => ({
-      result: await client.cardChildren.retrieveCardChildrenList(
-        args.card_id,
-        options,
-      ),
-    }),
-  );
-  registry.group('external_links');
-  registry.add(
     'cardExternalLinks.addExternalLink',
-    'Add external link (cardExternalLinks); full API fields and JSON response.',
     z.strictObject({
       card_id: id,
-      url: z.string(),
-      description: z.string().nullable().optional(),
+      url: linkUrl,
+      description: linkDescription,
     }),
     apiResult,
     change,
@@ -272,7 +220,6 @@ export function registerCardBlockersAndRelations(registry: ToolRegistry): void {
   );
   registry.add(
     'cardExternalLinks.removeExternalLink',
-    'Remove external link (cardExternalLinks); full API fields and JSON response.',
     z.strictObject({card_id: id, id: id}),
     apiResult,
     change,
@@ -286,7 +233,6 @@ export function registerCardBlockersAndRelations(registry: ToolRegistry): void {
   );
   registry.add(
     'cardExternalLinks.retrieveCardExternalLinks',
-    'Retrieve card external links (cardExternalLinks); full API fields and JSON response.',
     z.strictObject({card_id: id}),
     apiResult,
     read,
@@ -299,14 +245,13 @@ export function registerCardBlockersAndRelations(registry: ToolRegistry): void {
   );
   registry.add(
     'cardExternalLinks.updateExternalLink',
-    'Update external link (cardExternalLinks); full API fields and JSON response.',
     z.strictObject({
       card_id: id,
       id: id,
       body: z
         .strictObject({
-          url: z.string().optional(),
-          description: z.string().nullable().optional(),
+          url: linkUrl.optional(),
+          description: linkDescription,
         })
         .refine(hasChanges, 'Supply at least one change.'),
     }),
@@ -323,10 +268,8 @@ export function registerCardBlockersAndRelations(registry: ToolRegistry): void {
       ),
     }),
   );
-  registry.group('relations');
   registry.add(
     'cardMembers.addMemberToCard',
-    'Add member to card (cardMembers); full API fields and JSON response.',
     z.strictObject({card_id: id, user_id: id}),
     apiResult,
     change,
@@ -340,7 +283,6 @@ export function registerCardBlockersAndRelations(registry: ToolRegistry): void {
   );
   registry.add(
     'cardMembers.removeMemberFromCard',
-    'Remove member from card (cardMembers); full API fields and JSON response.',
     z.strictObject({card_id: id, member_id: id}),
     apiResult,
     change,
@@ -354,7 +296,6 @@ export function registerCardBlockersAndRelations(registry: ToolRegistry): void {
   );
   registry.add(
     'cardMembers.retrieveListOfCardMembers',
-    'Retrieve list of card members (cardMembers); full API fields and JSON response.',
     z.strictObject({card_id: id}),
     apiResult,
     read,
@@ -367,7 +308,6 @@ export function registerCardBlockersAndRelations(registry: ToolRegistry): void {
   );
   registry.add(
     'cardMembers.updateMemberRole',
-    'Update member role (cardMembers); full API fields and JSON response.',
     z.strictObject({card_id: id, member_id: id, type: z.literal(2)}),
     apiResult,
     change,
@@ -382,7 +322,6 @@ export function registerCardBlockersAndRelations(registry: ToolRegistry): void {
   );
   registry.add(
     'cardPlannedRelations.addPlannedRelation',
-    'Add planned relation (cardPlannedRelations); full API fields and JSON response.',
     z.strictObject({
       card_id: id,
       body: z.strictObject({
@@ -409,7 +348,6 @@ export function registerCardBlockersAndRelations(registry: ToolRegistry): void {
   );
   registry.add(
     'cardPlannedRelations.updatePlannedRelation',
-    'Update planned relation (cardPlannedRelations); full API fields and JSON response.',
     z.strictObject({
       card_id: id,
       target_card_id: id,
@@ -477,7 +415,6 @@ export function registerCardBlockersAndRelations(registry: ToolRegistry): void {
   );
   registry.add(
     'cardPlannedRelations.removePlannedRelation',
-    'Remove planned relation (cardPlannedRelations); full API fields and JSON response.',
     z.strictObject({card_id: id, target_card_id: id}),
     apiResult,
     change,
@@ -491,7 +428,6 @@ export function registerCardBlockersAndRelations(registry: ToolRegistry): void {
   );
   registry.add(
     'cardTags.addTag',
-    'Add tag (cardTags); full API fields and JSON response.',
     z.strictObject({card_id: id, name: z.string()}),
     apiResult,
     change,
@@ -501,7 +437,6 @@ export function registerCardBlockersAndRelations(registry: ToolRegistry): void {
   );
   registry.add(
     'cardTags.removeTagFromCard',
-    'Remove tag from card (cardTags); full API fields and JSON response.',
     z.strictObject({card_id: id, tag_id: id}),
     apiResult,
     change,
@@ -515,7 +450,6 @@ export function registerCardBlockersAndRelations(registry: ToolRegistry): void {
   );
   registry.add(
     'cardTags.rertrieveListOfTags',
-    'Rertrieve list of tags (cardTags); full API fields and JSON response.',
     z.strictObject({card_id: id}),
     apiResult,
     read,

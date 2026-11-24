@@ -36,12 +36,9 @@ export const change: ToolAnnotations = {
 };
 
 interface Operation {
-  name: string;
-  description: string;
   input: z.ZodObject;
   output: z.ZodObject;
   annotations: ToolAnnotations;
-  canonicalOnly: boolean;
   execute: (args: unknown, options: OperationOptions) => Promise<unknown>;
 }
 
@@ -75,7 +72,10 @@ function resolveSchema(override: CatalogRoute['input'], original: z.ZodObject) {
     : (override ?? original);
 }
 
-function operationResult(result: unknown, output: z.ZodObject): CallToolResult {
+export function operationResult(
+  result: unknown,
+  output: z.ZodObject,
+): CallToolResult {
   const structuredContent = output.parse(
     result instanceof ToolResponse ? result.structuredContent : result,
   );
@@ -89,11 +89,10 @@ function operationResult(result: unknown, output: z.ZodObject): CallToolResult {
 }
 
 export class ToolRegistry {
-  private groupName = '';
-  private readonly groups = new Map<string, Operation[]>();
+  private readonly operations = new Map<string, Operation>();
 
-  group(name: string): void {
-    this.groupName = name;
+  get sources(): ReadonlyMap<string, Operation> {
+    return this.operations;
   }
 
   constructor(
@@ -101,12 +100,10 @@ export class ToolRegistry {
     readonly client: KaitenClient,
     private readonly timeoutMs: number,
     private readonly shutdownSignal: AbortSignal,
-    readonly instructions: string,
   ) {}
 
   add<Input extends z.ZodObject, Output extends z.ZodObject>(
     name: string,
-    description: string,
     input: Input,
     output: Output,
     annotations: ToolAnnotations,
@@ -114,73 +111,19 @@ export class ToolRegistry {
       args: z.output<Input>,
       options: OperationOptions,
     ) => Promise<unknown>,
-    options: {canonicalOnly?: boolean} = {},
   ): void {
-    const group = `${this.groupName}_${annotations.readOnlyHint ? 'read' : 'write'}`;
-    const operations = this.groups.get(group) ?? [];
-    operations.push({
-      name,
-      description,
+    if (this.operations.has(name)) {
+      throw new Error(`Duplicate operation source "${name}".`);
+    }
+    this.operations.set(name, {
       input,
       output,
       annotations,
-      canonicalOnly: options.canonicalOnly ?? false,
       execute: (args, options) => execute(input.parse(args), options),
     });
-    this.groups.set(group, operations);
   }
 
-  register(catalog?: CatalogDefinition): void {
-    if (catalog) {
-      this.registerCatalog(catalog);
-      return;
-    }
-    const legacyGroups = Array.from(this.groups, ([group, operations]) => ({
-      group,
-      operations: operations.filter(operation => !operation.canonicalOnly),
-    })).filter(({operations}) => operations.length > 0);
-    if (legacyGroups.length > 20) {
-      throw new Error('The MCP surface must not exceed 20 tools.');
-    }
-    for (const {group, operations} of legacyGroups) {
-      const variants = operations.map(operation =>
-        z.strictObject({
-          operation: z.literal(operation.name),
-          args: operation.input,
-        }),
-      );
-      this.registerTool(
-        group,
-        `Select request.operation and provide its fields in request.args.\n${operations
-          .map(operation => `${operation.name}: ${operation.description}`)
-          .join('\n')}`,
-        toolInput(variants),
-        z.looseObject({}),
-        group.endsWith('_read') ? read : change,
-        async (request, options) => {
-          const operation = operations.find(
-            item => item.name === request.operation,
-          )!;
-          return operationResult(
-            await operation.execute(request.args, options),
-            operation.output,
-          );
-        },
-      );
-    }
-  }
-
-  private registerCatalog(catalog: CatalogDefinition): void {
-    const sources = new Map<string, Operation>();
-    for (const operations of this.groups.values()) {
-      for (const operation of operations) {
-        if (sources.has(operation.name)) {
-          throw new Error(`Duplicate operation source "${operation.name}".`);
-        }
-        sources.set(operation.name, operation);
-      }
-    }
-
+  register(catalog: CatalogDefinition): void {
     const names = new Set<string>();
     for (const [group, definition] of Object.entries(catalog)) {
       for (const name of Object.keys(definition.operations)) {
@@ -191,15 +134,11 @@ export class ToolRegistry {
         }
         names.add(name);
       }
-      this.registerCatalogTool(group, definition, sources);
+      this.registerCatalogTool(group, definition);
     }
   }
 
-  private registerCatalogTool(
-    group: string,
-    definition: CatalogTool,
-    sources: ReadonlyMap<string, Operation>,
-  ): void {
+  private registerCatalogTool(group: string, definition: CatalogTool): void {
     const reads = group.endsWith('_read');
     const groups = new Map<string, PreparedRoute[]>();
     for (const [name, routes] of Object.entries(definition.operations)) {
@@ -208,7 +147,7 @@ export class ToolRegistry {
       groups.set(
         name,
         selected.map(route => {
-          const operation = sources.get(route.source);
+          const operation = this.operations.get(route.source);
           if (
             !operation ||
             Boolean(operation.annotations.readOnlyHint) !== reads
@@ -216,11 +155,6 @@ export class ToolRegistry {
             throw new Error(
               `Invalid source "${route.source}" for ${group}/${name}.`,
             );
-          }
-          for (const alias of route.replaces ?? []) {
-            if (!sources.has(alias)) {
-              throw new Error(`Unknown replaced operation "${alias}".`);
-            }
           }
           return {
             operation,
@@ -303,7 +237,7 @@ export class ToolRegistry {
     );
   }
 
-  private registerTool(
+  registerTool(
     group: string,
     description: string,
     inputSchema: StandardSchemaWithJSON,

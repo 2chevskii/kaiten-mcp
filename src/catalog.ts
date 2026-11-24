@@ -12,7 +12,6 @@ export const catalogDomains = [
 
 export type CatalogToolName =
   `${(typeof catalogDomains)[number]}_${'read' | 'write'}`;
-export type ToolProfile = 'canonical' | 'legacy';
 
 type SchemaOverride = z.ZodObject | ((source: z.ZodObject) => z.ZodObject);
 

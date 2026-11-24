@@ -7,7 +7,6 @@ export function registerServiceDesk(registry: ToolRegistry): void {
   const {client} = registry;
   registry.add(
     'cardServiceDeskExternalRecipients.addNewRecipient',
-    'Add new recipient (cardServiceDeskExternalRecipients); full API fields and JSON response.',
     z.strictObject({card_id: id, email: text}),
     apiResult,
     change,
@@ -21,7 +20,6 @@ export function registerServiceDesk(registry: ToolRegistry): void {
   );
   registry.add(
     'cardServiceDeskExternalRecipients.removeRecipient',
-    'Remove recipient (cardServiceDeskExternalRecipients); full API fields and JSON response.',
     z.strictObject({card_id: id, email: text}),
     apiResult,
     change,
@@ -35,7 +33,6 @@ export function registerServiceDesk(registry: ToolRegistry): void {
   );
   registry.add(
     'cardSla.retrieveCardSlaMeasurements',
-    'Retrieve card SLA rule measurements and calendars; preserve the full client JSON.',
     z.strictObject({card_id: id}),
     apiResult,
     read,
@@ -48,7 +45,6 @@ export function registerServiceDesk(registry: ToolRegistry): void {
   );
   registry.add(
     'serviceDeskServices.retrieveServicesList',
-    'Retrieve services list (serviceDeskServices); full API fields and JSON response.',
     z.strictObject({}),
     apiResult,
     read,

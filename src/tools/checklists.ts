@@ -29,7 +29,6 @@ export function registerChecklists(registry: ToolRegistry): void {
   const {client} = registry;
   registry.add(
     'list_checklists',
-    'List checklist references on a card. Fetch item details with kaiten_checklists_read operation get_checklist.',
     z.strictObject({card_id: id, ...pageFields}),
     pageResult(checklistView),
     read,
@@ -44,7 +43,6 @@ export function registerChecklists(registry: ToolRegistry): void {
   );
   registry.add(
     'get_checklist',
-    'Read a card checklist and all its items.',
     z.strictObject(checklistIds),
     entityResult(checklistDetails),
     read,
@@ -58,7 +56,6 @@ export function registerChecklists(registry: ToolRegistry): void {
   );
   registry.add(
     'create_checklist',
-    'Create an empty named checklist on a card.',
     z.strictObject({
       card_id: id,
       name: text,
@@ -76,7 +73,6 @@ export function registerChecklists(registry: ToolRegistry): void {
   );
   registry.add(
     'update_checklist',
-    'Change a checklist name or order.',
     z.strictObject({
       ...checklistIds,
       changes: z
@@ -113,7 +109,6 @@ export function registerChecklists(registry: ToolRegistry): void {
   );
   registry.add(
     'delete_checklist',
-    'Delete a checklist from a card.',
     z.strictObject(checklistIds),
     entityResult(identityView),
     change,
@@ -127,7 +122,6 @@ export function registerChecklists(registry: ToolRegistry): void {
   );
   registry.add(
     'add_checklist_item',
-    'Add a checklist item with optional completion, order, due date and responsible user.',
     z.strictObject({
       ...checklistIds,
       ...itemFields,
@@ -147,7 +141,6 @@ export function registerChecklists(registry: ToolRegistry): void {
   );
   registry.add(
     'update_checklist_item',
-    'Change checklist item fields. checked marks completion; null clears text, due_date or responsible_id.',
     z.strictObject({
       ...checklistIds,
       item_id: id,
@@ -173,7 +166,6 @@ export function registerChecklists(registry: ToolRegistry): void {
   );
   registry.add(
     'delete_checklist_item',
-    'Delete an item from a card checklist.',
     z.strictObject({...checklistIds, item_id: id}),
     entityResult(identityView),
     change,

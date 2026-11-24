@@ -7,7 +7,6 @@ export function registerWorkspaceManagement(registry: ToolRegistry): void {
   const {client} = registry;
   registry.add(
     'boards.getBoard',
-    'Get board (boards); full API fields and JSON response.',
     z.strictObject({board_id: id}),
     apiResult,
     read,
@@ -17,7 +16,6 @@ export function registerWorkspaceManagement(registry: ToolRegistry): void {
   );
   registry.add(
     'columns.createNewColumn',
-    'Create new column (columns); full API fields and JSON response.',
     z.strictObject({
       board_id: id,
       body: z.strictObject({
@@ -49,7 +47,6 @@ export function registerWorkspaceManagement(registry: ToolRegistry): void {
   );
   registry.add(
     'columns.getListOfColumns',
-    'Get list of columns (columns); full API fields and JSON response.',
     z.strictObject({board_id: id}),
     apiResult,
     read,
@@ -59,7 +56,6 @@ export function registerWorkspaceManagement(registry: ToolRegistry): void {
   );
   registry.add(
     'columns.removeColumn',
-    'Remove column (columns); full API fields and JSON response.',
     z.strictObject({
       board_id: id,
       column_id: id,
@@ -78,7 +74,6 @@ export function registerWorkspaceManagement(registry: ToolRegistry): void {
   );
   registry.add(
     'columns.updateColumn',
-    'Update column (columns); full API fields and JSON response.',
     z.strictObject({
       board_id: id,
       column_id: id,
@@ -118,7 +113,6 @@ export function registerWorkspaceManagement(registry: ToolRegistry): void {
   );
   registry.add(
     'lanes.createNewLane',
-    'Create new lane (lanes); full API fields and JSON response.',
     z.strictObject({
       board_id: id,
       body: z.strictObject({
@@ -144,7 +138,6 @@ export function registerWorkspaceManagement(registry: ToolRegistry): void {
   );
   registry.add(
     'lanes.getListOfLanes',
-    'Get list of lanes (lanes); full API fields and JSON response.',
     z.strictObject({board_id: id, condition: z.string().optional()}),
     apiResult,
     read,
@@ -158,7 +151,6 @@ export function registerWorkspaceManagement(registry: ToolRegistry): void {
   );
   registry.add(
     'lanes.removeLane',
-    'Remove lane (lanes); full API fields and JSON response.',
     z.strictObject({board_id: id, lane_id: id, force: z.boolean().optional()}),
     apiResult,
     change,
@@ -173,7 +165,6 @@ export function registerWorkspaceManagement(registry: ToolRegistry): void {
   );
   registry.add(
     'lanes.updateLane',
-    'Update lane (lanes); full API fields and JSON response.',
     z.strictObject({
       board_id: id,
       lane_id: id,
@@ -206,7 +197,6 @@ export function registerWorkspaceManagement(registry: ToolRegistry): void {
   );
   registry.add(
     'spaceBoards.createNewBoard',
-    'Create new board (spaceBoards); full API fields and JSON response.',
     z.strictObject({
       space_id: id,
       body: z.strictObject({
@@ -267,7 +257,6 @@ export function registerWorkspaceManagement(registry: ToolRegistry): void {
   );
   registry.add(
     'spaceBoards.getBoard',
-    'Get board (spaceBoards); full API fields and JSON response.',
     z.strictObject({space_id: id, id: id}),
     apiResult,
     read,
@@ -281,7 +270,6 @@ export function registerWorkspaceManagement(registry: ToolRegistry): void {
   );
   registry.add(
     'spaceBoards.getListOfBoards',
-    'Get list of boards (spaceBoards); full API fields and JSON response.',
     z.strictObject({space_id: id}),
     apiResult,
     read,
@@ -291,7 +279,6 @@ export function registerWorkspaceManagement(registry: ToolRegistry): void {
   );
   registry.add(
     'spaceBoards.removeBoard',
-    'Remove board (spaceBoards); full API fields and JSON response.',
     z.strictObject({space_id: id, id: id, force: z.boolean().optional()}),
     apiResult,
     change,
@@ -306,7 +293,6 @@ export function registerWorkspaceManagement(registry: ToolRegistry): void {
   );
   registry.add(
     'spaceBoards.updateBoard',
-    'Update board (spaceBoards); full API fields and JSON response.',
     z.strictObject({
       space_id: id,
       id: id,
@@ -359,7 +345,6 @@ export function registerWorkspaceManagement(registry: ToolRegistry): void {
   );
   registry.add(
     'spaces.createNewSpace',
-    'Create new space (spaces); full API fields and JSON response.',
     z.strictObject({
       body: z.strictObject({
         title: z.union([z.string(), z.number()]),
@@ -381,7 +366,6 @@ export function registerWorkspaceManagement(registry: ToolRegistry): void {
   );
   registry.add(
     'spaces.removeSpace',
-    'Remove space (spaces); full API fields and JSON response.',
     z.strictObject({space_id: id}),
     apiResult,
     change,
@@ -391,7 +375,6 @@ export function registerWorkspaceManagement(registry: ToolRegistry): void {
   );
   registry.add(
     'spaces.retrieveListOfSpaces',
-    'Retrieve list of spaces (spaces); full API fields and JSON response.',
     z.strictObject({
       limit: pageFields.limit.removeDefault().optional(),
       offset: pageFields.offset.removeDefault().optional(),
@@ -408,7 +391,6 @@ export function registerWorkspaceManagement(registry: ToolRegistry): void {
   );
   registry.add(
     'spaces.retrieveSpace',
-    'Retrieve space (spaces); full API fields and JSON response.',
     z.strictObject({space_id: id}),
     apiResult,
     read,
@@ -418,7 +400,6 @@ export function registerWorkspaceManagement(registry: ToolRegistry): void {
   );
   registry.add(
     'spaces.updateSpace',
-    'Update space (spaces); full API fields and JSON response.',
     z.strictObject({
       space_id: id,
       body: z
@@ -447,7 +428,6 @@ export function registerWorkspaceManagement(registry: ToolRegistry): void {
   );
   registry.add(
     'subcolumn.createNewSubcolumn',
-    'Create new subcolumn (subcolumn); full API fields and JSON response.',
     z.strictObject({
       column_id: id,
       body: z.strictObject({
@@ -477,7 +457,6 @@ export function registerWorkspaceManagement(registry: ToolRegistry): void {
   );
   registry.add(
     'subcolumn.getListOfSubcolumns',
-    'Get list of subcolumns (subcolumn); full API fields and JSON response.',
     z.strictObject({column_id: id}),
     apiResult,
     read,
@@ -490,7 +469,6 @@ export function registerWorkspaceManagement(registry: ToolRegistry): void {
   );
   registry.add(
     'subcolumn.removeSubcolumn',
-    'Remove subcolumn (subcolumn); full API fields and JSON response.',
     z.strictObject({
       column_id: id,
       subcolumn_id: id,
@@ -509,7 +487,6 @@ export function registerWorkspaceManagement(registry: ToolRegistry): void {
   );
   registry.add(
     'subcolumn.updateSubcolumn',
-    'Update subcolumn (subcolumn); full API fields and JSON response.',
     z.strictObject({
       column_id: id,
       subcolumn_id: id,

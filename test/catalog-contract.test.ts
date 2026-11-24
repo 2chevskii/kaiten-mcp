@@ -22,12 +22,9 @@ test('canonical variants advertise nested fields and dispatch to source-specific
     new KaitenClient({origin: 'https://example.invalid', token: 'fixture'}),
     1_000,
     new AbortController().signal,
-    '',
   );
-  registry.group('test');
   registry.add(
     'source.byId',
-    'Source only.',
     z.strictObject({query: z.strictObject({id: z.number()}).optional()}),
     z.object({id: z.number()}),
     read,
@@ -35,7 +32,6 @@ test('canonical variants advertise nested fields and dispatch to source-specific
   );
   registry.add(
     'source.byName',
-    'Source only.',
     z.strictObject({name: z.string()}),
     z.object({name: z.string()}),
     read,

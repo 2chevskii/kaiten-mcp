@@ -13,7 +13,6 @@ export function registerCustomDirectoryAdministration(
   const {client} = registry;
   registry.add(
     'customDirectories.createCustomDirectory',
-    'Create custom directory (customDirectories); full API fields and JSON response.',
     z.strictObject({
       body: z.strictObject({
         name: z.string(),
@@ -61,7 +60,6 @@ export function registerCustomDirectoryAdministration(
   );
   registry.add(
     'customDirectories.deleteCustomDirectory',
-    'Delete custom directory (customDirectories); full API fields and JSON response.',
     z.strictObject({directory_id: uuid}),
     apiResult,
     change,
@@ -74,7 +72,6 @@ export function registerCustomDirectoryAdministration(
   );
   registry.add(
     'customDirectories.getCustomDirectory',
-    'Get custom directory (customDirectories); full API fields and JSON response.',
     z.strictObject({directory_id: uuid}),
     apiResult,
     read,
@@ -87,7 +84,6 @@ export function registerCustomDirectoryAdministration(
   );
   registry.add(
     'customDirectories.getListOfCustomDirectories',
-    'Get list of custom directories (customDirectories); full API fields and JSON response.',
     z.strictObject({
       query: z
         .strictObject({
@@ -122,7 +118,6 @@ export function registerCustomDirectoryAdministration(
   );
   registry.add(
     'customDirectories.updateCustomDirectory',
-    'Update custom directory (customDirectories); full API fields and JSON response.',
     z.strictObject({
       directory_id: uuid,
       body: z
@@ -190,7 +185,6 @@ export function registerCustomDirectoryAdministration(
   );
   registry.add(
     'customDirectoryFields.createField',
-    'Create field (customDirectoryFields); full API fields and JSON response.',
     z.strictObject({
       directory_id: uuid,
       body: z.strictObject({
@@ -228,7 +222,6 @@ export function registerCustomDirectoryAdministration(
   );
   registry.add(
     'customDirectoryFields.deleteField',
-    'Delete field (customDirectoryFields); full API fields and JSON response.',
     z.strictObject({directory_id: uuid, field_id: uuid}),
     apiResult,
     change,
@@ -242,7 +235,6 @@ export function registerCustomDirectoryAdministration(
   );
   registry.add(
     'customDirectoryFields.getField',
-    'Get field (customDirectoryFields); full API fields and JSON response.',
     z.strictObject({directory_id: uuid, field_id: uuid}),
     apiResult,
     read,
@@ -256,7 +248,6 @@ export function registerCustomDirectoryAdministration(
   );
   registry.add(
     'customDirectoryFields.getListOfFields',
-    'Get list of fields (customDirectoryFields); full API fields and JSON response.',
     z.strictObject({
       directory_id: uuid,
       include_author: z.boolean().optional(),
@@ -283,7 +274,6 @@ export function registerCustomDirectoryAdministration(
   );
   registry.add(
     'customDirectoryFields.updateField',
-    'Update field (customDirectoryFields); full API fields and JSON response.',
     z.strictObject({
       directory_id: uuid,
       field_id: uuid,
@@ -316,7 +306,6 @@ export function registerCustomDirectoryAdministration(
   );
   registry.add(
     'customDirectoryRecords.createRecord',
-    'Create record (customDirectoryRecords); full API fields and JSON response.',
     z.strictObject({
       directory_id: uuid,
       body: z.strictObject({values: z.record(z.string(), z.json())}),
@@ -337,7 +326,6 @@ export function registerCustomDirectoryAdministration(
   );
   registry.add(
     'customDirectoryRecords.deleteRecord',
-    'Delete record (customDirectoryRecords); full API fields and JSON response.',
     z.strictObject({directory_id: uuid, record_id: uuid}),
     apiResult,
     change,
@@ -351,7 +339,6 @@ export function registerCustomDirectoryAdministration(
   );
   registry.add(
     'customDirectoryRecords.getCardsLinkedToRecord',
-    'Get cards linked to record (customDirectoryRecords); full API fields and JSON response.',
     z.strictObject({
       directory_id: uuid,
       record_id: uuid,
@@ -378,7 +365,6 @@ export function registerCustomDirectoryAdministration(
   );
   registry.add(
     'customDirectoryRecords.getListOfRecords',
-    'Get list of records (customDirectoryRecords); full API fields and JSON response.',
     z.strictObject({
       directory_id: uuid,
       query: z
@@ -419,7 +405,6 @@ export function registerCustomDirectoryAdministration(
   );
   registry.add(
     'customDirectoryRecords.getRecord',
-    'Get record (customDirectoryRecords); full API fields and JSON response.',
     z.strictObject({
       directory_id: uuid,
       record_id: uuid,
@@ -438,7 +423,6 @@ export function registerCustomDirectoryAdministration(
   );
   registry.add(
     'customDirectoryRecords.updateRecord',
-    'Update record (customDirectoryRecords); full API fields and JSON response.',
     z.strictObject({
       directory_id: uuid,
       record_id: uuid,

@@ -11,6 +11,9 @@ import {StdioClientTransport} from '@modelcontextprotocol/client/stdio';
 import {temporaryDirectory} from './temporary-directory.ts';
 
 export const cliPath = fileURLToPath(new URL('../bin/cli.js', import.meta.url));
+const sourceCliPath = fileURLToPath(
+  new URL('./source-cli.ts', import.meta.url),
+);
 export const token = 'fixture-only-secret';
 
 export interface CapturedRequest {
@@ -21,10 +24,27 @@ export interface CapturedRequest {
   authorization: string | undefined;
 }
 
-export async function startHarness(
+export function startHarness(
   context: TestContext,
   timeoutMs = 30_000,
   environment: Record<string, string> = {},
+) {
+  return startStdioHarness(context, cliPath, timeoutMs, environment);
+}
+
+export function startSourceHarness(
+  context: TestContext,
+  timeoutMs = 30_000,
+  environment: Record<string, string> = {},
+) {
+  return startStdioHarness(context, sourceCliPath, timeoutMs, environment);
+}
+
+async function startStdioHarness(
+  context: TestContext,
+  entrypoint: string,
+  timeoutMs: number,
+  environment: Record<string, string>,
 ) {
   const requests: CapturedRequest[] = [];
   const events = new EventEmitter();
@@ -98,14 +118,13 @@ export async function startHarness(
   const directory = temporaryDirectory(context);
   const transport = new StdioClientTransport({
     command: process.execPath,
-    args: [cliPath],
+    args: [entrypoint],
     cwd: directory,
     env: {
       HOME: directory,
       USERPROFILE: directory,
       KAITEN_ORIGIN: `http://127.0.0.1:${address.port}`,
       KAITEN_TOKEN: token,
-      KAITEN_TOOL_PROFILE: 'legacy',
       KAITEN_TIMEOUT_MS: String(timeoutMs),
       ...environment,
     },

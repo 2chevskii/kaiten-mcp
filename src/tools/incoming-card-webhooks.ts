@@ -8,7 +8,6 @@ import {isHttpsOrLoopbackUrl} from '../urls.ts';
 export function registerIncomingCardWebhooks(registry: ToolRegistry): void {
   registry.add(
     'sendCardWebhook',
-    'Create a card through a configured incoming webhook URL using the public client helper. The Kaiten API token is never sent to the webhook.',
     z.strictObject({
       webhook_url: z
         .string()

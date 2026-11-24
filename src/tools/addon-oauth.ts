@@ -21,7 +21,6 @@ export function registerAddonOAuth(
   };
   registry.add(
     'addonOAuth.getToken',
-    'Retrieve an addon user token with the configured addon secret. The response intentionally contains access_token when present.',
     tokenKey,
     apiResult,
     read,
@@ -36,7 +35,6 @@ export function registerAddonOAuth(
   );
   registry.add(
     'addonOAuth.refreshToken',
-    'Refresh an addon user token with the configured addon secret. The response intentionally contains access_token when present.',
     tokenKey,
     apiResult,
     change,

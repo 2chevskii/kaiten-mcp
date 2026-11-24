@@ -7,7 +7,7 @@ import {StdioClientTransport} from '@modelcontextprotocol/client/stdio';
 
 type McpTool = Awaited<ReturnType<Client['listTools']>>['tools'][number];
 
-export async function readCatalog(profile?: string) {
+export async function readCatalog() {
   const directory = await mkdtemp(join(tmpdir(), 'kaiten-catalog-'));
   const client = new Client({name: 'kaiten-catalog', version: '1.0.0'});
   try {
@@ -20,7 +20,6 @@ export async function readCatalog(profile?: string) {
         KAITEN_ORIGIN: 'https://example.invalid',
         KAITEN_TOKEN: 'catalog-only-placeholder',
         KAITEN_CONTEXT_FILE: contextPath,
-        ...(profile === undefined ? {} : {KAITEN_TOOL_PROFILE: profile}),
       },
       stderr: 'inherit',
     });

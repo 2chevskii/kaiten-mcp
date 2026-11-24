@@ -7,7 +7,6 @@ export function registerCardTypesAndTags(registry: ToolRegistry): void {
   const {client} = registry;
   registry.add(
     'cardTypeTreeEntities.addTreeEntityToCardType',
-    'Add tree entity to card type (cardTypeTreeEntities); full API fields and JSON response.',
     z.strictObject({type_id: id, tree_entity_uid: text}),
     apiResult,
     change,
@@ -21,7 +20,6 @@ export function registerCardTypesAndTags(registry: ToolRegistry): void {
   );
   registry.add(
     'cardTypeTreeEntities.deleteTreeEntityFromCardType',
-    'Delete tree entity from card type (cardTypeTreeEntities); full API fields and JSON response.',
     z.strictObject({type_id: id, uid: text}),
     apiResult,
     change,
@@ -36,7 +34,6 @@ export function registerCardTypesAndTags(registry: ToolRegistry): void {
   );
   registry.add(
     'cardTypeTreeEntities.getListOfTypeTreeEntities',
-    'Get list of type tree entities (cardTypeTreeEntities); full API fields and JSON response.',
     z.strictObject({type_id: id}),
     apiResult,
     read,
@@ -49,7 +46,6 @@ export function registerCardTypesAndTags(registry: ToolRegistry): void {
   );
   registry.add(
     'cardTypes.createNewCardType',
-    'Create new card type (cardTypes); full API fields and JSON response.',
     z.strictObject({
       body: z.strictObject({
         letter: z.string(),
@@ -71,7 +67,6 @@ export function registerCardTypesAndTags(registry: ToolRegistry): void {
   );
   registry.add(
     'cardTypes.getCardType',
-    'Get card type (cardTypes); full API fields and JSON response.',
     z.strictObject({id: id}),
     apiResult,
     read,
@@ -81,7 +76,6 @@ export function registerCardTypesAndTags(registry: ToolRegistry): void {
   );
   registry.add(
     'cardTypes.getListOfCardTypes',
-    'Get list of card types (cardTypes); full API fields and JSON response.',
     z.strictObject({
       limit: pageFields.limit.removeDefault().optional(),
       offset: pageFields.offset.removeDefault().optional(),
@@ -98,7 +92,6 @@ export function registerCardTypesAndTags(registry: ToolRegistry): void {
   );
   registry.add(
     'cardTypes.removeCardType',
-    'Remove card type (cardTypes); full API fields and JSON response.',
     z.strictObject({id: id, replace_type_id: id}),
     apiResult,
     change,
@@ -112,7 +105,6 @@ export function registerCardTypesAndTags(registry: ToolRegistry): void {
   );
   registry.add(
     'cardTypes.updateCardType',
-    'Update card type (cardTypes); full API fields and JSON response.',
     z.strictObject({
       id: id,
       body: z
@@ -164,7 +156,6 @@ export function registerCardTypesAndTags(registry: ToolRegistry): void {
   );
   registry.add(
     'tags.iterate',
-    'Collect a bounded snapshot through the public client iterator; returns items and truncated.',
     z.strictObject({
       query: z
         .strictObject({
@@ -191,7 +182,6 @@ export function registerCardTypesAndTags(registry: ToolRegistry): void {
   );
   registry.add(
     'tags.addTag',
-    'Add tag (tags); full API fields and JSON response.',
     z.strictObject({
       name: z.string(),
       query: z
@@ -216,7 +206,6 @@ export function registerCardTypesAndTags(registry: ToolRegistry): void {
   );
   registry.add(
     'tags.retrieveListOfTags',
-    'Retrieve list of tags (tags); full API fields and JSON response.',
     z.strictObject({
       query: z
         .strictObject({

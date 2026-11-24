@@ -7,7 +7,6 @@ export function registerIdentityAndAccess(registry: ToolRegistry): void {
   const {client} = registry;
   registry.add(
     'companyUsers.getListOfUsers',
-    'Get list of users (companyUsers); full API fields and JSON response.',
     z.strictObject({
       query: z
         .strictObject({
@@ -45,7 +44,6 @@ export function registerIdentityAndAccess(registry: ToolRegistry): void {
   );
   registry.add(
     'companyUsers.removeVirtualUser',
-    'Remove virtual user (companyUsers); full API fields and JSON response.',
     z.strictObject({user_id: id}),
     apiResult,
     change,
@@ -58,7 +56,6 @@ export function registerIdentityAndAccess(registry: ToolRegistry): void {
   );
   registry.add(
     'companyUsers.updateUser',
-    'Update user (companyUsers); full API fields and JSON response.',
     z.strictObject({
       user_id: id,
       apps_permissions: z.number().optional(),
@@ -77,7 +74,6 @@ export function registerIdentityAndAccess(registry: ToolRegistry): void {
   );
   registry.add(
     'groupAdmins.addAdminToGroup',
-    'Add admin to group (groupAdmins); full API fields and JSON response.',
     z.strictObject({group_uid: text, user_id: id}),
     apiResult,
     change,
@@ -91,7 +87,6 @@ export function registerIdentityAndAccess(registry: ToolRegistry): void {
   );
   registry.add(
     'groupAdmins.getListOfGroupAdmins',
-    'Get list of group admins (groupAdmins); full API fields and JSON response.',
     z.strictObject({group_uid: text}),
     apiResult,
     read,
@@ -104,7 +99,6 @@ export function registerIdentityAndAccess(registry: ToolRegistry): void {
   );
   registry.add(
     'groupAdmins.removeAdminFromGroup',
-    'Remove admin from group (groupAdmins); full API fields and JSON response.',
     z.strictObject({group_uid: text, user_id: id}),
     apiResult,
     change,
@@ -118,7 +112,6 @@ export function registerIdentityAndAccess(registry: ToolRegistry): void {
   );
   registry.add(
     'groupEntities.addEntity',
-    'Add entity (groupEntities); full API fields and JSON response.',
     z.strictObject({
       group_uid: text,
       entity_uid: text,
@@ -137,7 +130,6 @@ export function registerIdentityAndAccess(registry: ToolRegistry): void {
   );
   registry.add(
     'groupEntities.getListOfGroupEntities',
-    'Get list of group entities (groupEntities); full API fields and JSON response.',
     z.strictObject({group_uid: text}),
     apiResult,
     read,
@@ -150,7 +142,6 @@ export function registerIdentityAndAccess(registry: ToolRegistry): void {
   );
   registry.add(
     'groupEntities.removeEntity',
-    'Remove entity (groupEntities); full API fields and JSON response.',
     z.strictObject({group_uid: text, uid: text}),
     apiResult,
     change,
@@ -164,7 +155,6 @@ export function registerIdentityAndAccess(registry: ToolRegistry): void {
   );
   registry.add(
     'groupEntities.updateGroupEntity',
-    'Update group entity (groupEntities); full API fields and JSON response.',
     z.strictObject({group_uid: text, uid: text, role_ids: z.array(text)}),
     apiResult,
     change,
@@ -179,7 +169,6 @@ export function registerIdentityAndAccess(registry: ToolRegistry): void {
   );
   registry.add(
     'groupUsers.addUserToGroup',
-    'Add user to group (groupUsers); full API fields and JSON response.',
     z.strictObject({
       group_uid: text,
       user_id: id,
@@ -200,7 +189,6 @@ export function registerIdentityAndAccess(registry: ToolRegistry): void {
   );
   registry.add(
     'groupUsers.getListOfGroupUsers',
-    'Get list of group users (groupUsers); full API fields and JSON response.',
     z.strictObject({group_uid: text}),
     apiResult,
     read,
@@ -213,7 +201,6 @@ export function registerIdentityAndAccess(registry: ToolRegistry): void {
   );
   registry.add(
     'groupUsers.removeUserFromGroup',
-    'Remove user from group (groupUsers); full API fields and JSON response.',
     z.strictObject({group_uid: text, user_id: id}),
     apiResult,
     change,
@@ -227,7 +214,6 @@ export function registerIdentityAndAccess(registry: ToolRegistry): void {
   );
   registry.add(
     'groups.createGroup',
-    'Create group (groups); full API fields and JSON response.',
     z.strictObject({
       name: z.string(),
       permissions: z.number().optional(),
@@ -246,7 +232,6 @@ export function registerIdentityAndAccess(registry: ToolRegistry): void {
   );
   registry.add(
     'groups.getGroup',
-    'Get group (groups); full API fields and JSON response.',
     z.strictObject({uid: text}),
     apiResult,
     read,
@@ -256,7 +241,6 @@ export function registerIdentityAndAccess(registry: ToolRegistry): void {
   );
   registry.add(
     'groups.getListOfGroups',
-    'Get list of groups (groups); full API fields and JSON response.',
     z.strictObject({
       query: z
         .strictObject({
@@ -281,7 +265,6 @@ export function registerIdentityAndAccess(registry: ToolRegistry): void {
   );
   registry.add(
     'groups.removeGroup',
-    'Remove group (groups); full API fields and JSON response.',
     z.strictObject({uid: text}),
     apiResult,
     change,
@@ -291,7 +274,6 @@ export function registerIdentityAndAccess(registry: ToolRegistry): void {
   );
   registry.add(
     'groups.updateGroup',
-    'Update group (groups); full API fields and JSON response.',
     z.strictObject({
       uid: text,
       name: z.string().optional(),
@@ -312,7 +294,6 @@ export function registerIdentityAndAccess(registry: ToolRegistry): void {
   );
   registry.add(
     'spaceUsers.changeUserRoleAndNotificationSettings',
-    'Change user role and notification settings (spaceUsers); full API fields and JSON response.',
     z.strictObject({
       space_id: id,
       id: id,
@@ -344,7 +325,6 @@ export function registerIdentityAndAccess(registry: ToolRegistry): void {
   );
   registry.add(
     'spaceUsers.getListOfUsers',
-    'Get list of users (spaceUsers); full API fields and JSON response.',
     z.strictObject({
       space_id: id,
       query: z
@@ -368,7 +348,6 @@ export function registerIdentityAndAccess(registry: ToolRegistry): void {
   );
   registry.add(
     'spaceUsers.getUser',
-    'Get user (spaceUsers); full API fields and JSON response.',
     z.strictObject({space_id: id, id: id}),
     apiResult,
     read,
@@ -378,7 +357,6 @@ export function registerIdentityAndAccess(registry: ToolRegistry): void {
   );
   registry.add(
     'spaceUsers.inviteUserToSpace',
-    'Invite user to space (spaceUsers); full API fields and JSON response.',
     z.strictObject({
       space_id: id,
       body: z.strictObject({
@@ -401,7 +379,6 @@ export function registerIdentityAndAccess(registry: ToolRegistry): void {
   );
   registry.add(
     'spaceUsers.removeUserFromSpace',
-    'Remove user from space (spaceUsers); full API fields and JSON response.',
     z.strictObject({space_id: id, id: id}),
     apiResult,
     change,
@@ -415,7 +392,6 @@ export function registerIdentityAndAccess(registry: ToolRegistry): void {
   );
   registry.add(
     'treeEntities.getListOfEntities',
-    'Get list of entities (treeEntities); full API fields and JSON response.',
     z.strictObject({
       query: z
         .strictObject({
@@ -439,7 +415,6 @@ export function registerIdentityAndAccess(registry: ToolRegistry): void {
   );
   registry.add(
     'treeEntityRoles.getListOfTreeEntityRoles',
-    'Get list of tree entity roles (treeEntityRoles); full API fields and JSON response.',
     z.strictObject({}),
     apiResult,
     read,
@@ -449,7 +424,6 @@ export function registerIdentityAndAccess(registry: ToolRegistry): void {
   );
   registry.add(
     'userRoles.createUserRole',
-    'Create user role (userRoles); full API fields and JSON response.',
     z.strictObject({name: z.string()}),
     apiResult,
     change,
@@ -459,7 +433,6 @@ export function registerIdentityAndAccess(registry: ToolRegistry): void {
   );
   registry.add(
     'userRoles.getListOfUserRoles',
-    'Get list of user roles (userRoles); full API fields and JSON response.',
     z.strictObject({}),
     apiResult,
     read,
@@ -469,7 +442,6 @@ export function registerIdentityAndAccess(registry: ToolRegistry): void {
   );
   registry.add(
     'userRoles.getUserRole',
-    'Get user role (userRoles); full API fields and JSON response.',
     z.strictObject({role_id: userRoleId}),
     apiResult,
     read,
@@ -479,7 +451,6 @@ export function registerIdentityAndAccess(registry: ToolRegistry): void {
   );
   registry.add(
     'userRoles.removeUserRole',
-    'Remove user role (userRoles); full API fields and JSON response.',
     z.strictObject({role_id: userRoleId, replace_role_id: userRoleId}),
     apiResult,
     change,
@@ -493,7 +464,6 @@ export function registerIdentityAndAccess(registry: ToolRegistry): void {
   );
   registry.add(
     'userRoles.updateUserRole',
-    'Update user role (userRoles); full API fields and JSON response.',
     z.strictObject({role_id: userRoleId, name: z.string()}),
     apiResult,
     change,
@@ -507,7 +477,6 @@ export function registerIdentityAndAccess(registry: ToolRegistry): void {
   );
   registry.add(
     'users.iterate',
-    'Collect a bounded snapshot through the public client iterator; returns items and truncated.',
     z.strictObject({
       query: z
         .strictObject({
@@ -538,7 +507,6 @@ export function registerIdentityAndAccess(registry: ToolRegistry): void {
   );
   registry.add(
     'users.retrieveCurrentUser',
-    'Retrieve current user (users); full API fields and JSON response.',
     z.strictObject({}),
     apiResult,
     read,
@@ -548,7 +516,6 @@ export function registerIdentityAndAccess(registry: ToolRegistry): void {
   );
   registry.add(
     'users.retrieveListOfUsers',
-    'Retrieve list of users (users); full API fields and JSON response.',
     z.strictObject({
       query: z
         .strictObject({
@@ -575,7 +542,6 @@ export function registerIdentityAndAccess(registry: ToolRegistry): void {
   );
   registry.add(
     'users.updateUser',
-    'Update user (users); full API fields and JSON response.',
     z.strictObject({
       user_id: id,
       body: z

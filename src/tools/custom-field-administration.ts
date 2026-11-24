@@ -9,7 +9,6 @@ export function registerCustomFieldAdministration(
   const {client} = registry;
   registry.add(
     'customProperties.createNewProperty',
-    'Create new property (customProperties); full API fields and JSON response.',
     z.strictObject({
       body: z
         .strictObject({
@@ -99,7 +98,6 @@ export function registerCustomFieldAdministration(
   );
   registry.add(
     'customProperties.getListOfProperties',
-    'Get list of properties (customProperties); full API fields and JSON response.',
     z.strictObject({
       query: z
         .strictObject({
@@ -131,7 +129,6 @@ export function registerCustomFieldAdministration(
   );
   registry.add(
     'customProperties.getProperty',
-    'Get property (customProperties); full API fields and JSON response.',
     z.strictObject({property_id: id}),
     apiResult,
     read,
@@ -144,7 +141,6 @@ export function registerCustomFieldAdministration(
   );
   registry.add(
     'customProperties.removeProperty',
-    'Remove property (customProperties); full API fields and JSON response.',
     z.strictObject({property_id: id}),
     apiResult,
     change,
@@ -157,7 +153,6 @@ export function registerCustomFieldAdministration(
   );
   registry.add(
     'customProperties.updateProperty',
-    'Update property (customProperties); full API fields and JSON response.',
     z.strictObject({
       property_id: id,
       body: z.strictObject({
@@ -190,7 +185,6 @@ export function registerCustomFieldAdministration(
   );
   registry.add(
     'customPropertyCatalogValues.createNewCatalogValue',
-    'Create new catalog value (customPropertyCatalogValues); full API fields and JSON response.',
     z.strictObject({
       property_id: id,
       body: z.strictObject({value: z.record(z.string(), z.json())}),
@@ -209,7 +203,6 @@ export function registerCustomFieldAdministration(
   );
   registry.add(
     'customPropertyCatalogValues.getCatalogValue',
-    'Get catalog value (customPropertyCatalogValues); full API fields and JSON response.',
     z.strictObject({property_id: id, value_id: id}),
     apiResult,
     read,
@@ -223,7 +216,6 @@ export function registerCustomFieldAdministration(
   );
   registry.add(
     'customPropertyCatalogValues.getListOfCatalogValues',
-    'Get list of catalog values (customPropertyCatalogValues); full API fields and JSON response.',
     z.strictObject({
       property_id: id,
       query: z
@@ -249,7 +241,6 @@ export function registerCustomFieldAdministration(
   );
   registry.add(
     'customPropertyCatalogValues.removeProperty',
-    'Remove property (customPropertyCatalogValues); full API fields and JSON response.',
     z.strictObject({property_id: id, value_id: id}),
     apiResult,
     change,
@@ -263,7 +254,6 @@ export function registerCustomFieldAdministration(
   );
   registry.add(
     'customPropertyCatalogValues.updateCatalogValue',
-    'Update catalog value (customPropertyCatalogValues); full API fields and JSON response.',
     z.strictObject({
       property_id: id,
       value_id: id,
@@ -295,7 +285,6 @@ export function registerCustomFieldAdministration(
   );
   registry.add(
     'customPropertyCollectiveScoreValues.createNewScoreValue',
-    'Create new score value (customPropertyCollectiveScoreValues); full API fields and JSON response.',
     z.strictObject({card_id: id, property_id: id, value: z.string()}),
     apiResult,
     change,
@@ -311,7 +300,6 @@ export function registerCustomFieldAdministration(
   );
   registry.add(
     'customPropertyCollectiveScoreValues.getListOfScoreValues',
-    'Get list of score values (customPropertyCollectiveScoreValues); full API fields and JSON response.',
     z.strictObject({card_id: id, property_id: id}),
     apiResult,
     read,
@@ -326,7 +314,6 @@ export function registerCustomFieldAdministration(
   );
   registry.add(
     'customPropertyCollectiveScoreValues.updateScoreValue',
-    'Update score value (customPropertyCollectiveScoreValues); full API fields and JSON response.',
     z.strictObject({
       card_id: id,
       property_id: id,
@@ -347,7 +334,6 @@ export function registerCustomFieldAdministration(
   );
   registry.add(
     'customPropertyCollectiveVoteValues.createNewVoteValue',
-    'Create new vote value (customPropertyCollectiveVoteValues); full API fields and JSON response.',
     z.strictObject({
       card_id: id,
       property_id: id,
@@ -374,7 +360,6 @@ export function registerCustomFieldAdministration(
   );
   registry.add(
     'customPropertyCollectiveVoteValues.getListOfVoteValues',
-    'Get list of vote values (customPropertyCollectiveVoteValues); full API fields and JSON response.',
     z.strictObject({card_id: id, property_id: id}),
     apiResult,
     read,
@@ -389,7 +374,6 @@ export function registerCustomFieldAdministration(
   );
   registry.add(
     'customPropertyCollectiveVoteValues.removeVoteValue',
-    'Remove vote value (customPropertyCollectiveVoteValues); full API fields and JSON response.',
     z.strictObject({
       card_id: id,
       property_id: id,
@@ -410,7 +394,6 @@ export function registerCustomFieldAdministration(
   );
   registry.add(
     'customPropertyCollectiveVoteValues.updateVoteValue',
-    'Update vote value (customPropertyCollectiveVoteValues); full API fields and JSON response.',
     z.strictObject({
       card_id: id,
       property_id: id,
@@ -431,7 +414,6 @@ export function registerCustomFieldAdministration(
   );
   registry.add(
     'customPropertySelectValues.createNewSelectValue',
-    'Create new select value (customPropertySelectValues); full API fields and JSON response.',
     z.strictObject({
       property_id: id,
       value: z.string(),
@@ -450,7 +432,6 @@ export function registerCustomFieldAdministration(
   );
   registry.add(
     'customPropertySelectValues.getListOfSelectValues',
-    'Get list of select values (customPropertySelectValues); full API fields and JSON response.',
     z.strictObject({
       property_id: id,
       query: z
@@ -489,7 +470,6 @@ export function registerCustomFieldAdministration(
   );
   registry.add(
     'customPropertySelectValues.getSelectValue',
-    'Get select value (customPropertySelectValues); full API fields and JSON response.',
     z.strictObject({property_id: id, value_id: id}),
     apiResult,
     read,
@@ -503,7 +483,6 @@ export function registerCustomFieldAdministration(
   );
   registry.add(
     'customPropertySelectValues.removeProperty',
-    'Remove property (customPropertySelectValues); full API fields and JSON response.',
     z.strictObject({property_id: id, value_id: id}),
     apiResult,
     change,
@@ -517,7 +496,6 @@ export function registerCustomFieldAdministration(
   );
   registry.add(
     'customPropertySelectValues.updateSelectValue',
-    'Update select value (customPropertySelectValues); full API fields and JSON response.',
     z.strictObject({
       property_id: id,
       value_id: id,
@@ -548,7 +526,6 @@ export function registerCustomFieldAdministration(
   );
   registry.add(
     'customPropertyTreeEntities.addTreeEntityToCustomProperty',
-    'Add tree entity to custom property (customPropertyTreeEntities); full API fields and JSON response.',
     z.strictObject({property_id: id, tree_entity_uid: text}),
     apiResult,
     change,
@@ -563,7 +540,6 @@ export function registerCustomFieldAdministration(
   );
   registry.add(
     'customPropertyTreeEntities.deleteTreeEntityFromCustomProperty',
-    'Delete tree entity from custom property (customPropertyTreeEntities); full API fields and JSON response.',
     z.strictObject({property_id: id, uid: text}),
     apiResult,
     change,
@@ -578,7 +554,6 @@ export function registerCustomFieldAdministration(
   );
   registry.add(
     'customPropertyTreeEntities.getListOfCustomPropertyTreeEntities',
-    'Get list of custom property tree entities (customPropertyTreeEntities); full API fields and JSON response.',
     z.strictObject({property_id: id}),
     apiResult,
     read,

@@ -18,19 +18,6 @@ test('configuration defaults and validation', context => {
     token: 'token',
     timeoutMs: 30_000,
   });
-  for (const toolProfile of ['canonical', 'legacy']) {
-    assert.equal(
-      readConfiguration({...base, KAITEN_TOOL_PROFILE: toolProfile})
-        .toolProfile,
-      toolProfile,
-    );
-  }
-  for (const value of ['', 'unknown']) {
-    assert.throws(
-      () => readConfiguration({...base, KAITEN_TOOL_PROFILE: value}),
-      /KAITEN_TOOL_PROFILE/,
-    );
-  }
   assert.throws(() => readConfiguration({}));
   assert.throws(() => readConfiguration({...base, KAITEN_TOKEN: ' '}));
   assert.equal(

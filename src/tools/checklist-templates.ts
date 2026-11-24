@@ -7,7 +7,6 @@ export function registerChecklistTemplates(registry: ToolRegistry): void {
   const {client} = registry;
   registry.add(
     'cardChecklistItems.addItemToChecklist',
-    'Add item to checklist (cardChecklistItems); full API fields and JSON response.',
     z.strictObject({
       card_id: id,
       checklist_id: id,
@@ -34,7 +33,6 @@ export function registerChecklistTemplates(registry: ToolRegistry): void {
   );
   registry.add(
     'cardChecklistItems.removeChecklistItem',
-    'Remove checklist item (cardChecklistItems); full API fields and JSON response.',
     z.strictObject({card_id: id, checklist_id: id, item_id: id}),
     apiResult,
     change,
@@ -49,7 +47,6 @@ export function registerChecklistTemplates(registry: ToolRegistry): void {
   );
   registry.add(
     'cardChecklistItems.updateChecklistItem',
-    'Update checklist item (cardChecklistItems); full API fields and JSON response.',
     z.strictObject({
       card_id: id,
       checklist_id: id,
@@ -81,7 +78,6 @@ export function registerChecklistTemplates(registry: ToolRegistry): void {
   );
   registry.add(
     'cardChecklists.addChecklistToCard',
-    'Add checklist to card (cardChecklists); full API fields and JSON response.',
     z.strictObject({
       card_id: id,
       body: z
@@ -113,7 +109,6 @@ export function registerChecklistTemplates(registry: ToolRegistry): void {
   );
   registry.add(
     'cardChecklists.removeChecklistFromCard',
-    'Remove checklist from card (cardChecklists); full API fields and JSON response.',
     z.strictObject({card_id: id, checklist_id: id}),
     apiResult,
     change,
@@ -127,7 +122,6 @@ export function registerChecklistTemplates(registry: ToolRegistry): void {
   );
   registry.add(
     'cardChecklists.retrieveCardChecklist',
-    'Retrieve card checklist (cardChecklists); full API fields and JSON response.',
     z.strictObject({card_id: id, checklist_id: id}),
     apiResult,
     read,
@@ -141,7 +135,6 @@ export function registerChecklistTemplates(registry: ToolRegistry): void {
   );
   registry.add(
     'cardChecklists.updateChecklist',
-    'Update checklist (cardChecklists); full API fields and JSON response.',
     z.strictObject({
       card_id: id,
       checklist_id: id,
@@ -168,7 +161,6 @@ export function registerChecklistTemplates(registry: ToolRegistry): void {
   );
   registry.add(
     'checklistItems.addItemToChecklist',
-    'Add item to checklist (checklistItems); full API fields and JSON response.',
     z.strictObject({
       checklist_id: id,
       body: z.strictObject({
@@ -193,7 +185,6 @@ export function registerChecklistTemplates(registry: ToolRegistry): void {
   );
   registry.add(
     'checklistItems.removeChecklistItem',
-    'Remove checklist item (checklistItems); full API fields and JSON response.',
     z.strictObject({checklist_id: id, item_id: id}),
     apiResult,
     change,
@@ -207,7 +198,6 @@ export function registerChecklistTemplates(registry: ToolRegistry): void {
   );
   registry.add(
     'checklistItems.updateChecklistItem',
-    'Update checklist item (checklistItems); full API fields and JSON response.',
     z.strictObject({
       checklist_id: id,
       item_id: id,
@@ -237,7 +227,6 @@ export function registerChecklistTemplates(registry: ToolRegistry): void {
   );
   registry.add(
     'checklists.retrieveCardsWithChecklist',
-    'Retrieve cards with checklist (checklists); full API fields and JSON response.',
     z.strictObject({id: id, only_shared_cards: z.boolean()}),
     apiResult,
     read,
@@ -251,7 +240,6 @@ export function registerChecklistTemplates(registry: ToolRegistry): void {
   );
   registry.add(
     'spaceTemplateChecklist.createNewSpaceTemplateChecklist',
-    'Create new space template checklist (spaceTemplateChecklist); full API fields and JSON response.',
     z.strictObject({
       space_uid: text,
       name: z.string(),
@@ -271,7 +259,6 @@ export function registerChecklistTemplates(registry: ToolRegistry): void {
   );
   registry.add(
     'spaceTemplateChecklist.getListOfSpaceTemplateChecklists',
-    'Get list of space template checklists (spaceTemplateChecklist); full API fields and JSON response.',
     z.strictObject({space_uid: text}),
     apiResult,
     read,
@@ -285,7 +272,6 @@ export function registerChecklistTemplates(registry: ToolRegistry): void {
   );
   registry.add(
     'spaceTemplateChecklist.removeSpaceTemplateChecklist',
-    'Remove space template checklist (spaceTemplateChecklist); full API fields and JSON response.',
     z.strictObject({space_uid: text, template_checklist_uid: text}),
     apiResult,
     change,
@@ -299,7 +285,6 @@ export function registerChecklistTemplates(registry: ToolRegistry): void {
   );
   registry.add(
     'spaceTemplateChecklist.updateSpaceTemplateChecklist',
-    'Update space template checklist (spaceTemplateChecklist); full API fields and JSON response.',
     z.strictObject({
       space_uid: text,
       template_checklist_uid: text,
@@ -330,7 +315,6 @@ export function registerChecklistTemplates(registry: ToolRegistry): void {
   );
   registry.add(
     'spaceTemplateChecklistItems.createNewSpaceTemplateChecklistItem',
-    'Create new space template checklist item (spaceTemplateChecklistItems); full API fields and JSON response.',
     z.strictObject({
       space_uid: text,
       template_checklist_uid: text,
@@ -352,7 +336,6 @@ export function registerChecklistTemplates(registry: ToolRegistry): void {
   );
   registry.add(
     'spaceTemplateChecklistItems.removeSpaceTemplateChecklistItem',
-    'Remove space template checklist item (spaceTemplateChecklistItems); full API fields and JSON response.',
     z.strictObject({
       space_uid: text,
       template_checklist_uid: text,
@@ -372,7 +355,6 @@ export function registerChecklistTemplates(registry: ToolRegistry): void {
   );
   registry.add(
     'spaceTemplateChecklistItems.updateSpaceTemplateChecklistItem',
-    'Update space template checklist item (spaceTemplateChecklistItems); full API fields and JSON response.',
     z.strictObject({
       space_uid: text,
       template_checklist_uid: text,
