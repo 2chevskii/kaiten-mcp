@@ -1,15 +1,12 @@
 # Пользовательские справочники
 
-Эти [расширенные операции](./api.md) используют `kaiten_custom_properties_read`
-и `kaiten_custom_properties_write`; общее число остаётся равным 20. ID
-справочников, полей и записей — UUID. Полный JSON-ответ upstream сохраняется
-в `{result}`. API справочников помечен upstream как beta.
+Читайте справочники, поля и записи через `kaiten_custom_properties_read`, изменяйте через `kaiten_custom_properties_write`. Все их ID имеют формат UUID. Для фильтрации записей используйте `format: "native"` и читайте `{result}`. API справочников находится в бета-версии.
 
-| Ресурс                   | Операции после `resource.`                                                                                                    | Аргументы                                                                                                                                                                                |
-| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `customDirectories`      | `createCustomDirectory`, `getListOfCustomDirectories`, `getCustomDirectory`, `updateCustomDirectory`, `deleteCustomDirectory` | `body` для создания/изменения; `query?` для списка; `directory_id` для чтения/изменения/удаления                                                                                         |
-| `customDirectoryFields`  | `createField`, `getListOfFields`, `getField`, `updateField`, `deleteField`                                                    | `directory_id`; `body` для создания/изменения; `field_id` для чтения/изменения/удаления; `include_author?`, `conditions?` для списка                                                     |
-| `customDirectoryRecords` | `createRecord`, `getListOfRecords`, `getRecord`, `updateRecord`, `deleteRecord`, `getCardsLinkedToRecord`                     | `directory_id`; `body` для создания/изменения; `record_id` для чтения/изменения/удаления/связанных карточек; `query?` для списков; `response_profile?` для записи; `profile?` для чтения |
+| Область     | Операции                                                                                                                                                                | Аргументы                                                                                                                                                                                |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Справочники | `create_custom_directory`, `list_custom_directories`, `get_custom_directory`, `update_custom_directory`, `delete_custom_directory`                                      | `body` для создания/изменения; `query?` для списка; `directory_id` для чтения/изменения/удаления                                                                                         |
+| Поля        | `create_directory_field`, `list_directory_fields`, `get_directory_field`, `update_directory_field`, `delete_directory_field`                                            | `directory_id`; `body` для создания/изменения; `field_id` для чтения/изменения/удаления; `include_author?`, `conditions?` для списка                                                     |
+| Записи      | `create_directory_record`, `list_custom_directory_records`, `get_directory_record`, `update_directory_record`, `delete_directory_record`, `list_cards_linked_to_record` | `directory_id`; `body` для создания/изменения; `record_id` для чтения/изменения/удаления/связанных карточек; `query?` для списков; `response_profile?` для записи; `profile?` для чтения |
 
 Создание справочника поддерживает описание, множественный выбор, права
 редактирования, индекс отображаемого поля и начальные поля. Типы полей:
@@ -62,8 +59,9 @@ offset-пагинацию там, где она доступна. У списк�
 ```json
 {
   "request": {
-    "operation": "customDirectoryRecords.getListOfRecords",
+    "operation": "list_custom_directory_records",
     "args": {
+      "format": "native",
       "directory_id": "12345678-1234-4234-8234-123456789abc",
       "query": {
         "filters": [

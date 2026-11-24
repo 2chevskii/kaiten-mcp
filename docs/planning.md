@@ -1,13 +1,13 @@
 # Iterations and legacy sprints
 
-With the canonical profile, use `kaiten_workflows_read` to list iterations,
+Use `kaiten_workflows_read` to list iterations,
 get one iteration, list its memberships, or follow a card's participation.
 Use `kaiten_workflows_write` to create, update, delete, add or remove memberships.
 The legacy numeric sprint ID works with `list_legacy_sprints` and
 `get_legacy_sprint_summary`. The public sprint endpoints are deprecated reads.
 Use the iteration lifecycle for current planning changes.
 
-The canonical `list_iterations` accepts status, order, limit and offset.
+`list_iterations` accepts status, order, limit and offset.
 Call `list_iteration_memberships` with `status: "active"` to read current
 members. The public API rejects the old `with_data` query.
 
@@ -59,25 +59,21 @@ applied if a later batch fails. Read back memberships before retrying.
 
 [Bulk removal API](https://developers.kaiten.ru/iterations/remove-cards-from-iteration)
 
-## Legacy profile
+## Iteration and sprint operations
 
-These [advanced operations](./api.md) share `kaiten_navigation_read` and
-`kaiten_navigation_write`; the total remains 20 tools. Responses preserve the
-complete client JSON in `{result}`.
-
-| Operation                             | Arguments                               | Behavior                                                             |
-| ------------------------------------- | --------------------------------------- | -------------------------------------------------------------------- |
-| `iterations.createIteration`          | `space_uid`, `body`                     | Create with `title`, optional nullable goal/start/finish dates       |
-| `iterations.getIteration`             | `space_uid`, `id`                       | Read an iteration                                                    |
-| `iterations.retrieveListOfIterations` | `space_uid`, `query?`                   | Filter by status, ordering and offset page                           |
-| `iterations.updateIteration`          | `space_uid`, `id`, `body`               | Update title, goal, status, dates and optional replacement iteration |
-| `iterations.deleteIteration`          | `space_uid`, `id`, `new_iteration_id?`  | Delete, optionally specifying a replacement                          |
-| `iterations.addCardToIteration`       | `space_uid`, `iteration_id`, `card_uid` | Add a card membership                                                |
-| `iterations.retrieveCardsInIteration` | `space_uid`, `iteration_id`, `status?`  | Read membership records, not full card details                       |
-| `iterations.removeCardFromIteration`  | `space_uid`, `iteration_id`, `uid`      | Remove a card membership                                             |
-| `iterations.getCardIterationsHistory` | `card_uid`, `with_details?`             | Read membership history                                              |
-| `sprints.getSprintSummary`            | `id`, `exclude_deleted_cards?`          | Read a legacy sprint summary                                         |
-| `sprints.getSprintsList`              | `active?`, `limit?`, `offset?`          | List legacy sprints                                                  |
+| Operation                     | Arguments                                              | Behavior                                                             |
+| ----------------------------- | ------------------------------------------------------ | -------------------------------------------------------------------- |
+| `create_iteration`            | `space_uid`, `body`                                    | Create with `title`, optional nullable goal/start/finish dates       |
+| `get_iteration`               | `space_uid`, `id`                                      | Read an iteration                                                    |
+| `list_iterations`             | `space_uid`, `query?`                                  | Filter by status, ordering and offset page                           |
+| `update_iteration`            | `space_uid`, `id`, `body`                              | Update title, goal, status, dates and optional replacement iteration |
+| `delete_iteration`            | `space_uid`, `id`, `new_iteration_id?`                 | Delete, optionally specifying a replacement                          |
+| `add_iteration_member`        | `space_uid`, `iteration_id`, `card_uid` or `card_uids` | Add or transfer card memberships                                     |
+| `list_iteration_memberships`  | `space_uid`, `iteration_id`, `status?`                 | Read membership records, not full card details                       |
+| `remove_iteration_member`     | `space_uid`, `iteration_id`, `uid`                     | Remove a card membership                                             |
+| `list_card_iteration_history` | `card_uid`, `with_details?`                            | Read membership history                                              |
+| `get_legacy_sprint_summary`   | `id`, `exclude_deleted_cards?`                         | Read a legacy sprint summary                                         |
+| `list_legacy_sprints`         | `active?`, `limit?`, `offset?`                         | List legacy sprints                                                  |
 
 Iteration identifiers are strings, while legacy sprint IDs are numeric. The
 iterations feature must be enabled for the company and is marked beta upstream.
@@ -90,17 +86,16 @@ The update contract requires at least one of title, goal, status, start date or
 finish date; `actual_finish_date` and `new_iteration_id` can accompany those
 changes. Omitted values stay omitted; nullable dates/goals/replacement IDs keep
 their explicit nulls. Deleting without a replacement omits the body, whereas
-`new_iteration_id: null` sends an explicit null. Dates are forwarded unchanged. The legacy profile still accepts native string query
-flags such as `with_data`, which the public API stopped accepting on November 1, 2026.
+`new_iteration_id: null` sends an explicit null. Dates are forwarded unchanged.
 Lists do not fetch subsequent
 pages automatically; retain filters when changing `offset`.
 
-Close an iteration through `kaiten_navigation_write`:
+Close an iteration through `kaiten_workflows_write`:
 
 ```json
 {
   "request": {
-    "operation": "iterations.updateIteration",
+    "operation": "update_iteration",
     "args": {
       "space_uid": "space-uid",
       "id": "iteration-id",

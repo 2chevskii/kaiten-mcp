@@ -1,25 +1,15 @@
 # Shared checklists and space templates
 
-Use `list_checklists` to find checklist IDs on a card and `get_checklist` to read
-complete item details. The canonical write pair uses a single operation name for
-each intent. Supply a native body to copy or share a checklist or move it to
-another card. When editing a shared checklist, first call
-`list_cards_using_checklist` to review the affected cards.
+Use `kaiten_checklists_read` to find card checklists and space templates and `kaiten_checklists_write` to change them. Before editing a shared checklist, use `list_cards_using_checklist` to identify affected cards. Supply a native `body` to copy, share or move a checklist.
 
-Use `list_checklist_templates` to find space templates and their item UIDs.
-Template writes change the reusable defaults in a space.
-
-The table shows v2 operation names for `KAITEN_TOOL_PROFILE=legacy`. Their
-responses preserve the complete client JSON in `{result}`.
-
-| Resource                      | Operations after `resource.`                                                                                                          | Arguments                                                                                                                |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| `cardChecklists`              | `addChecklistToCard`, `retrieveCardChecklist`, `updateChecklist`, `removeChecklistFromCard`                                           | `card_id`; `body` for add/update; `checklist_id` for get/update/remove                                                   |
-| `cardChecklistItems`          | `addItemToChecklist`, `updateChecklistItem`, `removeChecklistItem`                                                                    | `card_id`, `checklist_id`; `body` for add/update; `item_id` for update/remove                                            |
-| `checklistItems`              | `addItemToChecklist`, `updateChecklistItem`, `removeChecklistItem`                                                                    | `checklist_id`; `body` for add/update; `item_id` for update/remove                                                       |
-| `checklists`                  | `retrieveCardsWithChecklist`                                                                                                          | `id`, `only_shared_cards` (required boolean)                                                                             |
-| `spaceTemplateChecklist`      | `createNewSpaceTemplateChecklist`, `getListOfSpaceTemplateChecklists`, `updateSpaceTemplateChecklist`, `removeSpaceTemplateChecklist` | `space_uid`; `name`, `sort_order?` for create; `template_checklist_uid` for update/remove; `body` for update             |
-| `spaceTemplateChecklistItems` | `createNewSpaceTemplateChecklistItem`, `updateSpaceTemplateChecklistItem`, `removeSpaceTemplateChecklistItem`                         | `space_uid`, `template_checklist_uid`; `text`, `sort_order?` for create; `item_uid` for update/remove; `body` for update |
+| Area              | Operations                                                                                                        | Arguments                                                                                                                |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Checklists        | `create_checklist`, `get_checklist`, `update_checklist`, `delete_checklist`                                       | `card_id`; `body` for add/update; `checklist_id` for get/update/remove                                                   |
+| Card-scoped items | `add_checklist_item`, `update_checklist_item`, `delete_checklist_item`                                            | `card_id`, `checklist_id`; `body` for add/update; `item_id` for update/remove                                            |
+| Shared items      | `add_checklist_item`, `update_checklist_item`, `delete_checklist_item`                                            | `checklist_id`; `body` for add/update; `item_id` for update/remove                                                       |
+| Shared checklists | `list_cards_using_checklist`                                                                                      | `id`, `only_shared_cards` (required boolean)                                                                             |
+| Templates         | `create_checklist_template`, `list_checklist_templates`, `update_checklist_template`, `delete_checklist_template` | `space_uid`; `name`, `sort_order?` for create; `template_checklist_uid` for update/remove; `body` for update             |
+| Template items    | `add_checklist_template_item`, `update_checklist_template_item`, `delete_checklist_template_item`                 | `space_uid`, `template_checklist_uid`; `text`, `sort_order?` for create; `item_uid` for update/remove; `body` for update |
 
 Checklist creation accepts a `name` or `source_share_id`, plus ordering,
 `items_source_checklist_id` and `exclude_item_ids` for copying selected items.

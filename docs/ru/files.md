@@ -1,9 +1,6 @@
 # Файлы и вложения комментариев
 
-Чтение и скачивание используют `kaiten_files_read`, загрузка, изменение
-метаданных и удаление — `kaiten_files_write`. Сервер предоставляет ровно
-**20 инструментов**. Все запросы API Kaiten выполняются публичными методами
-закреплённого клиента **1.3.0**.
+Читайте и скачивайте файлы через `kaiten_content_read`. Для загрузки, изменения метаданных и удаления используйте `kaiten_content_write`. Сначала получите ID файла и родительской записи. Для запросов к API Kaiten используется публичный клиент **1.3.0**.
 
 ## Поиск вложений и идентификаторов
 
@@ -18,32 +15,21 @@
 одна карточка может содержать прежние файлы с числовыми ID и файлы ограниченного
 доступа с UUID (`type: 11`). Для новых операций используйте UUID карточки;
 UUID комментариев и полей доступны в полных ответах соответствующих чтений.
-`get_legacy_card_file` принимает `card_id` и числовой `file_id`, возвращая
+`get_attachment` с `target: "legacy_card"` принимает `card_id` и числовой `file_id`, возвращая
 `{result: metadata}` либо `FILE_NOT_FOUND` со статусом 404.
 
-## Публичные операции клиента
+## Операции с вложениями
 
-Операции возвращают полный исходный JSON в `{result}`. Для `get*` используется
-`_read`, для attach/update/delete/detach — `_write`.
+Используйте `get_attachment` для метаданных, `download_attachment` для скачивания, `attach_file` для загрузки, `update_attachment` для изменения и `delete_attachment` для удаления. Передайте `target` по типу родительской записи.
 
-| Ресурс                                | Операции после `resource.`                                                                                    | Аргументы                                                                                                                                                                |
-| ------------------------------------- | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `cardFiles` (прежний)                 | `attachFileToCard`, `updateFile`, `detachFileFromCard`                                                        | `card_id`; `file` для attach; числовой `file_id` для update/detach; необязательный `card_cover` для update                                                               |
-| `restrictedAccessCardFiles`           | `attachFileToCard`, `getCardFile`, `updateCardFile`, `deleteCardFile`                                         | `card_uid`; `file` для attach; `file_uid` для остальных; необязательные `redirect`, `download` для get; необязательные `name`, `card_cover` для update                   |
-| `restrictedAccessCommentFiles`        | `attachFileToComment`, `getCommentFile`, `updateCommentFile`, `deleteCommentFile`                             | `card_uid`, `comment_uid`; `file` для attach; `file_uid` для остальных; необязательный `query: {redirect?, download?}` для get; `body: {name?, card_cover?}` для update  |
-| `restrictedAccessCustomPropertyFiles` | `attachFileToCustomProperty`, `getCustomPropertyFile`, `updateCustomPropertyFile`, `deleteCustomPropertyFile` | `card_uid`, `property_uid`; `file` для attach; `file_uid` для остальных; необязательный `query: {redirect?, download?}` для get; `body: {name?, card_cover?}` для update |
+| Тип `target`  | ID родительской записи     | ID существующего файла |
+| ------------- | -------------------------- | ---------------------- |
+| `card`        | `card_uid`                 | `file_uid`             |
+| `comment`     | `card_uid`, `comment_uid`  | `file_uid`             |
+| `property`    | `card_uid`, `property_uid` | `file_uid`             |
+| `legacy_card` | Числовой `card_id`         | Числовой `file_id`     |
 
-Все идентификаторы ограниченного доступа — UUID. Чтение метаданных может
-вернуть временный подписанный URL. При `redirect: true` ответ равен
-`{result: {location}}`, переход не выполняется. Получайте ссылку перед
-использованием и сохраняйте её приватной. Операции скачивания ниже не включают
-URL хранилища в ответ.
-
-Новые маршруты требуют настройки ограниченного доступа к файлам в компании.
-Прежняя загрузка по числовому ID и multipart комментариев устарела и может быть
-отключена Kaiten; автоматической замены семейства маршрутов нет. Ограничение
-установки Kaiten может вернуть HTTP 413 независимо от лимита MCP.
-См. [справочник загрузки](https://developers.kaiten.ru/restricted-access-card-files/attach-file-to-card).
+Для ограниченных файлов `get_attachment` принимает `query.redirect` для временной закрытой ссылки и `query.download` для скачиваемого представления. В `update_attachment` передайте `body` с `name` или `card_cover`. Для `legacy_card` поддерживается `card_cover`. UUID-маршруты требуют настроенного ограниченного доступа к файлам. Используйте их для новых загрузок. Kaiten может отключить загрузку файлов с числовыми ID. Лимит Kaiten может вызывать HTTP 413 независимо от лимита MCP.
 
 ## Загрузка байтов
 
@@ -53,13 +39,14 @@ Base64 должен быть каноническим, с padding, без про
 `application/octet-stream`. Сервер создаёт `Blob`, публичный клиент формирует
 multipart и заголовки. Локальные пути файлов не принимаются.
 
-Загрузка трёхбайтного текста через `kaiten_files_write`:
+Загрузка трёхбайтного текста через `kaiten_content_write`:
 
 ```json
 {
   "request": {
-    "operation": "restrictedAccessCardFiles.attachFileToCard",
+    "operation": "attach_file",
     "args": {
+      "target": "card",
       "card_uid": "11111111-1111-4111-8111-111111111111",
       "file": {
         "filename": "note.txt",
@@ -75,12 +62,7 @@ multipart и заголовки. Локальные пути файлов не �
 
 ## Скачивание через MCP
 
-| Операция в `kaiten_files_read`  | Аргументы                              |
-| ------------------------------- | -------------------------------------- |
-| `download_card_file`            | `card_uid`, `file_uid`                 |
-| `download_comment_file`         | `card_uid`, `comment_uid`, `file_uid`  |
-| `download_custom_property_file` | `card_uid`, `property_uid`, `file_uid` |
-| `download_legacy_card_file`     | Числовые `card_id`, `file_id`          |
+Вызовите `download_attachment` в `kaiten_content_read` с выбранным `target` и нужными ID.
 
 Ограниченные файлы получают временный redirect через публичный клиент,
 затем байты хранилища читаются платформенным `fetch` без Authorization и cookie.
@@ -110,6 +92,8 @@ MCP-клиент должен поддерживать встроенные би
 
 ## Комментарии и FormData
 
+Используйте `list_comments` в `kaiten_collaboration_read` с `format: "full"`, чтобы получить UID комментариев и метаданные. Для следующей страницы передайте `next_offset` как `offset`. `add_comment` и `update_comment` принимают `text` или multipart `form`. Изменение и удаление принимают `comment_id`.
+
 `cardComments.retrieveCardComments`, `addComment`, `updateComment` и
 `removeComment` используют существующие инструменты комментариев и сохраняют
 полный JSON с UUID и метаданными вложений. Чтение принимает `card_id`, удаление —
@@ -124,7 +108,7 @@ MCP-клиент должен поддерживать встроенные би
 ```json
 {
   "request": {
-    "operation": "cardComments.addComment",
+    "operation": "add_comment",
     "args": {
       "card_id": 10,
       "form": [
@@ -139,12 +123,7 @@ MCP-клиент должен поддерживать встроенные би
 }
 ```
 
-Для ограниченного доступа сначала создайте комментарий, затем используйте его
-UUID с `restrictedAccessCommentFiles.attachFileToComment`.
-В профиле v2 чтение комментариев не принимает параметры серверной пагинации. В каноническом профиле передавайте limit и offset в list_comments.
-[Kaiten ограничивает страницу 100 комментариями](https://developers.kaiten.ru/card-comments/retrieve-card-comments),
-поэтому расширенная операция возвращает исходную страницу, а `list_comments`
-разбивает её только локально. Полная история не гарантируется.
+Для ограниченных файлов сначала создайте комментарий. Затем вызовите `attach_file` с `target: "comment"`, его `comment_uid` и `card_uid` родительской карточки.
 
 ## Лимиты и ошибки
 

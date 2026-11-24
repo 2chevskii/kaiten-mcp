@@ -1,27 +1,13 @@
 # Service desk and SLA
 
-With the canonical profile, call `list_service_desk_services` or
-`get_card_sla` through `kaiten_workflows_read`. The public API lists service
-configuration and reads recorded SLA measurements. Use the card lifecycle to
-assign the returned service ID and `kaiten_workflows_write` to add or remove
-external notification recipients. Work time in SLA measurements is in minutes
-and follows the returned working calendar.
+Read routing, external-recipient policy and SLA through `kaiten_workflows_read`. Manage external notification addresses through `kaiten_workflows_write`. Responses retain the native JSON in `{result}`.
 
-- [Public service list](https://developers.kaiten.ru/service-desk-services/retrieve-services-list)
-- [Public card SLA measurements](https://developers.kaiten.ru/card-sla/retrieve-card-sla-measurements)
-
-## Legacy profile
-
-These [advanced operations](./api.md) share `kaiten_cards_read` and
-`kaiten_cards_write`; the total remains 20 tools. Full client responses are
-preserved in `{result}`.
-
-| Operation                                           | Arguments                   | Tool                 |
-| --------------------------------------------------- | --------------------------- | -------------------- |
-| `serviceDeskServices.retrieveServicesList`          | None                        | `kaiten_cards_read`  |
-| `cardSla.retrieveCardSlaMeasurements`               | `card_id`                   | `kaiten_cards_read`  |
-| `cardServiceDeskExternalRecipients.addNewRecipient` | `card_id`, nonempty `email` | `kaiten_cards_write` |
-| `cardServiceDeskExternalRecipients.removeRecipient` | `card_id`, nonempty `email` | `kaiten_cards_write` |
+| Operation                       | Arguments                   | Tool                     |
+| ------------------------------- | --------------------------- | ------------------------ |
+| `list_service_desk_services`    | None                        | `kaiten_workflows_read`  |
+| `get_card_sla`                  | `card_id`                   | `kaiten_workflows_read`  |
+| `add_service_desk_recipient`    | `card_id`, nonempty `email` | `kaiten_workflows_write` |
+| `remove_service_desk_recipient` | `card_id`, nonempty `email` | `kaiten_workflows_write` |
 
 Service reads include routing, card location/type, field settings, email masks
 and the external-recipient policy when returned by Kaiten. Use the returned
@@ -35,12 +21,12 @@ client safely encodes the email in the removal URL, including plus signs and
 return their status with a sanitized message, without upstream private details
 or automatic write retries.
 
-Add a recipient through `kaiten_cards_write`:
+Add a recipient through `kaiten_workflows_write`:
 
 ```json
 {
   "request": {
-    "operation": "cardServiceDeskExternalRecipients.addNewRecipient",
+    "operation": "add_service_desk_recipient",
     "args": {"card_id": 10, "email": "person+tag@example.com"}
   }
 }

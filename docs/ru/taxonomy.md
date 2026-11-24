@@ -1,14 +1,12 @@
 # Типы карточек и теги
 
-Эти [расширенные операции](./api.md) используют `kaiten_navigation_read` и
-`kaiten_navigation_write`; общее число остаётся равным 20. Полный ответ клиента
-возвращается в `{result}`.
+Используйте инструменты рабочего пространства для типов карточек и общих тегов. `list_card_types` и `list_workspace_tags` возвращают сокращённые списки. Передайте `format: "native"` для нативных фильтров и полных метаданных. Теги карточки используют инструменты совместной работы.
 
-| Ресурс                 | Операции после `resource.`                                                                   | Аргументы                                                                                                                         |
-| ---------------------- | -------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| `cardTypes`            | `createNewCardType`, `getCardType`, `getListOfCardTypes`, `updateCardType`, `removeCardType` | `body` для создания/изменения; `id` для чтения/изменения/удаления; `replace_type_id` для удаления; `limit?`, `offset?` для списка |
-| `cardTypeTreeEntities` | `addTreeEntityToCardType`, `getListOfTypeTreeEntities`, `deleteTreeEntityFromCardType`       | `type_id`; `tree_entity_uid` для добавления; `uid` для удаления                                                                   |
-| `tags`                 | `addTag`, `retrieveListOfTags`, `iterate`                                                    | `name`, `query?` для создания; `query?` для списка/обхода; `max_items?` для обхода                                                |
+| Область           | Операции                                                                                       | Аргументы                                                                                                                         |
+| ----------------- | ---------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Типы карточек     | `create_card_type`, `get_card_type`, `list_card_types`, `update_card_type`, `delete_card_type` | `body` для создания/изменения; `id` для чтения/изменения/удаления; `replace_type_id` для удаления; `limit?`, `offset?` для списка |
+| Привязки типов    | `bind_card_type`, `list_card_type_bindings`, `unbind_card_type`                                | `type_id`; `tree_entity_uid` для добавления; `uid` для удаления                                                                   |
+| Теги пространства | `create_workspace_tag`, `list_workspace_tags`, `scan_workspace_tags`                           | `name`, `query?` для создания; `query?` для списка/обхода; `max_items?` для обхода                                                |
 
 Создание типа требует `name`, `letter` и числовой `color`; также принимаются
 `properties`, `card_properties` и `suggest_fields`. Контракт изменения клиента
@@ -21,19 +19,19 @@
 
 Список тегов принимает `ids` массивом или строкой с запятыми, `space_id`,
 `query`, `limit` и `offset`. Создание тега также принимает необязательный query
-по контракту клиента. `tags.iterate` сохраняет фильтры и использует offset;
+по контракту клиента. `scan_workspace_tags` сохраняет фильтры и использует offset;
 результат `{result: {items, truncated}}` ограничен `max_items` (по умолчанию
 100, допустимо 1–1 000). Возможен один дополнительный элемент для определения
 усечения; курсор продолжения отсутствует. Для отдельных страниц используйте
-`tags.retrieveListOfTags`. Существующие операции тегов карточки по-прежнему
+`list_workspace_tags`. Существующие операции тегов карточки по-прежнему
 добавляют и удаляют теги у карточек.
 
-Создание типа через `kaiten_navigation_write`:
+Создание типа через `kaiten_workspace_write`:
 
 ```json
 {
   "request": {
-    "operation": "cardTypes.createNewCardType",
+    "operation": "create_card_type",
     "args": {
       "body": {
         "name": "Task",

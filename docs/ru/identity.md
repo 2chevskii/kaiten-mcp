@@ -1,25 +1,19 @@
 # Пользователи и права доступа
 
-См. также [подготовку пользователей через SCIM](./scim.md).
-[Аргументы ролей учёта времени](./time-tracking.md) принимают встроенный ID Employee `-1`.
+Читайте аккаунт токена, пользователей и доступ через `kaiten_workspace_read`, управляйте доступом через `kaiten_workspace_write`. Начните с `get_current_user`, `list_company_users` или `list_space_users`. Для приглашений и выдачи доступа используйте UID ролей из `list_tree_roles`. См. также [SCIM](./scim.md).
 
-Эти [расширенные операции](./api.md) используют `kaiten_navigation_read` и
-`kaiten_navigation_write`; сервер по-прежнему предоставляет 20 инструментов.
-Изменения требуют административных прав токена в Kaiten. Ответы сохраняют
-полный исходный JSON в `{result}`.
-
-| Ресурс            | Операции после `resource.`                                                                                       | Аргументы                                                                                                                                                                     |
-| ----------------- | ---------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `companyUsers`    | `getListOfUsers`, `updateUser`, `removeVirtualUser`                                                              | `query?` для списка; `user_id`, `apps_permissions?`, `temporarily_inactive?` для изменения; `user_id` для удаления                                                            |
-| `users`           | `retrieveCurrentUser`, `retrieveListOfUsers`, `iterate`, `updateUser`                                            | Без аргументов для текущего пользователя; `query?` для списка/обхода; `max_items?` для обхода; `user_id`, `body` для изменения                                                |
-| `groups`          | `createGroup`, `getGroup`, `getListOfGroups`, `updateGroup`, `removeGroup`                                       | `name`, `permissions?`, `add_to_cards_and_spaces_enabled?` для создания; `uid` для чтения/изменения/удаления; необязательные поля создания для изменения; `query?` для списка |
-| `groupAdmins`     | `addAdminToGroup`, `getListOfGroupAdmins`, `removeAdminFromGroup`                                                | `group_uid`; `user_id` для добавления/удаления                                                                                                                                |
-| `groupUsers`      | `addUserToGroup`, `getListOfGroupUsers`, `removeUserFromGroup`                                                   | `group_uid`; `user_id` для добавления/удаления; `request_id?`, `operator_comment?` для добавления                                                                             |
-| `groupEntities`   | `addEntity`, `getListOfGroupEntities`, `updateGroupEntity`, `removeEntity`                                       | `group_uid`; `entity_uid`, `role_ids` для добавления; `uid`, `role_ids` для изменения; `uid` для удаления                                                                     |
-| `userRoles`       | `createUserRole`, `getListOfUserRoles`, `getUserRole`, `updateUserRole`, `removeUserRole`                        | `name` для создания; `role_id` для чтения/изменения/удаления; `name` для изменения; `replace_role_id` для удаления                                                            |
-| `spaceUsers`      | `inviteUserToSpace`, `getListOfUsers`, `getUser`, `changeUserRoleAndNotificationSettings`, `removeUserFromSpace` | `space_id`; `body` для приглашения/изменения; `id` для чтения/изменения/удаления; `query?` для списка                                                                         |
-| `treeEntities`    | `getListOfEntities`                                                                                              | `query?`: `parent_entity_uid`, `levels_count`, `limit`, `offset`                                                                                                              |
-| `treeEntityRoles` | `getListOfTreeEntityRoles`                                                                                       | Без аргументов                                                                                                                                                                |
+| Область                      | Операции                                                                                            | Аргументы                                                                                                                                                                     |
+| ---------------------------- | --------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Доступ к компании            | `list_company_users`, `update_company_user_access`, `delete_virtual_user`                           | `query?` для списка; `user_id`, `apps_permissions?`, `temporarily_inactive?` для изменения; `user_id` для удаления                                                            |
+| Аккаунт и пользователи       | `get_current_user`, `list_directory_users`, `scan_directory_users`, `update_user_profile`           | Без аргументов для текущего пользователя; `query?` для списка/обхода; `max_items?` для обхода; `user_id`, `body` для изменения                                                |
+| Группы                       | `create_group`, `get_group`, `list_groups`, `update_group`, `delete_group`                          | `name`, `permissions?`, `add_to_cards_and_spaces_enabled?` для создания; `uid` для чтения/изменения/удаления; необязательные поля создания для изменения; `query?` для списка |
+| Администраторы групп         | `add_group_admin`, `list_group_admins`, `remove_group_admin`                                        | `group_uid`; `user_id` для добавления/удаления                                                                                                                                |
+| Участники групп              | `add_group_member`, `list_group_members`, `remove_group_member`                                     | `group_uid`; `user_id` для добавления/удаления; `request_id?`, `operator_comment?` для добавления                                                                             |
+| Доступ групп                 | `grant_group_access`, `list_group_access`, `update_group_access`, `revoke_group_access`             | `group_uid`; `entity_uid`, `role_ids` для добавления; `uid`, `role_ids` для изменения; `uid` для удаления                                                                     |
+| Роли компании                | `create_user_role`, `list_user_roles`, `get_user_role`, `update_user_role`, `delete_user_role`      | `name` для создания; `role_id` для чтения/изменения/удаления; `name` для изменения; `replace_role_id` для удаления                                                            |
+| Доступ к пространству        | `invite_space_user`, `list_space_users`, `get_space_user`, `update_space_user`, `remove_space_user` | `space_id`; `body` для приглашения/изменения; `id` для чтения/изменения/удаления; `query?` для списка                                                                         |
+| Дерево рабочего пространства | `list_tree_entities`                                                                                | `query?`: `parent_entity_uid`, `levels_count`, `limit`, `offset`                                                                                                              |
+| Роли дерева                  | `list_tree_roles`                                                                                   | Без аргументов                                                                                                                                                                |
 
 Фильтры пользователей компании включают приглашения, лицензии, неактивность,
 группы и права. Исходные поля query, например `invitesOnly` и
@@ -34,24 +28,24 @@
 можно передать уведомления и настройки. `space_group_id: null` очищает связь с
 группой. `role_ids: []` у сущности группы очищает назначенные роли.
 
-`users.iterate` возвращает ограниченный снимок `{result: {items, truncated}}`
+`scan_directory_users` возвращает ограниченный снимок `{result: {items, truncated}}`
 (по умолчанию 100, максимум 1 000). Он сохраняет фильтры, увеличивает offset на
 фактическое число полученных элементов и продолжает обход коротких страниц до
 пустой страницы или ограничения. Для определения усечения может быть прочитан
 один дополнительный элемент; курсор продолжения не возвращается. Для отдельных
-страниц используйте `users.retrieveListOfUsers`. Списки участников пространства
+страниц используйте `list_directory_users`. Списки участников пространства
 используют пагинацию по `last_user_id`.
 
 Upstream помечает API групп и доступа к дереву как beta. Текущий контракт списка
 групп предупреждает, что `with_tree_entities: true` отклоняется; для сущностей
-группы используйте `groupEntities.getListOfGroupEntities`.
+группы используйте `list_group_access`.
 
-Приглашение участника без отправки письма через `kaiten_navigation_write`:
+Приглашение участника без отправки письма через `kaiten_workspace_write`:
 
 ```json
 {
   "request": {
-    "operation": "spaceUsers.inviteUserToSpace",
+    "operation": "invite_space_user",
     "args": {
       "space_id": 1,
       "body": {

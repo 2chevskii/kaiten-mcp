@@ -58,8 +58,7 @@ Use the client's secret settings for the token where supported.
 
 ### 2. Check the connection
 
-Kaiten MCP 3.0 exposes 14 tools with the `kaiten_` prefix by default.
-Set `KAITEN_TOOL_PROFILE=legacy` for the 20-tool v2 catalog. Ask your assistant:
+Kaiten MCP exposes 14 tools with the `kaiten_` prefix. Ask your assistant:
 
 > Identify my Kaiten user, then list the spaces I can access.
 
@@ -104,13 +103,11 @@ The server communicates over **stdio**. Your MCP client starts the process and
 sends it tool calls; diagnostics go to stderr. Running it in a terminal may look
 idle while it waits for MCP input.
 
-The default catalog groups the supported Kaiten workflows into seven read/write
+The catalog groups the supported Kaiten workflows into seven read/write
 pairs. They include workspace and access management, cards and dependencies,
 custom fields and directories, checklists, time tracking, planning, service desk,
 documents, automations, activity and audit logs, incoming webhooks and addon OAuth.
-Set `KAITEN_TOOL_PROFILE=legacy` for clients that call v2 tool names and arguments
-directly. See the [tool reference][tool-reference] for the catalog and migration
-guidance.
+See the [tool reference][tool-reference] for current operations and migration links.
 
 [File operations](https://2chevskii.github.io/kaiten-mcp/files) support metadata,
 upload, download and deletion for card, comment and custom-property attachments.

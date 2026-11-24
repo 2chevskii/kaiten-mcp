@@ -1,12 +1,11 @@
 # OAuth дополнений
 
-Публичный `AddonOAuthClient` доступен через существующие инструменты навигации.
-Общее число инструментов остаётся равным 20.
+Читайте OAuth-токен дополнения через `kaiten_workspace_read`. Для обновления используйте `kaiten_workspace_write`. Ответ может содержать действующий токен.
 
-| Операция                  | Инструмент                | Аргументы                            |
-| ------------------------- | ------------------------- | ------------------------------------ |
-| `addonOAuth.getToken`     | `kaiten_navigation_read`  | `addon_uid`, `user_id`, `company_id` |
-| `addonOAuth.refreshToken` | `kaiten_navigation_write` | Тот же ключ токена                   |
+| Операция              | Инструмент               | Аргументы                            |
+| --------------------- | ------------------------ | ------------------------------------ |
+| `get_addon_token`     | `kaiten_workspace_read`  | `addon_uid`, `user_id`, `company_id` |
+| `refresh_addon_token` | `kaiten_workspace_write` | Тот же ключ токена                   |
 
 Задайте `KAITEN_ADDON_SECRET` или `KAITEN_ADDON_SECRET_FILE` в окружении сервера. Ротация файлов описана в [настройках подключения](./connection-options.md). Этот секрет авторизует две
 операции на настроенном `KAITEN_ORIGIN`; обычные REST- и SCIM-запросы используют
@@ -25,7 +24,7 @@
 ```json
 {
   "request": {
-    "operation": "addonOAuth.getToken",
+    "operation": "get_addon_token",
     "args": {"addon_uid": "your-addon-uid", "user_id": 5, "company_id": 7}
   }
 }

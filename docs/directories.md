@@ -1,19 +1,12 @@
 # Custom directories
 
-Use `list_custom_directories` to find a directory UUID and
-`list_directory_fields` to find its field UUIDs. Use
-`list_custom_directory_records` with `format: "native"` for typed filters, status
-conditions, and response profiles. Directory, field and record IDs are UUIDs.
-The directory API is marked beta upstream.
+Use `kaiten_custom_properties_read` to find directories, fields and records, and `kaiten_custom_properties_write` to manage them. IDs are UUIDs. For record filters, choose `format: "native"` and read `{result}`. The directory API is in beta.
 
-The table shows v2 names for `KAITEN_TOOL_PROFILE=legacy`. Native forms return
-the upstream data in `{result}`.
-
-| Resource                 | Operations after `resource.`                                                                                                  | Arguments                                                                                                                                                        |
-| ------------------------ | ----------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `customDirectories`      | `createCustomDirectory`, `getListOfCustomDirectories`, `getCustomDirectory`, `updateCustomDirectory`, `deleteCustomDirectory` | `body` for create/update; `query?` for list; `directory_id` for get/update/delete                                                                                |
-| `customDirectoryFields`  | `createField`, `getListOfFields`, `getField`, `updateField`, `deleteField`                                                    | `directory_id`; `body` for create/update; `field_id` for get/update/delete; `include_author?`, `conditions?` for list                                            |
-| `customDirectoryRecords` | `createRecord`, `getListOfRecords`, `getRecord`, `updateRecord`, `deleteRecord`, `getCardsLinkedToRecord`                     | `directory_id`; `body` for create/update; `record_id` for get/update/delete/linked cards; `query?` for lists; `response_profile?` for writes; `profile?` for get |
+| Area        | Operations                                                                                                                                                              | Arguments                                                                                                                                                        |
+| ----------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Directories | `create_custom_directory`, `list_custom_directories`, `get_custom_directory`, `update_custom_directory`, `delete_custom_directory`                                      | `body` for create/update; `query?` for list; `directory_id` for get/update/delete                                                                                |
+| Fields      | `create_directory_field`, `list_directory_fields`, `get_directory_field`, `update_directory_field`, `delete_directory_field`                                            | `directory_id`; `body` for create/update; `field_id` for get/update/delete; `include_author?`, `conditions?` for list                                            |
+| Records     | `create_directory_record`, `list_custom_directory_records`, `get_directory_record`, `update_directory_record`, `delete_directory_record`, `list_cards_linked_to_record` | `directory_id`; `body` for create/update; `record_id` for get/update/delete/linked cards; `query?` for lists; `response_profile?` for writes; `profile?` for get |
 
 Directory creation supports description, multiple selection, editing rights,
 display-field index and initial fields. Fields support string, number, date,

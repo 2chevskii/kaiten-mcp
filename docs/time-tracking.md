@@ -1,27 +1,14 @@
 # Time tracking and reports
 
-With the canonical profile, use `kaiten_workflows_read` for
-`list_card_time_logs` and `get_timesheet`. For one card's logs, use
-`list_card_time_logs` with optional `for_date` and `personal` filters. It
-returns the native records in `result` and a `next_offset` for a full page.
-Pass that offset with the same filters and page size to continue. The default
-and maximum page size are 100. For reports spanning a date range or several
-cards, use `get_timesheet`.
-Use `kaiten_workflows_write` to add, update or delete time logs.
+Use `kaiten_workflows_read` for a card’s time logs and timesheets, and `kaiten_workflows_write` to change logs. Time log pages use `limit` and `offset` (default page size 100, maximum 100) and preserve optional `for_date` and `personal` filters. Repeat the request with `next_offset` until it is null. The native report is returned in `{result}`.
 
-## Legacy profile
-
-These [advanced operations](./api.md) share `kaiten_cards_read` and
-`kaiten_cards_write`; the server still exposes 20 tools. Responses preserve the
-complete upstream JSON in `{result}`, including report aggregates.
-
-| Operation                      | Arguments                           | Behavior                                                              |
-| ------------------------------ | ----------------------------------- | --------------------------------------------------------------------- |
-| `cardTimeLogs.addTimeLog`      | `card_id`, `body`                   | Log time with `role_id`, `time_spent`, `for_date`, optional `comment` |
-| `cardTimeLogs.getTimeLogs`     | `card_id`, `for_date?`, `personal?` | Read a card's time-log response                                       |
-| `cardTimeLogs.updateLogRecord` | `card_id`, `time_log_id`, `body`    | Change role, minutes, date or comment; at least one field required    |
-| `cardTimeLogs.removeTimeLog`   | `card_id`, `time_log_id`            | Remove a log record                                                   |
-| `timesheet.getList`            | `query`                             | Filter, group and page time reports                                   |
+| Operation              | Arguments                                                | Behavior                                                              |
+| ---------------------- | -------------------------------------------------------- | --------------------------------------------------------------------- |
+| `add_card_time_log`    | `card_id`, `body`                                        | Log time with `role_id`, `time_spent`, `for_date`, optional `comment` |
+| `list_card_time_logs`  | `card_id`, `for_date?`, `personal?`, `limit?`, `offset?` | Read a card's time-log response                                       |
+| `update_card_time_log` | `card_id`, `time_log_id`, `body`                         | Change role, minutes, date or comment; at least one field required    |
+| `delete_card_time_log` | `card_id`, `time_log_id`                                 | Remove a log record                                                   |
+| `get_timesheet`        | `query`                                                  | Filter, group and page time reports                                   |
 
 Kaiten records `time_spent` in minutes and uses `role_id: -1` for the built-in
 Employee role. Custom role IDs remain positive safe integers. The role lookup,
@@ -38,16 +25,13 @@ zero, false and empty comment strings are preserved.
 
 The timesheet page limit is 1–200; `offset` selects subsequent pages. Raw report
 responses are preserved even when a grouping option changes their JSON shape.
-The legacy MCP contract for `cardTimeLogs.getTimeLogs` preserves the
-upstream default page of up to 100 logs. Use the canonical profile to page
-through a card's logs with these filters.
 
-Log an hour as Employee through `kaiten_cards_write`:
+Log an hour as Employee through `kaiten_workflows_write`:
 
 ```json
 {
   "request": {
-    "operation": "cardTimeLogs.addTimeLog",
+    "operation": "add_card_time_log",
     "args": {
       "card_id": 10,
       "body": {

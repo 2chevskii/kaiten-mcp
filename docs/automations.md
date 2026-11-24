@@ -1,10 +1,6 @@
 # Automations
 
-With the canonical profile, list a space's rules with `list_automations` in
-`kaiten_workflows_read`. Use the returned UID for `update_automation` or
-`delete_automation` in `kaiten_workflows_write`. Use `create_automation` for a
-new event, date or on-demand rule. Changes may affect subsequent cards matching
-the rule.
+List rules by numeric `space_id` with `list_automations` in `kaiten_workflows_read`. Use the returned UID for updates and deletion in `kaiten_workflows_write`. Rule changes may affect subsequent matching cards.
 
 Iteration triggers require the Iterations feature. Use `on_action` with
 `iteration_card_added` or `iteration_card_removed` to react to membership
@@ -13,25 +9,19 @@ changes. Use `on_date` with `iteration_start_date_on_date` or
 date of iterations in the rule's space. Pass the date schedule in `trigger.data`.
 See the trigger settings in the [Kaiten automation API](https://developers.kaiten.ru/automations/create-automation).
 
-## Legacy profile
-
-Automation operations share `kaiten_navigation_read` and
-`kaiten_navigation_write`. The server still exposes 20 tools.
-
-| Operation                          | Arguments                            | Tool                      |
-| ---------------------------------- | ------------------------------------ | ------------------------- |
-| `automations.getListOfAutomations` | `space_id`                           | `kaiten_navigation_read`  |
-| `automations.createAutomation`     | `space_id`, `body`                   | `kaiten_navigation_write` |
-| `automations.updateAutomation`     | `space_id`, `automation_uid`, `body` | `kaiten_navigation_write` |
-| `automations.deleteAutomation`     | `space_id`, `automation_uid`         | `kaiten_navigation_write` |
+| Operation           | Arguments                            | Tool                     |
+| ------------------- | ------------------------------------ | ------------------------ |
+| `list_automations`  | `space_id`                           | `kaiten_workflows_read`  |
+| `create_automation` | `space_id`, `body`                   | `kaiten_workflows_write` |
+| `update_automation` | `space_id`, `automation_uid`, `body` | `kaiten_workflows_write` |
+| `delete_automation` | `space_id`, `automation_uid`         | `kaiten_workflows_write` |
 
 Create bodies support `on_action` and `on_date` with a required `trigger`,
 optional `name` and recursive `conditions`. An `on_demand` body requires `name`
 and has no trigger or conditions. Every create body requires at least one action.
 An action has a nonempty `type`, a JSON object `data` and optional `created`.
 
-Legacy triggers accept 21 names, with optional
-`hasToFireOnCardCreation` and `data`. Condition groups use `clause: "and"` or
+Trigger settings include optional `hasToFireOnCardCreation` and `data`. Condition groups use `clause: "and"` or
 `"or"` and a `conditions` array containing conditions or nested groups. A leaf
 condition has `type`, optional `operator`, `data` and `created`. Group `created`
 values are also preserved. Action/condition names and their JSON data are
@@ -44,12 +34,12 @@ including status, order, triggers and actions, in `{result}`. Kaiten enforces
 permissions and feature availability; the normal timeout, cancellation and
 sanitized HTTP errors apply.
 
-Inspect existing definitions through `kaiten_navigation_read`:
+Inspect existing definitions through `kaiten_workflows_read`:
 
 ```json
 {
   "request": {
-    "operation": "automations.getListOfAutomations",
+    "operation": "list_automations",
     "args": {"space_id": 1}
   }
 }
