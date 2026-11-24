@@ -5,6 +5,7 @@ import {tmpdir} from 'node:os';
 import {join, resolve} from 'node:path';
 import {Client} from '@modelcontextprotocol/client';
 import {StdioClientTransport} from '@modelcontextprotocol/client/stdio';
+import {catalogDomains} from '../bin/catalog.js';
 import packageJson from '../package.json' with {type: 'json'};
 
 const [archive] = process.argv.slice(2);
@@ -54,21 +55,18 @@ try {
     env: {
       KAITEN_ORIGIN: 'https://package-check.invalid',
       KAITEN_TOKEN: 'package-check-only',
-      KAITEN_TOOL_PROFILE: 'legacy',
     },
     stderr: 'inherit',
   });
   await client.connect(transport);
   assert.equal(client.getServerVersion()?.version, packageJson.version);
   const {tools} = await client.listTools();
-  assert(tools.length <= 20, 'The MCP surface must not exceed 20 tools.');
-  assert(tools.some(tool => tool.name === 'kaiten_navigation_read'));
-  assert(tools.some(tool => tool.name === 'kaiten_navigation_write'));
-  assert(tools.some(tool => tool.name === 'kaiten_cards_write'));
-  assert(tools.some(tool => tool.name === 'kaiten_documents_read'));
-  assert(tools.some(tool => tool.name === 'kaiten_documents_write'));
-  assert(tools.some(tool => tool.name === 'kaiten_files_read'));
-  assert(tools.some(tool => tool.name === 'kaiten_files_write'));
+  assert.deepEqual(
+    tools.map(tool => tool.name).sort(),
+    catalogDomains
+      .flatMap(domain => [`kaiten_${domain}_read`, `kaiten_${domain}_write`])
+      .sort(),
+  );
   console.log(
     `Installed ${installed.name}@${installed.version}: MCP handshake and tools/list passed.`,
   );

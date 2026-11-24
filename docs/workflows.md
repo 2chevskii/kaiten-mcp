@@ -7,6 +7,10 @@ illustrative: replace them with IDs returned by your company.
 
 Examples show the contents of `args`; pass them inside `request` with the indicated `operation` value. See the [tool reference](./tools.md).
 
+For a build with the canonical catalog, see [cards and collaboration](./cards-and-collaboration.md)
+for current tool names, fields and response envelopes. The JSON examples below
+use the v2 catalog, also available via `KAITEN_TOOL_PROFILE=legacy`.
+
 ## Find my active cards
 
 > Find my active cards and group them by board. Show overdue work first.

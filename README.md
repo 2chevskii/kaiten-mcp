@@ -8,7 +8,7 @@
 ![GitHub License](https://img.shields.io/github/license/2chevskii/kaiten-mcp)
 
 Find cards, understand what's blocking them, and keep work moving without leaving
-your assistant. Kaiten MCP runs locally and gives your MCP client **20 tools** for
+your assistant. Kaiten MCP runs locally and gives your MCP client **14 tools** for
 working with your Kaiten company through its API.
 
 [Read the documentation][docs] ·
@@ -58,7 +58,8 @@ Use the client's secret settings for the token where supported.
 
 ### 2. Check the connection
 
-Your client should discover 20 tools with the `kaiten_` prefix. Ask your assistant:
+This branch and its preview packages expose 14 tools with the `kaiten_` prefix.
+The published npm 2.0.0 package still exposes 20. Ask your assistant:
 
 > Identify my Kaiten user, then list the spaces I can access.
 
@@ -103,12 +104,13 @@ The server communicates over **stdio**. Your MCP client starts the process and
 sends it tool calls; diagnostics go to stderr. Running it in a terminal may look
 idle while it waits for MCP input.
 
-The **20 grouped tools** cover every public REST/SCIM resource method in the
-pinned `@2chevskii/kaiten-client` **1.1.0**, alongside the original convenient
-workflows. They include workspace and access management, cards and dependencies,
+The default catalog groups the supported Kaiten workflows into seven read/write
+pairs. They include workspace and access management, cards and dependencies,
 custom fields and directories, checklists, time tracking, planning, service desk,
 documents, automations, activity and audit logs, incoming webhooks and addon OAuth.
-See the [advanced operation map](https://2chevskii.github.io/kaiten-mcp/api).
+Set `KAITEN_TOOL_PROFILE=legacy` for clients that call v2 tool names and arguments
+directly. See the [tool reference][tool-reference] for the catalog and migration
+guidance.
 
 [File operations](https://2chevskii.github.io/kaiten-mcp/files) support metadata,
 upload, download and deletion for card, comment and custom-property attachments.

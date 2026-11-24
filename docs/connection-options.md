@@ -4,9 +4,10 @@
 `latest`. It affects all regular REST calls. SCIM keeps `/scim/v2`; addon OAuth
 keeps `/api/v1`, following their public clients. Webhooks use the supplied URL.
 
-`KAITEN_TOOL_PROFILE=legacy` selects the v2 tool names and wire contract.
-The `canonical` profile previews the new catalog as domains are added. During
-this transition, omitting the setting selects `legacy`.
+`KAITEN_TOOL_PROFILE` selects the MCP catalog. The `canonical` profile is
+the default for this build and exposes 14 tools. Set it to `legacy` to
+keep the v2 tool names, arguments and response envelopes. Reload your
+MCP client when changing the profile so it rediscovers the catalog.
 
 Use either `KAITEN_TOKEN` or `KAITEN_TOKEN_FILE` for API credentials. Similarly,
 use either `KAITEN_ADDON_SECRET` or `KAITEN_ADDON_SECRET_FILE` for optional addon
