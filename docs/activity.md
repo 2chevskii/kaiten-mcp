@@ -1,7 +1,12 @@
 # Activity and audit logs
 
-All five operations use `kaiten_navigation_read`; the total remains 20 tools.
-Responses preserve complete JSON, including native event details.
+Use `list_activity` through canonical `kaiten_workspace_read` for a cursor page
+or `scan_activity` for a bounded snapshot. Supply a numeric `space_id` for
+space activity or omit it for the company feed. Use `list_audit_events` for
+administrative audit events with offset pagination. Responses retain complete
+event details.
+
+The table shows v2 names supported by `KAITEN_TOOL_PROFILE=legacy`.
 
 | Operation                          | Arguments                                 | Result                                  |
 | ---------------------------------- | ----------------------------------------- | --------------------------------------- |
@@ -34,7 +39,7 @@ status with a sanitized message.
 ```json
 {
   "request": {
-    "operation": "activity.listCompanyActivity",
+    "operation": "list_activity",
     "args": {"query": {"card_id": 10, "limit": 25}}
   }
 }

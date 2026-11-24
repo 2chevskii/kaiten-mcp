@@ -1,7 +1,11 @@
 # Addon OAuth
 
-The public `AddonOAuthClient` is available through the existing navigation tools.
-The total remains 20 tools.
+Use `get_addon_token` through canonical `kaiten_workspace_read` to read the
+current token. When a refresh is required, use `refresh_addon_token` through
+`kaiten_workspace_write`. Both return sensitive OAuth credentials when a token
+is available.
+
+The table lists the v2 names for `KAITEN_TOOL_PROFILE=legacy`.
 
 | Operation                 | Tool                      | Arguments                            |
 | ------------------------- | ------------------------- | ------------------------------------ |
@@ -25,7 +29,7 @@ apply; refreshes are not automatically retried.
 ```json
 {
   "request": {
-    "operation": "addonOAuth.getToken",
+    "operation": "get_addon_token",
     "args": {"addon_uid": "your-addon-uid", "user_id": 5, "company_id": 7}
   }
 }
