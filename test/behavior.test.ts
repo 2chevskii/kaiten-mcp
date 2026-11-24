@@ -255,8 +255,9 @@ test('card mutations preserve tag arrays in their write responses', async contex
     for (const [name, args, resultKey] of cases) {
       const result = await harness.call(name, args);
       assert.notEqual(result.isError, true);
-      const card = result.structuredContent?.[resultKey] as {tags: unknown};
-      assert.deepEqual(card.tags, returnedTags);
+      const content = result.structuredContent as
+        Partial<Record<'item' | 'result', {tags: unknown}>> | undefined;
+      assert.deepEqual(content?.[resultKey]?.tags, returnedTags);
     }
   }
 });
