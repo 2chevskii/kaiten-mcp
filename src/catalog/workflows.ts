@@ -29,10 +29,11 @@ export const workflowsCatalog: CatalogDefinition = {
   workflows_read: {
     description: [
       'Read Kaiten planning, time, service desk, SLA and automation data.',
-      'For planning, list iterations by space UUID, then inspect an iteration, its members, or a card’s membership history. Legacy sprint lookup is for historical numeric sprint IDs.',
-      'Use list_card_time_logs for one card and follow next_offset with the same date and personal filters. Use get_timesheet for a date range or aggregates across cards.',
-      'Use list_service_desk_services to find a service ID and recipient policy. get_card_sla returns recorded rules and calendars, with actual work time in minutes and no local aggregation.',
-      'Use list_automations to find a rule UID and inspect its trigger, conditions and actions before an edit. For card details use kaiten_cards_read.',
+      '- Planning. List iterations by space UID, then read membership by iteration ID or history by card UID. Use legacy sprint lookup for historical numeric sprint IDs.',
+      '- Time logs. Use list_card_time_logs for one card’s minute-based records. Pass next_offset with the same card, date, personal filter and page size.',
+      '- Timesheets. Use get_timesheet with query.from and query.to in YYYY-MM-DD for reports across dates or cards. Use group_by=0 for individual records, 1 for user groups, or 2 for card groups. Request daily distribution only with user or card grouping. Choose only_general_sum for a grand total. Kaiten shapes the result for the selected report and applies time_precision to the chosen time_unit.',
+      '- Service desk and SLA. List services for routing and recipient policy. Read SLA by card_id for rules, calendars and working minutes.',
+      '- Automations. List by numeric space_id before editing a rule. Use kaiten_workflows_write for mutations and kaiten_cards_read for full card details.',
     ].join('\n'),
     operations: {
       list_iterations: {
@@ -125,12 +126,15 @@ export const workflowsCatalog: CatalogDefinition = {
             'Filter to this calendar date in YYYY-MM-DD. Omit to read logs across dates.',
           personal:
             'Set true to include only the token user’s logs. False or omission leaves that restriction off.',
+          limit: 'Kaiten page size, 1–100. Defaults to 100.',
+          offset:
+            'Use next_offset from a previous call with the same card, filters and page size. Omit to start at zero.',
         },
       },
       get_timesheet: {
         source: 'timesheet.getList',
         description:
-          'Read filtered time records or aggregates over a required date range. Repeat the filters with an updated offset for the next page.',
+          'Read one native report over the date range. For a subsequent page, advance offset with the filters, selectors and limit unchanged. Kaiten chooses the result shape for the selected report.',
         fields: {
           query:
             'Date range, entity filters, aggregation options and pagination. ID list filters accept arrays of numeric IDs or comma-separated ID strings.',
@@ -146,16 +150,18 @@ export const workflowsCatalog: CatalogDefinition = {
           'query.visible_column_ids': 'Apply the native visible-column filter.',
           'query.limit': 'Page size, 1–200. Kaiten defaults to 100.',
           'query.offset': 'Number of matching records to skip.',
-          'query.condition': 'Native card-condition filter.',
+          'query.condition':
+            'Native timesheet condition selector. The public API leaves its accepted settings unspecified. Omit unless your integration has a verified value.',
           'query.group_by':
-            'Native report grouping selector. Grouping can change the shape of result.',
+            'Use 0 for individual time records, 1 to group by user, or 2 to group by card.',
           'query.time_precision':
-            'Native display precision for the selected time_unit.',
+            'Precision in the selected time_unit. Use a confirmed native unit/precision pair or leave both at Kaiten defaults.',
           'query.time_unit':
-            'Native unit selector for the report representation.',
+            'Native reporting unit. The public reference lists no numeric unit mapping. Leave omitted for the upstream default.',
           'query.with_daily_distribution':
-            'Native flag to include daily totals.',
-          'query.only_general_sum': 'Native flag to return the overall total.',
+            'Integer option for per-day values in a grouped report. Use with group_by 1 or 2.',
+          'query.only_general_sum':
+            'Integer option for overall time spent across the matching data. Use this mode for a grand total when detail rows and daily groups are unnecessary.',
         },
       },
       list_service_desk_services: {
@@ -180,10 +186,12 @@ export const workflowsCatalog: CatalogDefinition = {
   workflows_write: {
     description: [
       'Change Kaiten iteration membership and schedules, time logs, service desk recipients and automation rules, or route a new card through a configured incoming webhook.',
-      'Read the current state and IDs with kaiten_workflows_read. Use iterations for planning writes. Iterations require the feature and space access; closing or deleting can change membership. Deleting an iteration removes its existing links permanently, with optional transfer to a planned or active iteration in the same space.',
-      'Write time_spent in minutes. Use a time-log record ID for updates and removals. Check the service’s external-recipient policy before changing notification recipients.',
-      'Automation rules can change cards when a trigger or on-demand action runs. Inspect the existing rule before replacing conditions or actions.',
-      'Use send_card_webhook only for an intended configured destination. The webhook URL is a secret and sets routing; the Kaiten API token stays with Kaiten REST requests. Use kaiten_cards_write for normal card creation. Writes are not retried; verify upstream state if the outcome is uncertain.',
+      'Read current state and IDs with kaiten_workflows_read before writing.',
+      '- Iterations. Writes require the feature and space access. Use remove_iteration_member with uid for one card or card_uids for 1–500 distinct cards. Kaiten checks restrictions before any bulk write. A later failure can leave earlier batches applied. delete_iteration permanently removes original links. Pass new_iteration_id for deletion or body.new_iteration_id when closing to transfer eligible cards to a planned or active iteration in the same space.',
+      '- Time. To record an hour with add_card_time_log, pass the numeric card_id and a body such as {"time_spent":60,"for_date":"2026-11-24","role_id":-1}. Edits use the time_log_id returned for that card.',
+      '- Recipients and rules. Check the service’s recipient policy. Read the current automation before replacing its action list or condition tree. Deleting a rule leaves its past card changes in place.',
+      '- Card creation. Use send_card_webhook for the explicitly configured destination. The secret URL determines routing and Kaiten’s REST token stays off the webhook request. Use kaiten_cards_write for normal card creation.',
+      'Failures including HTTP 429 are returned without automatic retries. Re-read upstream state before retrying a write with an uncertain outcome.',
     ].join('\n'),
     operations: {
       create_iteration: {

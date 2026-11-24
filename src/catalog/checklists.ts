@@ -43,9 +43,18 @@ const reads: Record<string, CatalogRoute | readonly CatalogRoute[]> = {
       'Find checklist IDs on a card. The server fetches the card’s checklist references and slices that list locally.',
     fields: {
       card_id: cardId,
-      limit: 'Maximum references returned in this page.',
+      limit:
+        'Maximum references returned from this card, 1–100. Defaults to 25.',
       offset:
-        'Zero-based position in the card’s checklist list. Use next_offset with the same card until it is null.',
+        'Zero-based position in the card’s checklist list. Use next_offset with the same card and page size until it is null.',
+    },
+    outputFields: {
+      'items.id':
+        'Pass this numeric ID as checklist_id to get_checklist for the same card.',
+      'items.checklist_id':
+        'Parent template ID when the checklist came from a template.',
+      next_offset:
+        'Next local slice position or null at the end of the fetched list.',
     },
   },
   get_checklist: [
@@ -65,10 +74,11 @@ const reads: Record<string, CatalogRoute | readonly CatalogRoute[]> = {
   list_cards_using_checklist: {
     source: 'checklists.retrieveCardsWithChecklist',
     description:
-      'Find cards that use a checklist before editing shared items. Use only_shared_cards to restrict the result to cards sharing the checklist.',
+      'Check which cards use a checklist under the token’s access before editing shared items. This lookup returns one native response.',
     fields: {
       id: checklistId,
-      only_shared_cards: 'When true, restrict the lookup to shared cards.',
+      only_shared_cards:
+        'Required boolean. True returns shared associations only. False includes the ordinary associations.',
     },
   },
   list_checklist_templates: {
@@ -253,13 +263,24 @@ const writes: Record<string, CatalogRoute | readonly CatalogRoute[]> = {
 
 export const checklistsCatalog: CatalogDefinition = {
   checklists_read: {
-    description:
-      'Read checklists, items and reusable space templates in Kaiten. Use list_checklists after resolving a card ID, then get_checklist with the returned checklist ID to see all item details. list_checklists slices one fetched card locally and returns next_offset. Choose list_cards_using_checklist to check where a shared checklist is used, or list_checklist_templates for defaults set on a space UID. Kaiten checks access to the source card or space.',
+    description: [
+      'Read card checklists, item status and reusable space templates in Kaiten.',
+      '- Card items. Find card_id in kaiten_cards_read, call list_checklists and pass items[].id as checklist_id to get_checklist with the same card_id. The reference field items[].checklist_id identifies the parent template when present. Add format=native to get_checklist for full item metadata.',
+      '- Pages. Continue list_checklists with next_offset until null. Each call slices a fresh card response, so edits between pages can shift positions. A 403 or 404 returns an error with no page data. A successful empty page has zero references at that offset.',
+      '- Shared links and templates. Pass the checklist ID as id and only_shared_cards=true to inspect shared links before an edit. For reusable defaults use list_checklist_templates with the space UID from native workspace details.',
+      'Use kaiten_checklists_write to change a checklist, item or template.',
+    ].join('\n'),
     operations: reads,
   },
   checklists_write: {
-    description:
-      'Create, copy, share, move and edit Kaiten checklists and checklist items. Resolve the card via kaiten_cards_read and checklist and item IDs via kaiten_checklists_read before writing. Choose template operations to change reusable defaults using space, template and item UIDs. Template changes require write access in that space. Omit patch fields to retain them and use null to clear supported item values. Check cards using a shared checklist before deleting or modifying its items.',
+    description: [
+      'Create, copy, share, move, edit and remove Kaiten checklists and items.',
+      '- Card checklists. Resolve numeric card_id, checklist_id and item_id through the card and checklist read tools. To copy items with create_checklist, supply body.name and body.items_source_checklist_id. To share, supply body.source_share_id. For a move, top-level card_id identifies the source and body.card_id the destination.',
+      '- Shared items. Use list_cards_using_checklist before changing shared items. Edits and deletions affect the linked cards. Omit patch fields to retain them. Set changes.checked=false to reopen an item and null to clear supported text, due date or assignee fields.',
+      '- Templates. Change reusable defaults with space, template and item UIDs obtained from the template list. Template changes require write access to the space.',
+      '- Recovery. Removing a checklist detaches it from that card. A surviving shared checklist can be linked again. Deleted items or templates require recreation from saved details.',
+      'Use kaiten_cards_write for edits to the card itself.',
+    ].join('\n'),
     operations: writes,
   },
 };
