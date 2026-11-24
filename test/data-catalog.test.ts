@@ -174,6 +174,11 @@ test('the canonical data catalog maps every legacy operation and advertises its 
     JSON.stringify(operations.get('update_custom_directory')?.schema),
     /Omitted fields are soft-deleted/,
   );
+  const directoryPatch = operations.get('update_custom_directory')?.schema
+    .properties as {body: {dependentRequired: unknown}};
+  assert.deepEqual(directoryPatch.body.dependentRequired, {
+    expected_field_ids: ['fields'],
+  });
   assert.match(
     JSON.stringify(operations.get('set_card_properties')?.schema),
     /directory record UUID arrays/,

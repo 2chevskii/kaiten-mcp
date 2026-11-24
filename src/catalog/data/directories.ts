@@ -158,6 +158,12 @@ export const directoryWrites = {
   },
   update_custom_directory: {
     source: 'customDirectories.updateCustomDirectory',
+    input: source =>
+      source.safeExtend({
+        body: source.shape.body!.meta({
+          dependentRequired: {expected_field_ids: ['fields']},
+        }),
+      }),
     description:
       'Patch directory settings. To edit a single field, use update_directory_field. Supplying fields replaces the whole list and soft-deletes omitted fields.',
     fields: {
@@ -169,7 +175,7 @@ export const directoryWrites = {
       'body.fields.id':
         'Existing field UUID to retain or update. Omit for a new field.',
       'body.expected_field_ids':
-        'Current field UUIDs as a concurrency guard for whole-list changes. Supply fields too. A changed field list returns HTTP 409.',
+        'Current field UUIDs from list_directory_fields as a guard for replacing the whole list. Send the replacement in body.fields. If Kaiten returns HTTP 409, reload the fields before building the replacement again.',
     },
   },
   delete_custom_directory: {
