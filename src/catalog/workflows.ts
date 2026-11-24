@@ -109,14 +109,22 @@ export const workflowsCatalog: CatalogDefinition = {
         },
       },
       list_card_time_logs: {
-        source: 'cardTimeLogs.getTimeLogs',
+        source: 'catalog.listCardTimeLogs',
+        replaces: ['cardTimeLogs.getTimeLogs'],
         description:
-          'Read the upstream first page of at most 100 logs for one card. For pageable reporting, use get_timesheet with a date range and card_ids.',
+          'Read a server page of time logs for one card. For reports spanning a date range or several cards, use get_timesheet.',
+        outputFields: {
+          result:
+            'Original Kaiten time-log entries, with time_spent measured in minutes.',
+          next_offset:
+            'Pass as offset on the next page with unchanged filters. Null means the last page was short or empty.',
+        },
         fields: {
           card_id: cardId,
           for_date:
-            'Filter to this calendar date in YYYY-MM-DD. The response is still capped.',
-          personal: 'True limits the list to the token user’s logs.',
+            'Filter to this calendar date in YYYY-MM-DD. Omit to read logs across dates.',
+          personal:
+            'Set true to include only the token user’s logs. False or omission leaves that restriction off.',
         },
       },
       get_timesheet: {

@@ -59,17 +59,13 @@ function localPage(
   simple: string,
   full: string,
   description: string,
-  scope: 'card_id' | 'parent_card_id' = 'card_id',
 ): CatalogRoute[] {
-  const scopeDescription =
-    scope === 'card_id' ? cardField.card_id : childFields.parent_card_id;
-
   return [
     {
       source: simple,
       description,
       fields: {
-        [scope]: scopeDescription,
+        ...cardField,
         limit:
           'Maximum records to return from the fetched list. Defaults to 25, capped at 100.',
         offset:
@@ -87,14 +83,14 @@ function localPage(
       description:
         'Include extra upstream fields in the entire available list.',
       input: z.strictObject({
-        [scope]: id.describe(scopeDescription),
+        card_id: id.describe(cardField.card_id),
         format: z
           .literal('full')
           .describe(
             'Return all records from this API read, including upstream metadata.',
           ),
       }),
-      mapArgs: args => ({card_id: args[scope]}),
+      mapArgs: ({card_id}) => ({card_id}),
     },
   ];
 }
@@ -132,13 +128,25 @@ const formParts = z
 export const collaborationCatalog: CatalogDefinition = {
   collaboration_read: {
     description:
-      'Inspect collaboration records attached to Kaiten cards: comments, URL links, members, tags, blockers and child links. Read the corresponding list before editing a record to get its ID. For eligible members use list_allowed_card_users; existing assignments come from list_card_members. List blockers for one card with list_card_blockers or for the token user with list_my_blocked_cards. Comment, link, member, tag and child pagination slices the data already fetched; comment and child lists are limited to Kaiten’s first upstream page of up to 100 records. Use cards_read for card search and content_read for attachment bytes.',
+      'Inspect collaboration records attached to Kaiten cards: comments, URL links, members, tags, blockers and child links. Read the corresponding list before editing a record to get its ID. For eligible members use list_allowed_card_users; existing assignments come from list_card_members. List blockers for one card with list_card_blockers or for the token user with list_my_blocked_cards. Comments, children and blockers use server pages. Native link, member and tag pages are local slices. Pass next_offset back as offset for the next page. Use cards_read for card search and content_read for attachment bytes.',
     operations: {
-      list_comments: localPage(
-        'list_comments',
-        'cardComments.retrieveCardComments',
-        'Read text from Kaiten’s default comment page. Use format full to obtain comment UIDs and attachment metadata.',
-      ),
+      list_comments: {
+        source: 'catalog.listComments',
+        replaces: ['list_comments', 'cardComments.retrieveCardComments'],
+        description:
+          'Read a server page of comments. Choose full metadata to obtain comment UIDs and attachment fields.',
+        fields: {
+          ...cardField,
+          format:
+            'Defaults to compact comment text and IDs. Use full to keep all upstream metadata in items.',
+        },
+        outputFields: {
+          items:
+            'Records from this server page, projected according to format.',
+          next_offset:
+            'Pass as offset on the next page with unchanged arguments. Null means the last page was short or empty.',
+        },
+      },
       list_card_external_links: localPage(
         'list_card_external_links',
         'cardExternalLinks.retrieveCardExternalLinks',
@@ -154,12 +162,26 @@ export const collaborationCatalog: CatalogDefinition = {
         'cardTags.rertrieveListOfTags',
         'Read tags attached to this card, including the IDs used for detaching them.',
       ),
-      list_card_children: localPage(
-        'list_card_children',
-        'cardChildren.retrieveCardChildrenList',
-        'Read one parent’s child links. Each record id is a child card ID.',
-        'parent_card_id',
-      ),
+      list_card_children: {
+        source: 'catalog.listCardChildren',
+        replaces: [
+          'list_card_children',
+          'cardChildren.retrieveCardChildrenList',
+        ],
+        description:
+          'Read a server page of one parent’s child links. Each record id is a child card ID.',
+        fields: {
+          parent_card_id: childFields.parent_card_id,
+          format:
+            'Defaults to card summaries. Use full for all upstream fields, including properties affected by broken_api.',
+        },
+        outputFields: {
+          items:
+            'Records from this server page, projected according to format.',
+          next_offset:
+            'Pass as offset on the next page with unchanged arguments. Null means the last page was short or empty.',
+        },
+      },
       list_allowed_card_users: {
         source: 'cardAllowedUsers.retrieveUsersList',
         output: nativeRecords,
@@ -185,9 +207,16 @@ export const collaborationCatalog: CatalogDefinition = {
           'Read available blocker categories. Use the category UID when detaching a category.',
       },
       list_my_blocked_cards: {
-        source: 'cardBlockerUsers.retrieveBlockersCardsListOnCurrentUser',
+        source: 'catalog.listMyBlockedCards',
+        replaces: ['cardBlockerUsers.retrieveBlockersCardsListOnCurrentUser'],
         description:
-          'Read the first upstream page of up to 100 blocked cards attributed by Kaiten to the token user.',
+          'Read a server page of blocked cards attributed by Kaiten to the token user, along with the original blocker summary.',
+        outputFields: {
+          'result.blocked_cards':
+            'Blocked cards for the token user in this server page.',
+          next_offset:
+            'Pass as offset on the next page. Null means the last page was short or empty.',
+        },
       },
       list_blocker_users: {
         source: 'cardBlockerUsers.retrieveListOfUsers',
@@ -197,11 +226,16 @@ export const collaborationCatalog: CatalogDefinition = {
         fields: blockerField,
       },
       list_card_blockers: {
-        source: 'cardBlockers.retrieveCardBlockersList',
-        output: nativeRecords,
+        source: 'catalog.listCardBlockers',
+        replaces: ['cardBlockers.retrieveCardBlockersList'],
         description:
-          'Read the first upstream page of up to 100 blocker records for one card. blocker_id selects the record; blocker_card_id points to the card causing it.',
+          'Read a server page of blockers for one card. blocker_id selects the record; blocker_card_id points to the card causing it.',
         fields: cardField,
+        outputFields: {
+          result: 'Original Kaiten blocker records for this server page.',
+          next_offset:
+            'Pass as offset on the next page with unchanged arguments. Null means the last page was short or empty.',
+        },
       },
     },
   },
