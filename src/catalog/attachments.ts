@@ -234,11 +234,11 @@ export const attachmentWrites: Record<
       target,
       'attach',
       target.kind === 'legacy_card'
-        ? 'Upload through the deprecated public route only for an integration that explicitly needs it and a Kaiten company that still permits it.'
-        : `Upload ${target.label}. Resolve its parent UUIDs first.`,
+        ? 'Use numeric card_id for a deprecated upload only when the Kaiten company still permits it. New uploads should use a restricted UUID route.'
+        : `Upload ${target.label}. Resolve the required parent UUIDs first and reuse the returned attachment ID for later updates or deletion.`,
       {
         file: upload.describe(
-          'Upload bytes in canonical padded base64, without a data URL or local path.',
+          'Place canonical padded base64 in data_base64, for example SGk= for two bytes. Omit any data URL prefix. The decoded size is capped by KAITEN_MAX_FILE_BYTES.',
         ),
       },
     ),
