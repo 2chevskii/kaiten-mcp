@@ -46,12 +46,17 @@ integration. Native search automatically encodes structured filters.
   child link. To schedule a dependency between cards, choose
   `add_planned_relation`, `update_planned_relation` or `remove_planned_relation`.
 
-The `limit` and `offset` fields on compact comment, link, member, tag and child
-lists slice the fetched response locally. Use `format: "full"` for the native
-response, including fields beyond the compact projection. The pinned client reads
-one upstream page of up to 100 comments, children or blockers. Local offsets
-cannot advance past the upstream page. The allowed-user list accepts server-side
-pagination.
+Comments, children and both blocker lists accept server-side `limit` (default
+100, maximum 100) and `offset` (default 0). Repeat the same arguments with
+`offset: next_offset` to continue. A full page can be followed by an empty page.
+Comments and children return `items` with the compact projection by default.
+Set `format: "full"` to keep native fields such as comment UIDs and child
+properties. The `broken_api` flag on child and card-blocker reads controls user
+custom-property IDs. The blocker responses preserve the native payload in
+`result`, including the summary on the current-user list.
+
+Link, member and tag lists slice the already fetched data locally in their
+compact form. The allowed-user list uses native server-side pagination.
 
 ## Migrating v2 calls
 
@@ -65,7 +70,7 @@ The canonical catalog changes some inputs and response envelopes.
 | `cards.deleteCard`, `delete_card`                                                                                   | `delete_card`; response uses `result`.                                                                                                                                                                                           |
 | `cards.retrieveCard`, `cards.retrieveCardList`, `cards.iterate`                                                     | `get_card` with `format: "full"`, `search_cards` with `mode: "native_page"`, or `scan_cards` respectively.                                                                                                                       |
 | `cards.retrieveCardBaselines`, `cards.retrieveCardLocationHistory`, `cards.batchUpdateForCards`, `encodeCardFilter` | `list_card_baselines`, `list_card_location_history`, `batch_update_cards`, `encode_card_filter`.                                                                                                                                 |
-| Native comment, external-link, membership, tag and child list operations                                            | Use the matching `list_*` operation with `format: "full"`. For children, pass the parent as `parent_card_id`.                                                                                                                    |
+| Native comment, external-link, membership, tag and child list operations                                            | Use the matching `list_*` operation with `format: "full"`. Comments and children return native record fields in `items` and accept a server offset. For children, use `parent_card_id`.                                          |
 | Both v2 comment mutation families                                                                                   | `add_comment`, `update_comment` or `delete_comment`. Move `body.text` to `args.text` or keep `args.form`. An empty JSON update remains available through the legacy profile.                                                     |
 | Both v2 external link, membership, tag and child mutation families                                                  | Use the corresponding snake_case operation in `kaiten_collaboration_write`. Use `link_id` and `body` for link updates. Child removal takes `parent_card_id` and `child_card_id`. These mutations return native data in `result`. |
 | `cardAllowedUsers.retrieveUsersList`                                                                                | `list_allowed_card_users`.                                                                                                                                                                                                       |
