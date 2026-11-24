@@ -3,7 +3,7 @@ import {test} from 'node:test';
 import {catalogDomains} from '../src/catalog.ts';
 import {canonicalCatalog} from '../src/catalog/index.ts';
 import {readCatalog} from '../tools/read-catalog.ts';
-import {startHarness} from './harness.ts';
+import {startSourceHarness} from './harness.ts';
 
 test('the default packaged surface has all seven coordinated read/write pairs', async () => {
   const {tools} = await readCatalog();
@@ -14,6 +14,11 @@ test('the default packaged surface has all seven coordinated read/write pairs', 
   assert.deepEqual(tools.map(tool => tool.name).sort(), names.sort());
   for (const tool of tools) {
     assert.equal(tool.annotations?.readOnlyHint, tool.name.endsWith('_read'));
+    assert.equal(
+      tool.annotations?.destructiveHint,
+      tool.name.endsWith('_write'),
+    );
+    assert.equal(tool.inputSchema.additionalProperties, false);
     assert.ok(tool.description, `${tool.name} has no description`);
     assert.ok(tool.description.trim(), `${tool.name} has an empty description`);
     assert.ok(tool.outputSchema, `${tool.name} has no output schema`);
@@ -24,20 +29,18 @@ test('the default packaged surface has all seven coordinated read/write pairs', 
   }
 });
 
-test('every v2 operation is accounted for in the canonical catalog', async context => {
-  const legacy = await startHarness(context);
+test('every retained source is used by the public catalog', async context => {
+  const sources = await startSourceHarness(context);
   const represented = new Set<string>();
   for (const tool of Object.values(canonicalCatalog)) {
     for (const routes of Object.values(tool.operations)) {
       for (const route of 'source' in routes ? [routes] : routes) {
         represented.add(route.source);
-        for (const replaced of route.replaces ?? []) represented.add(replaced);
       }
     }
   }
   assert.deepEqual(
-    [...legacy.operations.keys()].filter(name => !represented.has(name)),
-    [],
-    'Every legacy operation must map to a canonical route.',
+    [...sources.operations.keys()].sort(),
+    [...represented].sort(),
   );
 });

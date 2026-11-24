@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
-import {startHarness} from './harness.ts';
+import {startSourceHarness} from './harness.ts';
 
 for (const scope of ['Company', 'Space']) {
   test(`${scope} activity iteration follows opaque cursors, retains filters, and bounds snapshots`, async context => {
-    const harness = await startHarness(context);
+    const harness = await startSourceHarness(context);
     const queries = [
       {cursor: 'start', author_id: '5', actions: 'card_created', limit: '1'},
       {cursor: 'next+/=', author_id: '5', actions: 'card_created', limit: '1'},
@@ -62,7 +62,7 @@ for (const scope of ['Company', 'Space']) {
 }
 
 test('activity iterator rejects repeated cursors and malformed pages without looping', async context => {
-  const harness = await startHarness(context);
+  const harness = await startSourceHarness(context);
   for (const page of [
     {items: [], next_cursor: 'same'},
     {items: {}, next_cursor: null},
@@ -82,7 +82,7 @@ test('activity iterator rejects repeated cursors and malformed pages without loo
 });
 
 test('activity and audit filters reject invalid paging and unknown fields before HTTP', async context => {
-  const harness = await startHarness(context);
+  const harness = await startSourceHarness(context);
   for (const [name, args] of [
     ['activity.listSpaceActivity', {space_id: 1, query: {card_id: 10}}],
     ['activity.listCompanyActivity', {query: {limit: 0}}],

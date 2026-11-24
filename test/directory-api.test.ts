@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
-import {startHarness} from './harness.ts';
+import {startSourceHarness} from './harness.ts';
 import {directoryId} from './tool-cases.ts';
 import {fieldId} from './directory-cases.ts';
 
 test('directory operations validate UUIDs, nested fields and supported filter combinations', async context => {
-  const harness = await startHarness(context);
+  const harness = await startSourceHarness(context);
   assert.equal(
     (
       await harness.call('customDirectories.updateCustomDirectory', {
@@ -51,7 +51,7 @@ test('directory operations validate UUIDs, nested fields and supported filter co
 });
 
 test('indexed directory filters use bracket parameters and preserve boolean/zero values', async context => {
-  const harness = await startHarness(context);
+  const harness = await startSourceHarness(context);
   harness.reply([]);
   const result = await harness.call('customDirectoryRecords.getListOfRecords', {
     directory_id: directoryId,

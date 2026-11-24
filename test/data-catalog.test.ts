@@ -36,12 +36,8 @@ const nativeFormats = new Set([
   'customDirectoryRecords.getListOfRecords',
 ]);
 
-function canonicalHarness(context: Parameters<typeof startHarness>[0]) {
-  return startHarness(context, 30_000, {KAITEN_TOOL_PROFILE: 'canonical'});
-}
-
 test('canonical checklist, custom property and directory branches preserve their HTTP contracts', async context => {
-  const harness = await canonicalHarness(context);
+  const harness = await startHarness(context);
   const advanced = [...checklistApiCases, ...directoryCases, ...propertyCases];
   const cases = [
     ...toolCases.filter(item => routes.has(item.name)),
@@ -75,7 +71,7 @@ test('canonical checklist, custom property and directory branches preserve their
 });
 
 test('canonical checklist references preserve nullable and omitted template IDs', async context => {
-  const harness = await canonicalHarness(context);
+  const harness = await startHarness(context);
   const manual = {id: 8, name: 'Manual', checklist_id: null};
   const checklists = [
     manual,
@@ -138,17 +134,8 @@ test('canonical checklist references preserve nullable and omitted template IDs'
   assert.ok(!reference.required.includes('checklist_id'));
 });
 
-test('the canonical data catalog maps every legacy operation and advertises its choice semantics', async context => {
-  const canonical = await canonicalHarness(context);
-  const legacy = await startHarness(context, 30_000, {
-    KAITEN_TOOL_PROFILE: 'legacy',
-  });
-  const legacySources = [...legacy.operations]
-    .filter(([, entry]) =>
-      /^kaiten_(checklists|custom_properties)_/.test(entry.tool),
-    )
-    .map(([source]) => source);
-  assert.deepEqual([...routes.keys()].sort(), legacySources.sort());
+test('the canonical data catalog advertises its choices and validation constraints', async context => {
+  const canonical = await startHarness(context);
   for (const [source, canonicalRoute] of routes) {
     assert.equal(
       canonical.operations.get(canonicalRoute.operation)?.tool,
@@ -186,7 +173,7 @@ test('the canonical data catalog maps every legacy operation and advertises its 
 });
 
 test('incompatible scopes and invalid nested inputs are rejected before any HTTP request', async context => {
-  const harness = await canonicalHarness(context);
+  const harness = await startHarness(context);
   for (const [operation, args] of [
     ['create_checklist', {card_id: 10, body: {exclude_item_ids: [9]}}],
     [

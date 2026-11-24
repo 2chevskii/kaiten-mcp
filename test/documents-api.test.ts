@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
-import {startHarness} from './harness.ts';
+import {startSourceHarness} from './harness.ts';
 
 for (const resource of ['documents', 'documentGroups']) {
   test(`${resource} iterator preserves filters and opaque v2 cursors`, async context => {
-    const harness = await startHarness(context);
+    const harness = await startSourceHarness(context);
     harness.respond((request, response) => {
       response.setHeader('Content-Type', 'application/json');
       response.end(
@@ -45,7 +45,7 @@ for (const resource of ['documents', 'documentGroups']) {
 }
 
 test('document tree validation rejects invalid root, nodes, marks and typed settings before HTTP', async context => {
-  const harness = await startHarness(context);
+  const harness = await startSourceHarness(context);
   for (const body of [
     {},
     {data: {type: 'paragraph', content: []}},
@@ -92,7 +92,7 @@ test('document tree validation rejects invalid root, nodes, marks and typed sett
 });
 
 test('document reads preserve default/v1 arrays and draft-06 schemas', async context => {
-  const harness = await startHarness(context);
+  const harness = await startSourceHarness(context);
   harness.reply([{uid: 'document-uid', group_id: null}]);
   assert.deepEqual(
     (

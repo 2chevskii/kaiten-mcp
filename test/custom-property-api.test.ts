@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
-import {startHarness} from './harness.ts';
+import {startSourceHarness} from './harness.ts';
 
 test('custom property definitions validate both creation contracts', async context => {
-  const harness = await startHarness(context);
+  const harness = await startSourceHarness(context);
   for (const body of [
     {},
     {name: 'Missing type'},
@@ -32,7 +32,7 @@ test('custom property definitions validate both creation contracts', async conte
 });
 
 test('custom values reject empty changes and invalid vote values before HTTP', async context => {
-  const harness = await startHarness(context);
+  const harness = await startSourceHarness(context);
   for (const [operation, args] of [
     [
       'customPropertyCatalogValues.updateCatalogValue',

@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
 import type {AutomationTrigger} from '@2chevskii/kaiten-client';
-import {startHarness} from './harness.ts';
+import {startHarness, startSourceHarness} from './harness.ts';
 
 test('automation variants accept nonempty action lists of any length and partial updates', async context => {
-  const harness = await startHarness(context);
+  const harness = await startSourceHarness(context);
   harness.reply({id: 'automation-uid'});
   for (const type of ['on_action', 'on_date', 'on_demand']) {
     for (const count of [1, 2, 3]) {
@@ -45,7 +45,7 @@ test('automation variants accept nonempty action lists of any length and partial
 });
 
 test('automation schema rejects malformed variants, triggers, actions, and nested conditions before HTTP', async context => {
-  const harness = await startHarness(context);
+  const harness = await startSourceHarness(context);
   const valid = {
     type: 'on_action',
     trigger: {type: 'card_created'},
@@ -96,11 +96,8 @@ function triggerTypeSchema(schema: AutomationSchema) {
   return {types: type.enum, description: type.description};
 }
 
-test('canonical automation mutations advertise and forward iteration triggers while legacy rejects them', async context => {
-  const canonical = await startHarness(context, 30_000, {
-    KAITEN_TOOL_PROFILE: 'canonical',
-  });
-  const legacy = await startHarness(context);
+test('canonical automation mutations advertise and forward iteration triggers', async context => {
+  const harness = await startHarness(context);
   const dateData = {
     variant: 'time_left_before_date',
     timezone: 'UTC',
@@ -120,23 +117,17 @@ test('canonical automation mutations advertise and forward iteration triggers wh
     },
   ] satisfies {type: 'on_action' | 'on_date'; trigger: AutomationTrigger}[];
   const newTypes = iterationRules.map(rule => rule.trigger.type);
-  for (const [canonicalName, legacyName] of [
-    ['create_automation', 'automations.createAutomation'],
-    ['update_automation', 'automations.updateAutomation'],
-  ] as const) {
-    const operation = canonical.operations.get(canonicalName);
+  for (const operationName of ['create_automation', 'update_automation']) {
+    const operation = harness.operations.get(operationName);
     assert.equal(operation?.tool, 'kaiten_workflows_write');
     const current = triggerTypeSchema(operation!.schema);
-    const original = triggerTypeSchema(
-      legacy.operations.get(legacyName)!.schema,
-    );
-    assert.equal(original.types.length, 21);
-    assert.deepEqual(current.types, [...original.types, ...newTypes]);
+    assert.equal(current.types.length, 25);
+    assert.deepEqual(current.types.slice(-newTypes.length), newTypes);
     for (const type of newTypes) assert.ok(current.description?.includes(type));
   }
 
   const response = {id: 'automation-uid'};
-  canonical.reply(response);
+  harness.reply(response);
   for (const rule of [
     ...iterationRules,
     {
@@ -162,23 +153,13 @@ test('canonical automation mutations advertise and forward iteration triggers wh
         '/api/v1/spaces/1/automations/automation%2Fuid',
       ],
     ] as const) {
-      const result = await canonical.call(operation, args);
+      const result = await harness.call(operation, args);
       assert.deepEqual(result.structuredContent, {result: response});
-      const request = canonical.requests.at(-1);
+      const request = harness.requests.at(-1);
       assert.equal(request?.method, method);
       assert.equal(request?.path, path);
       assert.deepEqual(request?.body, args.body);
     }
-    if (rule.trigger.type === 'card_moved_in_path') continue;
-    assert.equal(
-      (await legacy.call('automations.createAutomation', creation)).isError,
-      true,
-    );
-    assert.equal(
-      (await legacy.call('automations.updateAutomation', update)).isError,
-      true,
-    );
   }
-  assert.equal(canonical.requests.length, 10);
-  assert.equal(legacy.requests.length, 0);
+  assert.equal(harness.requests.length, 10);
 });

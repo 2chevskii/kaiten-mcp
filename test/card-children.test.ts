@@ -47,7 +47,7 @@ test('card details preserve empty, multiple and absent hierarchy references', as
   }
 });
 
-test('child lists paginate locally and strip unrelated upstream fields', async context => {
+test('child lists page on the server and strip unrelated upstream fields', async context => {
   const harness = await startHarness(context);
   harness.reply([]);
   assert.deepEqual(
@@ -55,15 +55,21 @@ test('child lists paginate locally and strip unrelated upstream fields', async c
       .structuredContent,
     {items: [], next_offset: null},
   );
-  harness.reply([
+  const children = [
     {...summary, email_key: 'private', card_id: 999, depends_on_card_id: 10},
     {...summary, id: 21},
     {...summary, id: 22},
-  ]);
+  ];
+  harness.respond((request, response) => {
+    const offset = Number(request.query.offset);
+    const limit = Number(request.query.limit);
+    response.writeHead(200, {'Content-Type': 'application/json'});
+    response.end(JSON.stringify(children.slice(offset, offset + limit)));
+  });
   for (const [offset, next] of [
     [0, 1],
     [1, 2],
-    [2, null],
+    [2, 3],
     [3, null],
   ] as const) {
     const result = await harness.call('list_card_children', {
@@ -75,7 +81,10 @@ test('child lists paginate locally and strip unrelated upstream fields', async c
       items: offset < 3 ? [{...summary, id: 20 + offset}] : [],
       next_offset: next,
     });
-    assert.deepEqual(harness.requests.at(-1)?.query, {});
+    assert.deepEqual(harness.requests.at(-1)?.query, {
+      limit: '1',
+      offset: String(offset),
+    });
   }
 });
 
@@ -108,12 +117,15 @@ test('link and unlink use child card IDs and preserve other relationships and ca
     parent_card_id: 10,
     child_card_id: 20,
   });
-  assert.deepEqual(added.structuredContent, {item: summary});
+  assert.deepEqual(added.structuredContent, {
+    result: {...summary, email_key: 'private'},
+  });
   const removed = await harness.call('remove_card_child', {
     parent_card_id: 10,
-    child_card_id: (added.structuredContent as {item: {id: number}}).item.id,
+    child_card_id: (added.structuredContent as {result: {id: number}}).result
+      .id,
   });
-  assert.deepEqual(removed.structuredContent, {item: {id: 20}});
+  assert.deepEqual(removed.structuredContent, {result: {id: 20}});
   const result = await harness.call('get_card', {card_id: 10});
   const {item} = result.structuredContent as {item: Record<string, unknown>};
   assert.deepEqual(item.children, [{...summary, id: 21}]);
@@ -201,7 +213,7 @@ test('cancelling a hierarchy mutation aborts its HTTP request', async context =>
   });
   const pending = harness.client.callTool(
     {
-      name: 'kaiten_children_write',
+      name: 'kaiten_collaboration_write',
       arguments: {
         request: {
           operation: 'add_card_child',

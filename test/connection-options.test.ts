@@ -19,7 +19,7 @@ test('API-version selection and rotating token providers work through real REST,
     KAITEN_API_VERSION: 'latest',
   });
   harness.reply([]);
-  await harness.call('spaces.retrieveListOfSpaces');
+  await harness.call('list_spaces');
   assert.equal(harness.requests.at(-1)?.path, '/api/latest/spaces');
   assert.equal(harness.requests.at(-1)?.authorization, 'Bearer first-token');
   writeFileSync(tokenPath, 'second-token');
@@ -29,19 +29,19 @@ test('API-version selection and rotating token providers work through real REST,
     startIndex: 1,
     itemsPerPage: 0,
   });
-  await harness.call('scim.users.getUsers');
+  await harness.call('list_scim_users');
   assert.equal(harness.requests.at(-1)?.path, '/scim/v2/Users');
   assert.equal(harness.requests.at(-1)?.authorization, 'Bearer second-token');
   const key = {addon_uid: 'uid', user_id: 5, company_id: 7};
   harness.reply({has_token: false});
-  await harness.call('addonOAuth.getToken', key);
+  await harness.call('get_addon_token', key);
   assert.equal(
     harness.requests.at(-1)?.path,
     '/api/v1/addon-oauth/uid/tokens/5/7',
   );
   assert.equal(harness.requests.at(-1)?.authorization, 'Bearer first-addon');
   writeFileSync(addonPath, 'second-addon');
-  await harness.call('addonOAuth.refreshToken', key);
+  await harness.call('refresh_addon_token', key);
   assert.equal(harness.requests.at(-1)?.authorization, 'Bearer second-addon');
   assert.equal(harness.requests.length, 4);
   assert.equal(harness.stderr, '');
@@ -56,7 +56,7 @@ test('file credential failures are safe, lazy, and prevent outgoing requests', a
   });
   for (const content of [undefined, '', ' \n']) {
     if (content !== undefined) writeFileSync(tokenPath, content);
-    const result = await harness.call('spaces.retrieveListOfSpaces');
+    const result = await harness.call('list_spaces');
     assert.equal(result.isError, true);
     assert.match(JSON.stringify(result), /CONFIGURATION_ERROR/);
     assert.ok(!JSON.stringify(result).includes('private-path-secret'));
@@ -64,10 +64,7 @@ test('file credential failures are safe, lazy, and prevent outgoing requests', a
   assert.equal(harness.requests.length, 0);
   writeFileSync(tokenPath, 'recovered-token');
   harness.reply([]);
-  assert.equal(
-    (await harness.call('spaces.retrieveListOfSpaces')).isError,
-    undefined,
-  );
+  assert.equal((await harness.call('list_spaces')).isError, undefined);
   assert.equal(
     harness.requests.at(-1)?.authorization,
     'Bearer recovered-token',

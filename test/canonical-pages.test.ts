@@ -3,9 +3,7 @@ import {test} from 'node:test';
 import {startHarness} from './harness.ts';
 
 test('canonical card relationships and time logs continue the same upstream query', async context => {
-  const harness = await startHarness(context, 30_000, {
-    KAITEN_TOOL_PROFILE: 'canonical',
-  });
+  const harness = await startHarness(context);
   const records = [1, 2, 3].map(id => ({
     id,
     uid: `record-${id}`,
@@ -109,39 +107,14 @@ test('canonical card relationships and time logs continue the same upstream quer
   }
 });
 
-test('legacy reads retain local slices and canonical-only sources are hidden', async context => {
-  const harness = await startHarness(context, 30_000, {
-    KAITEN_TOOL_PROFILE: 'legacy',
-  });
-  const listed = (await harness.client.listTools()).tools;
-  assert.equal(listed.length, 20);
-  assert.doesNotMatch(JSON.stringify(listed), /catalog\.list/);
-  assert.equal(harness.operations.has('catalog.listComments'), false);
-
-  const fixture = [
-    {id: 7, text: 'First'},
-    {id: 8, text: 'Next', uid: 'comment-uid'},
-  ];
-  harness.reply(fixture);
-  assert.deepEqual(
-    (await harness.call('list_comments', {card_id: 10, limit: 1, offset: 1}))
-      .structuredContent,
-    {items: [{id: 8, text: 'Next'}], next_offset: null},
-  );
-  assert.deepEqual(harness.requests.at(-1)?.query, {});
-  assert.deepEqual(
-    (await harness.call('cardComments.retrieveCardComments', {card_id: 10}))
-      .structuredContent,
-    {result: fixture},
-  );
-  assert.deepEqual(harness.requests.at(-1)?.query, {});
-  const count = harness.requests.length;
-  const undeclaredSource = await harness.client.callTool({
-    name: 'kaiten_comments_read',
+test('canonical pages reject internal source IDs through public stdio', async context => {
+  const harness = await startHarness(context);
+  const result = await harness.client.callTool({
+    name: 'kaiten_collaboration_read',
     arguments: {
       request: {operation: 'catalog.listComments', args: {card_id: 10}},
     },
   });
-  assert.equal(undeclaredSource.isError, true);
-  assert.equal(harness.requests.length, count);
+  assert.equal(result.isError, true);
+  assert.equal(harness.requests.length, 0);
 });

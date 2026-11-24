@@ -17,7 +17,7 @@ test('incoming webhook forwards every native field and complete JSON without API
     properties: {id_7: {nested: [0, false, null]}},
   };
   harness.reply({...cardFixture, uid: 'card-uid', extra: {preserved: true}});
-  const result = await harness.call('sendCardWebhook', {
+  const result = await harness.call('send_card_webhook', {
     webhook_url: `${harness.origin}/incoming/secret-path`,
     body,
   });
@@ -34,8 +34,8 @@ test('incoming webhook forwards every native field and complete JSON without API
     },
   ]);
   assert.equal(
-    harness.operations.get('sendCardWebhook')?.tool,
-    'kaiten_cards_write',
+    harness.operations.get('send_card_webhook')?.tool,
+    'kaiten_workflows_write',
   );
   assert.equal(harness.stderr, '');
 });
@@ -50,7 +50,7 @@ test('incoming webhook validates URLs and bodies, sanitizes errors, and never fo
   ]) {
     assert.equal(
       (
-        await harness.call('sendCardWebhook', {
+        await harness.call('send_card_webhook', {
           webhook_url,
           body: {title: 'Fixture'},
         })
@@ -60,7 +60,7 @@ test('incoming webhook validates URLs and bodies, sanitizes errors, and never fo
   }
   assert.equal(
     (
-      await harness.call('sendCardWebhook', {
+      await harness.call('send_card_webhook', {
         webhook_url: `${harness.origin}/incoming`,
         body: {title: 'Fixture', unknown: true},
       })
@@ -70,7 +70,7 @@ test('incoming webhook validates URLs and bodies, sanitizes errors, and never fo
   assert.equal(harness.requests.length, 0);
   for (const status of [403, 404, 413]) {
     harness.reply({message: token}, status);
-    const result = await harness.call('sendCardWebhook', {
+    const result = await harness.call('send_card_webhook', {
       webhook_url: `${harness.origin}/incoming`,
       body: {title: 'Fixture'},
     });
@@ -90,7 +90,7 @@ test('incoming webhook validates URLs and bodies, sanitizes errors, and never fo
   });
   assert.equal(
     (
-      await harness.call('sendCardWebhook', {
+      await harness.call('send_card_webhook', {
         webhook_url: `${harness.origin}/incoming`,
         body: {title: 'Fixture'},
       })
@@ -106,7 +106,7 @@ test('incoming webhook request shares the configured timeout', async context => 
   const received = once(harness.events, 'request', {
     signal: AbortSignal.timeout(5000),
   });
-  const pending = harness.call('sendCardWebhook', {
+  const pending = harness.call('send_card_webhook', {
     webhook_url: `${harness.origin}/incoming`,
     body: {title: 'Fixture'},
   });

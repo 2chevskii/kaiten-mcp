@@ -2,17 +2,21 @@ import assert from 'node:assert/strict';
 import {test} from 'node:test';
 import {KaitenClient} from '@2chevskii/kaiten-client';
 import {KaitenScimClient} from '@2chevskii/kaiten-client/scim';
+import {canonicalCatalog} from '../src/catalog/index.ts';
 import {startHarness} from './harness.ts';
 
-test('the catalogs cover every public REST and SCIM resource method', async context => {
-  const legacy = await startHarness(context);
-  const canonical = await startHarness(context, 30_000, {
-    KAITEN_TOOL_PROFILE: 'canonical',
-  });
-  const canonicalMethods = new Map([
-    ['iterations.addCardsToIteration', 'add_iteration_member'],
-    ['iterations.removeCardsFromIteration', 'remove_iteration_member'],
-  ]);
+test('the canonical catalog covers every public REST and SCIM resource method', async context => {
+  const harness = await startHarness(context);
+  const represented = new Set<string>();
+  for (const tool of Object.values(canonicalCatalog)) {
+    for (const [name, routes] of Object.entries(tool.operations)) {
+      assert.ok(harness.operations.has(name), name);
+      for (const route of 'source' in routes ? [routes] : routes) {
+        represented.add(route.source);
+        for (const replaced of route.replaces ?? []) represented.add(replaced);
+      }
+    }
+  }
   const client = new KaitenClient({
     origin: 'https://example.invalid',
     token: 'fixture',
@@ -20,13 +24,7 @@ test('the catalogs cover every public REST and SCIM resource method', async cont
   for (const resource of Object.keys(client) as (keyof KaitenClient)[]) {
     for (const method of Object.keys(client[resource])) {
       const name = `${resource}.${method}`;
-      const canonicalName = canonicalMethods.get(name);
-      assert.ok(
-        canonicalName === undefined
-          ? legacy.operations.has(name)
-          : canonical.operations.has(canonicalName),
-        `${name} is missing`,
-      );
+      assert.ok(represented.has(name), `${name} is missing`);
     }
   }
   const scim = new KaitenScimClient({
@@ -36,7 +34,7 @@ test('the catalogs cover every public REST and SCIM resource method', async cont
   for (const resource of Object.keys(scim) as (keyof KaitenScimClient)[]) {
     for (const method of Object.keys(scim[resource])) {
       assert.ok(
-        legacy.operations.has(`scim.${resource}.${method}`),
+        represented.has(`scim.${resource}.${method}`),
         `scim.${resource}.${method} is missing`,
       );
     }

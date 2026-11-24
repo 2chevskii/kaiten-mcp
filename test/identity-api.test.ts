@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
-import {startHarness} from './harness.ts';
+import {startSourceHarness} from './harness.ts';
 
 test('identity changes validate enums and required change combinations', async context => {
-  const harness = await startHarness(context);
+  const harness = await startSourceHarness(context);
   for (const body of [
     {},
     {old_password: 'fixture-only'},
@@ -31,7 +31,7 @@ test('identity changes validate enums and required change combinations', async c
 });
 
 test('user iteration advances offsets while preserving query flags', async context => {
-  const harness = await startHarness(context);
+  const harness = await startSourceHarness(context);
   harness.respond((request, response) => {
     response.setHeader('Content-Type', 'application/json');
     response.end(

@@ -30,12 +30,13 @@ test('structured filters are encoded by the client for local and HTTP use', asyn
   const encoded = Buffer.from(JSON.stringify(filter), 'utf8').toString(
     'base64',
   );
-  const local = await harness.call('encodeCardFilter', {filter});
+  const local = await harness.call('encode_card_filter', {filter});
   assert.deepEqual(local.structuredContent, {result: encoded});
   assert.equal(harness.requests.length, 0);
   harness.reply([]);
   assert.notEqual(
-    (await harness.call('cards.retrieveCardList', {query: {filter}})).isError,
+    (await harness.call('search_cards', {mode: 'native_page', query: {filter}}))
+      .isError,
     true,
   );
   assert.deepEqual(harness.requests.at(-1)?.query, {filter: encoded});
@@ -53,7 +54,7 @@ test('search v2 iterator follows opaque cursors and preserves filters', async co
       ),
     );
   });
-  const result = await harness.call('cards.iterate', {
+  const result = await harness.call('scan_cards', {
     query: {query: 'work', archived: false, limit: 1},
   });
   assert.deepEqual(result.structuredContent, {
@@ -77,7 +78,7 @@ test('search v2 iterator follows opaque cursors and preserves filters', async co
 test('iterator bounds returned items and closes without reading more pages', async context => {
   const harness = await startHarness(context);
   harness.reply({result: [{id: 1}, {id: 2}, {id: 3}], position: 'unused'});
-  const result = await harness.call('cards.iterate', {max_items: 2});
+  const result = await harness.call('scan_cards', {max_items: 2});
   assert.deepEqual(result.structuredContent, {
     result: {items: [{id: 1}, {id: 2}], truncated: true},
   });
@@ -87,7 +88,7 @@ test('iterator bounds returned items and closes without reading more pages', asy
 test('iterator reports repeated cursors as a sanitized failure', async context => {
   const harness = await startHarness(context);
   harness.reply({result: [{id: 1}], position: 'repeat'});
-  const result = await harness.call('cards.iterate');
+  const result = await harness.call('scan_cards');
   assert.equal(result.isError, true);
   assert.match(JSON.stringify(result), /INTERNAL_ERROR/);
   assert.equal(harness.requests.length, 2);
@@ -102,7 +103,7 @@ test('card API validates full bodies, batch selectors and filter predicates', as
     {board_id: 2},
   ]) {
     assert.equal(
-      (await harness.call('cards.batchUpdateForCards', {body})).isError,
+      (await harness.call('batch_update_cards', {body})).isError,
       true,
     );
   }
@@ -120,7 +121,7 @@ test('card API validates full bodies, batch selectors and filter predicates', as
   ]) {
     assert.equal(
       (
-        await harness.call('encodeCardFilter', {
+        await harness.call('encode_card_filter', {
           filter: {key: 'and', value: [{key: 'and', value: [condition]}]},
         })
       ).isError,
@@ -131,7 +132,7 @@ test('card API validates full bodies, batch selectors and filter predicates', as
   harness.reply({id: 'job'});
   assert.notEqual(
     (
-      await harness.call('cards.batchUpdateForCards', {
+      await harness.call('batch_update_cards', {
         body: {
           column_id: 3,
           lane_id: 4,

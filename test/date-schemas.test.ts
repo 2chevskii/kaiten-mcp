@@ -22,8 +22,8 @@ test('advertised date schemas retain formats without calendar patterns', async c
     }
   }
   tools.forEach(tool => inspect(tool.inputSchema));
-  assert.equal(dates, 11);
-  assert.equal(dateTimes, 6);
+  assert.equal(dates, 9);
+  assert.equal(dateTimes, 4);
 });
 
 test('compact date schemas still validate calendars and timezones before HTTP', async context => {
@@ -42,8 +42,6 @@ test('compact date schemas still validate calendars and timezones before HTTP', 
     20261102,
   ];
   const cases: [string, (value: unknown) => Record<string, unknown>][] = [
-    ['create_card', value => ({title: 'Dated', board_id: 2, due_date: value})],
-    ['update_card', value => ({card_id: 10, changes: {due_date: value}})],
     ['search_cards', value => ({due_date_after: value})],
     ['search_cards', value => ({due_date_before: value})],
     [

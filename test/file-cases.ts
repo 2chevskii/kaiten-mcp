@@ -187,13 +187,20 @@ export const fileCases: ToolCase[] = [
     },
   },
   {
-    name: 'cardComments.retrieveCardComments',
-    args: {card_id: 10},
+    name: 'list_comments',
+    canonical: true,
+    args: {card_id: 10, format: 'full'},
     method: 'GET',
     path: '/cards/10/comments',
     response: [
       {id: 30, uid: commentUid, text: 'full text', attachments: [metadata]},
     ],
+    expectedContent: {
+      items: [
+        {id: 30, uid: commentUid, text: 'full text', attachments: [metadata]},
+      ],
+      next_offset: null,
+    },
   },
   {
     name: 'cardComments.removeComment',

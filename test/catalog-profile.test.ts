@@ -5,7 +5,7 @@ import {test} from 'node:test';
 import {startHarness} from './harness.ts';
 import {temporaryDirectory} from './temporary-directory.ts';
 
-test('canonical stdio profile routes identity through workspace without copying private context into its catalog', async context => {
+test('public stdio routes identity through workspace without copying private context into its catalog', async context => {
   const directory = temporaryDirectory(context);
   const preferences = join(directory, 'context.json');
   const privateInstruction = 'Fixture-only private workspace guidance.';
@@ -14,7 +14,6 @@ test('canonical stdio profile routes identity through workspace without copying 
     JSON.stringify({user_id: 42, instructions: privateInstruction}),
   );
   const harness = await startHarness(context, 30_000, {
-    KAITEN_TOOL_PROFILE: 'canonical',
     KAITEN_CONTEXT_FILE: preferences,
   });
   const instructions = harness.client.getInstructions();

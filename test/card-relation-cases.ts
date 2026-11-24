@@ -62,11 +62,13 @@ export const cardRelationCases: ToolCase[] = [
     response: blocker,
   },
   {
-    name: 'cardBlockers.retrieveCardBlockersList',
+    name: 'list_card_blockers',
+    canonical: true,
     args: {card_id: 10},
     method: 'GET',
     path: '/cards/10/blockers',
     response: [blocker],
+    expectedContent: {result: [blocker], next_offset: null},
   },
   {
     name: 'cardBlockers.updateCardBlockers',
@@ -114,11 +116,16 @@ export const cardRelationCases: ToolCase[] = [
     response: [user],
   },
   {
-    name: 'cardBlockerUsers.retrieveBlockersCardsListOnCurrentUser',
+    name: 'list_my_blocked_cards',
+    canonical: true,
     args: {},
     method: 'GET',
     path: '/users/current/blockers',
     response: {blocked_cards: [blocker], summary: {total_blocked: 1}},
+    expectedContent: {
+      result: {blocked_cards: [blocker], summary: {total_blocked: 1}},
+      next_offset: null,
+    },
   },
   {
     name: 'cardBlockerCategories.addBlockerCategory',
@@ -233,11 +240,13 @@ export const cardRelationCases: ToolCase[] = [
     response: {id: 20},
   },
   {
-    name: 'cardChildren.retrieveCardChildrenList',
-    args: {card_id: 10},
+    name: 'list_card_children',
+    canonical: true,
+    args: {parent_card_id: 10, format: 'full'},
     method: 'GET',
     path: '/cards/10/children',
     response: [child],
+    expectedContent: {items: [child], next_offset: null},
   },
   {
     name: 'cardExternalLinks.addExternalLink',

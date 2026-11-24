@@ -1,31 +1,11 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
-import {contentCatalog} from '../src/catalog/content.ts';
 import {richDocument} from './document-cases.ts';
 import {cardUid, commentUid, fileUid, propertyUid} from './file-cases.ts';
 import {startHarness} from './harness.ts';
 
-const canonical = {KAITEN_TOOL_PROFILE: 'canonical'};
-
-test('canonical content covers all legacy documents and attachments', async context => {
-  const legacy = await startHarness(context, 30_000, {
-    KAITEN_TOOL_PROFILE: 'legacy',
-  });
-  const harness = await startHarness(context, 30_000, canonical);
-  const domains = new Set(['documents', 'files']);
-  const expected = Array.from(legacy.operations)
-    .filter(([, {tool}]) => domains.has(tool.slice(7, tool.lastIndexOf('_'))))
-    .map(([name]) => name);
-  const definitions = Object.values(contentCatalog);
-  const sources = definitions.flatMap(tool =>
-    Object.values(tool.operations).flatMap(routes =>
-      ('source' in routes ? [routes] : routes).map(route => route.source),
-    ),
-  );
-  const explicitSchemaSource = 'documents.updateDocumentWithSchema';
-  assert.ok(!legacy.operations.has(explicitSchemaSource));
-  assert.deepEqual(sources.sort(), [...expected, explicitSchemaSource].sort());
-
+test('canonical content advertises attachment scopes and document semantics', async context => {
+  const harness = await startHarness(context);
   const tools = (await harness.client.listTools()).tools.filter(tool =>
     tool.name.startsWith('kaiten_content_'),
   );
@@ -47,7 +27,7 @@ test('canonical content covers all legacy documents and attachments', async cont
 });
 
 test('canonical document search and edits retain versioned page and body semantics', async context => {
-  const harness = await startHarness(context, 30_000, canonical);
+  const harness = await startHarness(context);
   const doc = {uid: 'doc-uid', title: 'Spec', data: richDocument};
   const page = {result: [doc], position: 'next'};
   harness.reply(page);
@@ -79,7 +59,7 @@ test('canonical document search and edits retain versioned page and body semanti
 });
 
 test('canonical attachment routes preserve parent scope and meaningful false flags', async context => {
-  const harness = await startHarness(context, 30_000, canonical);
+  const harness = await startHarness(context);
   const body = {name: 'renamed.txt', card_cover: false};
   const file = {
     id: fileUid,
@@ -155,7 +135,6 @@ test('canonical attachment routes preserve parent scope and meaningful false fla
 
 test('attachment byte limits do not cap metadata or cause a storage fetch', async context => {
   const harness = await startHarness(context, 30_000, {
-    ...canonical,
     KAITEN_MAX_FILE_BYTES: '2',
   });
   const route = {target: 'card', card_uid: cardUid, file_uid: fileUid};

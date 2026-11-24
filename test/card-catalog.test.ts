@@ -1,66 +1,9 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
-import type {CatalogDefinition} from '../src/catalog.ts';
-import {cardsCatalog} from '../src/catalog/cards.ts';
-import {collaborationCatalog} from '../src/catalog/collaboration.ts';
 import {cardFixture, startHarness} from './harness.ts';
 
-const canonical = {KAITEN_TOOL_PROFILE: 'canonical'};
-
-function coveredSources(catalog: CatalogDefinition) {
-  return new Set(
-    Object.values(catalog).flatMap(tool =>
-      Object.values(tool.operations).flatMap(routes => {
-        const variants = 'source' in routes ? [routes] : routes;
-        return variants.flatMap(route => [
-          route.source,
-          ...(route.replaces ?? []),
-        ]);
-      }),
-    ),
-  );
-}
-
-test('canonical card and collaboration operations cover their legacy routes', async context => {
-  const legacy = await startHarness(context, 30_000, {
-    KAITEN_TOOL_PROFILE: 'legacy',
-  });
-  const harness = await startHarness(context, 30_000, canonical);
-  const domains = new Set([
-    'cards',
-    'comments',
-    'external_links',
-    'relations',
-    'children',
-  ]);
-  const workflows = new Set([
-    'cardTimeLogs.addTimeLog',
-    'cardTimeLogs.getTimeLogs',
-    'cardTimeLogs.removeTimeLog',
-    'cardTimeLogs.updateLogRecord',
-    'timesheet.getList',
-    'cardSla.retrieveCardSlaMeasurements',
-    'serviceDeskServices.retrieveServicesList',
-    'cardServiceDeskExternalRecipients.addNewRecipient',
-    'cardServiceDeskExternalRecipients.removeRecipient',
-    'sendCardWebhook',
-  ]);
-  const sources = new Set([
-    ...coveredSources(cardsCatalog),
-    ...coveredSources(collaborationCatalog),
-  ]);
-  const expected = Array.from(legacy.operations)
-    .filter(
-      ([name, {tool}]) =>
-        domains.has(tool.slice(7, tool.lastIndexOf('_'))) &&
-        !workflows.has(name),
-    )
-    .map(([name]) => name);
-  assert.deepEqual(
-    [...sources].filter(name => !name.startsWith('catalog.')).sort(),
-    expected.sort(),
-  );
-
+test('canonical card and collaboration operations advertise typed variants and annotations', async context => {
+  const harness = await startHarness(context);
   const tools = (await harness.client.listTools()).tools.filter(tool =>
     /^kaiten_(?:cards|collaboration)_/.test(tool.name),
   );
@@ -107,7 +50,7 @@ test('canonical card and collaboration operations cover their legacy routes', as
 });
 
 test('canonical card search chooses summary cursors or native pages', async context => {
-  const harness = await startHarness(context, 30_000, canonical);
+  const harness = await startHarness(context);
   harness.reply([cardFixture]);
   const page = await harness.call('search_cards', {
     responsible_ids: [5],
@@ -147,7 +90,7 @@ test('canonical card search chooses summary cursors or native pages', async cont
 });
 
 test('canonical native pages and scans keep project UUID filters across requests', async context => {
-  const harness = await startHarness(context, 30_000, canonical);
+  const harness = await startHarness(context);
   const projectIds = [
     '86e1625f-d2c3-440d-b14a-3e11180f7432',
     '7a051019-b10d-4677-a2d7-d5b802e277ec',
@@ -211,9 +154,8 @@ test('canonical native pages and scans keep project UUID filters across requests
   }
 });
 
-test('project filters are limited to canonical native card queries', async context => {
-  const harness = await startHarness(context, 30_000, canonical);
-  const legacy = await startHarness(context);
+test('project filters reject invalid UUIDs and summary-only queries', async context => {
+  const harness = await startHarness(context);
   const projectId = '86e1625f-d2c3-440d-b14a-3e11180f7432';
   for (const project_ids of [[], '', [42], ['malformed'], `${projectId},`]) {
     assert.equal(
@@ -235,22 +177,10 @@ test('project filters are limited to canonical native card queries', async conte
     true,
   );
   assert.equal(harness.requests.length, 0);
-  for (const operation of ['cards.retrieveCardList', 'cards.iterate']) {
-    assert.doesNotMatch(
-      JSON.stringify(legacy.operations.get(operation)?.schema),
-      /project_ids/,
-    );
-    assert.equal(
-      (await legacy.call(operation, {query: {project_ids: [projectId]}}))
-        .isError,
-      true,
-    );
-  }
-  assert.equal(legacy.requests.length, 0);
 });
 
 test('canonical card lifecycle preserves native fields and rejects an empty patch', async context => {
-  const harness = await startHarness(context, 30_000, canonical);
+  const harness = await startHarness(context);
   const fixture = {...cardFixture, external_id: 'crm-100'};
   harness.reply(fixture);
   const body = {
@@ -284,7 +214,7 @@ test('canonical card lifecycle preserves native fields and rejects an empty patc
 });
 
 test('canonical batch updates require complete cell sort arguments', async context => {
-  const harness = await startHarness(context, 30_000, canonical);
+  const harness = await startHarness(context);
   const cell = {column_id: 3, lane_id: 4};
   for (const body of [
     {...cell, order_by: {}},
@@ -315,7 +245,7 @@ test('canonical batch updates require complete cell sort arguments', async conte
 });
 
 test('canonical comments use one operation for JSON or legacy multipart', async context => {
-  const harness = await startHarness(context, 30_000, canonical);
+  const harness = await startHarness(context);
   const comment = {
     id: 7,
     uid: 'comment-uid',
@@ -379,7 +309,7 @@ test('canonical comments use one operation for JSON or legacy multipart', async 
 });
 
 test('canonical child and external link mutations preserve ID meanings', async context => {
-  const harness = await startHarness(context, 30_000, canonical);
+  const harness = await startHarness(context);
   harness.reply({id: 20});
 
   const removed = await harness.call('remove_card_child', {

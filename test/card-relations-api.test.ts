@@ -7,7 +7,7 @@ test('blockers and planned relations validate required combinations', async cont
   for (const body of [{}, {due_date: '2026-11-06'}]) {
     assert.equal(
       (
-        await harness.call('cardBlockers.updateCardBlockers', {
+        await harness.call('update_card_blocker', {
           card_id: 10,
           blocker_id: 6,
           body,
@@ -25,7 +25,7 @@ test('blockers and planned relations validate required combinations', async cont
   ]) {
     assert.equal(
       (
-        await harness.call('cardPlannedRelations.updatePlannedRelation', {
+        await harness.call('update_planned_relation', {
           card_id: 10,
           target_card_id: 20,
           body,
@@ -45,7 +45,7 @@ test('blockers and planned relations validate required combinations', async cont
   ]) {
     assert.notEqual(
       (
-        await harness.call('cardPlannedRelations.updatePlannedRelation', {
+        await harness.call('update_planned_relation', {
           card_id: 10,
           target_card_id: 20,
           body,
@@ -60,19 +60,19 @@ test('blockers and planned relations validate required combinations', async cont
 test('relationship operations stay in their domain tools', async context => {
   const harness = await startHarness(context);
   assert.equal(
-    harness.operations.get('cardBlockers.blockCard')?.tool,
-    'kaiten_relations_write',
+    harness.operations.get('block_card')?.tool,
+    'kaiten_collaboration_write',
   );
   assert.equal(
-    harness.operations.get('cardPlannedRelations.addPlannedRelation')?.tool,
-    'kaiten_relations_write',
+    harness.operations.get('add_planned_relation')?.tool,
+    'kaiten_collaboration_write',
   );
   assert.equal(
-    harness.operations.get('cardChildren.retrieveCardChildrenList')?.tool,
-    'kaiten_children_read',
+    harness.operations.get('list_card_children')?.tool,
+    'kaiten_collaboration_read',
   );
   assert.equal(
-    harness.operations.get('cardExternalLinks.retrieveCardExternalLinks')?.tool,
-    'kaiten_external_links_read',
+    harness.operations.get('list_card_external_links')?.tool,
+    'kaiten_collaboration_read',
   );
 });

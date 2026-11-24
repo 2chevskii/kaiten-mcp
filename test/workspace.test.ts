@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
-import {startHarness} from './harness.ts';
+import {startSourceHarness} from './harness.ts';
 
 test('workspace operations validate nested bodies before HTTP', async context => {
-  const harness = await startHarness(context);
+  const harness = await startSourceHarness(context);
   for (const [operation, args] of [
     ['spaces.createNewSpace', {body: {}}],
     ['spaces.updateSpace', {space_id: 1, body: {}}],

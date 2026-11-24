@@ -4,14 +4,21 @@ import {cardFixture, startHarness} from './harness.ts';
 
 test('ID and UUID schemas advertise compact contracts', async context => {
   const harness = await startHarness(context);
-  const card = harness.operations.get('get_card')!.schema;
-  const properties = card.properties as Record<string, unknown>;
-  assert.deepEqual(properties.card_id, {type: 'integer', exclusiveMinimum: 0});
-  const directory = harness.operations.get(
-    'list_custom_directory_records',
-  )!.schema;
-  const fields = directory.properties as Record<string, unknown>;
-  assert.deepEqual(fields.directory_id, {type: 'string', format: 'uuid'});
+  const card = harness.operations.get('get_card')!.schema.anyOf as {
+    properties: {card_id: {type: string; exclusiveMinimum: number}};
+  }[];
+  for (const {properties} of card) {
+    assert.equal(properties.card_id.type, 'integer');
+    assert.equal(properties.card_id.exclusiveMinimum, 0);
+  }
+  const directory = harness.operations.get('list_custom_directory_records')!
+    .schema.anyOf as {
+    properties: {directory_id: {type: string; format: string}};
+  }[];
+  for (const {properties} of directory) {
+    assert.equal(properties.directory_id.type, 'string');
+    assert.equal(properties.directory_id.format, 'uuid');
+  }
 });
 
 test('compact IDs still reject invalid scalar and array values before HTTP', async context => {
@@ -21,7 +28,7 @@ test('compact IDs still reject invalid scalar and array values before HTTP', asy
     for (const [name, args] of [
       ['get_card', {card_id: value}],
       ['search_cards', {owner_ids: [value]}],
-      ['update_card', {card_id: 10, changes: {owner_id: value}}],
+      ['update_card', {card_id: 10, body: {owner_id: value}}],
     ] as const) {
       assert.equal((await harness.call(name, args)).isError, true);
     }
@@ -38,7 +45,7 @@ test('compact IDs still reject invalid scalar and array values before HTTP', asy
       (
         await harness.call('update_card', {
           card_id: 10,
-          changes: {owner_id: value},
+          body: {owner_id: value},
         })
       ).isError,
       true,

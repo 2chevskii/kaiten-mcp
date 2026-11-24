@@ -8,7 +8,7 @@ import {
 import {test, type TestContext} from 'node:test';
 import type {CallToolResult} from '@modelcontextprotocol/client';
 import {cardUid, commentUid, fileUid, propertyUid} from './file-cases.ts';
-import {cardFixture, startHarness, token} from './harness.ts';
+import {cardFixture, startSourceHarness, token} from './harness.ts';
 
 function errorPayload(result: CallToolResult) {
   assert.equal(result.isError, true);
@@ -64,7 +64,7 @@ async function startStorage(context: TestContext) {
 const cardKey = {card_uid: cardUid, file_uid: fileUid};
 
 test('all restricted download helpers return exact MCP binary resources through unauthenticated storage redirects', async context => {
-  const harness = await startHarness(context, 30_000, {
+  const harness = await startSourceHarness(context, 30_000, {
     KAITEN_MAX_FILE_BYTES: '4',
   });
   const storage = await startStorage(context);
@@ -144,7 +144,7 @@ test('all restricted download helpers return exact MCP binary resources through 
 });
 
 test('file listing preserves legacy and restricted metadata, pages locally, and resolves legacy retrieval', async context => {
-  const harness = await startHarness(context);
+  const harness = await startSourceHarness(context);
   const storage = await startStorage(context);
   storage.respond((_request, response) => {
     response.writeHead(200, {'Content-Type': 'text/plain'});
@@ -224,7 +224,7 @@ test('file listing preserves legacy and restricted metadata, pages locally, and 
 });
 
 test('native file reads expose metadata and redirect overloads without fetching content', async context => {
-  const harness = await startHarness(context);
+  const harness = await startSourceHarness(context);
   const location = `${harness.origin}/signed-content`;
   harness.respond((_request, response) => {
     response.writeHead(302, {location});
@@ -257,7 +257,7 @@ test('native file reads expose metadata and redirect overloads without fetching 
 });
 
 test('uploads validate canonical base64 and byte caps before HTTP, preserve empty files, and use client filename defaults', async context => {
-  const harness = await startHarness(context, 30_000, {
+  const harness = await startSourceHarness(context, 30_000, {
     KAITEN_MAX_FILE_BYTES: '4',
   });
   for (const data_base64 of [
@@ -321,7 +321,7 @@ test('uploads validate canonical base64 and byte caps before HTTP, preserve empt
 });
 
 test('advanced comment FormData retains ordered duplicate fields and exact file bytes, with an aggregate byte cap', async context => {
-  const harness = await startHarness(context, 30_000, {
+  const harness = await startSourceHarness(context, 30_000, {
     KAITEN_MAX_FILE_BYTES: '4',
   });
   const form = [
@@ -407,7 +407,7 @@ test('advanced comment FormData retains ordered duplicate fields and exact file 
 });
 
 test('Kaiten attachment access, missing-file and installation-size errors retain status without retrying writes', async context => {
-  const harness = await startHarness(context);
+  const harness = await startSourceHarness(context);
   for (const status of [403, 404, 413]) {
     harness.reply({message: `private ${token}`}, status);
     const before = harness.requests.length;
@@ -426,7 +426,7 @@ test('Kaiten attachment access, missing-file and installation-size errors retain
 });
 
 test('downloads enforce declared and streamed byte limits and sanitize storage HTTP errors', async context => {
-  const harness = await startHarness(context, 30_000, {
+  const harness = await startSourceHarness(context, 30_000, {
     KAITEN_MAX_FILE_BYTES: '4',
   });
   const storage = await startStorage(context);
@@ -486,7 +486,7 @@ test('downloads enforce declared and streamed byte limits and sanitize storage H
 });
 
 test('downloads validate every redirect URL and bound redirect chains', async context => {
-  const harness = await startHarness(context);
+  const harness = await startSourceHarness(context);
   const storage = await startStorage(context);
   for (const location of [
     'http://example.invalid/private',
@@ -527,7 +527,7 @@ test('downloads validate every redirect URL and bound redirect chains', async co
 });
 
 test('the download timeout aborts storage reads after the Kaiten redirect', async context => {
-  const harness = await startHarness(context, 300);
+  const harness = await startSourceHarness(context, 300);
   const storage = await startStorage(context);
   harness.respond((_request, response) => {
     response.writeHead(302, {location: `${storage.origin}/pending`});
@@ -548,7 +548,7 @@ test('the download timeout aborts storage reads after the Kaiten redirect', asyn
 });
 
 test('MCP cancellation aborts an in-flight storage download', async context => {
-  const harness = await startHarness(context);
+  const harness = await startSourceHarness(context);
   const storage = await startStorage(context);
   harness.respond((_request, response) => {
     response.writeHead(302, {location: `${storage.origin}/pending`});
@@ -564,7 +564,7 @@ test('MCP cancellation aborts an in-flight storage download', async context => {
   });
   const pending = harness.client.callTool(
     {
-      name: 'kaiten_files_read',
+      name: harness.operations.get('download_card_file')!.tool,
       arguments: {request: {operation: 'download_card_file', args: cardKey}},
     },
     {signal: controller.signal},
