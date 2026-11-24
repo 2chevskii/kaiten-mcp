@@ -2,10 +2,14 @@
 
 See also [custom directories](./directories.md) for directory, field and record management.
 
-These [advanced operations](./api.md) share `kaiten_custom_properties_read` and
-`kaiten_custom_properties_write`; the server still exposes 20 tools. Results
-preserve the complete client response in `{result}`. Existing convenient reads
-and `set_card_properties` remain available.
+Use `kaiten_custom_properties_read` to discover definitions and allowed values
+before calling `set_card_properties` on a card. Choose administration
+operations such as `create_custom_property` and `create_select_value` when
+changing reusable definitions or options. Select `format: "native"` on a list
+to use native filters and retain the complete response.
+
+The table shows v2 names for `KAITEN_TOOL_PROFILE=legacy`. Advanced calls
+preserve the complete client response in `{result}`.
 
 | Resource                              | Operations after `resource.`                                                                                 | Arguments                                                                                                           |
 | ------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
@@ -57,7 +61,7 @@ Create a select option with `kaiten_custom_properties_write`:
 ```json
 {
   "request": {
-    "operation": "customPropertySelectValues.createNewSelectValue",
+    "operation": "create_select_value",
     "args": {"property_id": 7, "value": "Urgent", "color": null}
   }
 }

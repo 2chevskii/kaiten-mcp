@@ -1,9 +1,13 @@
 # Custom directories
 
-These [advanced operations](./api.md) share `kaiten_custom_properties_read` and
-`kaiten_custom_properties_write`; the total remains 20 tools. Directory, field
-and record IDs are UUIDs. All results preserve the complete upstream JSON in
-`{result}`. The directory API is marked beta upstream.
+Use `list_custom_directories` to find a directory UUID and
+`list_directory_fields` to find its field UUIDs. Use
+`list_custom_directory_records` with `format: "native"` for typed filters, status
+conditions, and response profiles. Directory, field and record IDs are UUIDs.
+The directory API is marked beta upstream.
+
+The table shows v2 names for `KAITEN_TOOL_PROFILE=legacy`. Native forms return
+the upstream data in `{result}`.
 
 | Resource                 | Operations after `resource.`                                                                                                  | Arguments                                                                                                                                                        |
 | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -61,8 +65,9 @@ Search records via `kaiten_custom_properties_read`:
 ```json
 {
   "request": {
-    "operation": "customDirectoryRecords.getListOfRecords",
+    "operation": "list_custom_directory_records",
     "args": {
+      "format": "native",
       "directory_id": "12345678-1234-4234-8234-123456789abc",
       "query": {
         "filters": [
