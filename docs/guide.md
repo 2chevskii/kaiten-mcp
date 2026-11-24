@@ -234,8 +234,8 @@ at startup. Actual model behavior needs verification in your MCP client.
 ## 3. Verify the connection
 
 Reload your client's MCP configuration and check that it discovers the
-`kaiten_` tools. The canonical catalog has **14 tools**, while the published npm
-2.0.0 package and the explicit legacy profile have **20**. Ask the assistant:
+`kaiten_` tools. Kaiten MCP 3.0 exposes **14 tools** by default.
+The explicit legacy profile exposes the **20 tools** from v2. Ask the assistant:
 
 > Identify my Kaiten user, then list the spaces I can access.
 

@@ -22,9 +22,9 @@ the migration table for those operations. The domain guides cover
 
 ## v2 catalog compatibility
 
-The stable npm 2.0.0 package uses the 20-tool v2 catalog documented below.
-On builds with the canonical catalog, select `KAITEN_TOOL_PROFILE=legacy`
-to keep these tool names, arguments and response envelopes.
+Kaiten MCP v2 used the 20-tool catalog documented below.
+In v3, select `KAITEN_TOOL_PROFILE=legacy` to keep these tool names, arguments
+and response envelopes.
 See [advanced client operations](./api.md) for
 complete API fields, workspace management, advanced cards, search, blockers and
 planned relations. See also [identity and access](./identity.md).

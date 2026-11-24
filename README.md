@@ -58,8 +58,8 @@ Use the client's secret settings for the token where supported.
 
 ### 2. Check the connection
 
-This branch and its preview packages expose 14 tools with the `kaiten_` prefix.
-The published npm 2.0.0 package still exposes 20. Ask your assistant:
+Kaiten MCP 3.0 exposes 14 tools with the `kaiten_` prefix by default.
+Set `KAITEN_TOOL_PROFILE=legacy` for the 20-tool v2 catalog. Ask your assistant:
 
 > Identify my Kaiten user, then list the spaces I can access.
 
