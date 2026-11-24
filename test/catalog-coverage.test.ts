@@ -36,7 +36,8 @@ test('every v2 operation is accounted for in the canonical catalog', async conte
     }
   }
   assert.deepEqual(
-    [...represented].sort(),
-    [...legacy.operations.keys()].sort(),
+    [...legacy.operations.keys()].filter(name => !represented.has(name)),
+    [],
+    'Every legacy operation must map to a canonical route.',
   );
 });

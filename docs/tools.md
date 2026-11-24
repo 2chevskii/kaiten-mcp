@@ -18,7 +18,7 @@ The current server's tool schemas describe each operation and its arguments.
 See [cards and collaboration](./cards-and-collaboration.md) for examples and
 the migration table for those operations. The domain guides cover
 [workspace access](./identity.md), [planning](./planning.md),
-[custom fields](./custom-fields.md) and [files](./files.md).
+[custom fields](./custom-fields.md) and [documents and files](./content-catalog.md).
 
 ## v2 catalog compatibility
 
