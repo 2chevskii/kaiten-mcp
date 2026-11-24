@@ -152,7 +152,7 @@ function bodyFields(fields: Record<string, string>): Record<string, string> {
 export const cardsCatalog: CatalogDefinition = {
   cards_read: {
     description:
-      'Find Kaiten cards by text, location, participant or state, and inspect their fields, baselines or movement history. For my cards, use kaiten_workspace_read get_current_user before search_cards and default to its ID in responsible_ids. Search for candidates, then get_card for the selected card. Read comment threads, related cards and attachments through the collaboration and content tools. An empty search page or an inaccessible card is scoped to the configured Kaiten token.',
+      'Find Kaiten cards by text, location, participant or state, and inspect fields, baselines or movement history. For my cards, follow the connection instructions for identity and role. The default is the user from kaiten_workspace_read get_current_user in responsible_ids. Search for candidates, then get_card for the selected card. Use kaiten_collaboration_read for discussion and relationships and kaiten_content_read for attachments. Results reflect the token’s access.',
     operations: {
       search_cards: [
         {

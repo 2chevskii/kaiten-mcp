@@ -30,7 +30,7 @@ export const workflowsCatalog: CatalogDefinition = {
     description: [
       'Read Kaiten planning, time, service desk, SLA and automation data.',
       'For planning, list iterations by space UUID, then inspect an iteration, its members, or a card’s membership history. Legacy sprint lookup is for historical numeric sprint IDs.',
-      'For one card’s recent time logs, use list_card_time_logs. Its first upstream page contains at most 100 records. To page a date range or aggregate across cards, use get_timesheet with the same filters and increasing offset.',
+      'Use list_card_time_logs for one card and follow next_offset with the same date and personal filters. Use get_timesheet for a date range or aggregates across cards.',
       'Use list_service_desk_services to find a service ID and recipient policy. get_card_sla returns recorded rules and calendars, with actual work time in minutes and no local aggregation.',
       'Use list_automations to find a rule UID and inspect its trigger, conditions and actions before an edit. For card details use kaiten_cards_read.',
     ].join('\n'),

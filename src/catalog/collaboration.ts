@@ -128,7 +128,7 @@ const formParts = z
 export const collaborationCatalog: CatalogDefinition = {
   collaboration_read: {
     description:
-      'Inspect collaboration records attached to Kaiten cards: comments, URL links, members, tags, blockers and child links. Read the corresponding list before editing a record to get its ID. For eligible members use list_allowed_card_users; existing assignments come from list_card_members. List blockers for one card with list_card_blockers or for the token user with list_my_blocked_cards. Comments, children and blockers use server pages. Native link, member and tag pages are local slices. Pass next_offset back as offset for the next page. Use cards_read for card search and content_read for attachment bytes.',
+      'Inspect collaboration records attached to Kaiten cards: comments, URL links, members, tags, blockers and child links. Read the corresponding list before editing a record to get its ID. For eligible members use list_allowed_card_users. Existing assignments come from list_card_members. List blockers for one card with list_card_blockers or for the token user with list_my_blocked_cards. Comments, children and blockers use server pages. Native link, member and tag pages are local slices. Pass next_offset back as offset with the same filters. Use kaiten_cards_read for card search and kaiten_content_read for attachment bytes.',
     operations: {
       list_comments: {
         source: 'catalog.listComments',
