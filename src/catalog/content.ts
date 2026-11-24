@@ -122,7 +122,7 @@ const documentUpdateFields = {
   'body.settings.content_width':
     'Default or wide layout. Wide requires the corresponding Kaiten rollout.',
   'body.published_version':
-    'Revision to publish, current for the latest saved version, or null to clear the published revision.',
+    'Pass a revision number to pin it, current to publish the latest saved revision, or null to leave the published revision unpinned.',
   'body.notification_period_start':
     'Start timestamp of the notification window. Null clears it.',
   'body.notification_period_end':
@@ -132,8 +132,13 @@ const documentUpdateFields = {
 
 export const contentCatalog: CatalogDefinition = {
   content_read: {
-    description:
-      'Find Kaiten documents and folders, read document content and schemas, and inspect or download attachments. Use list_documents and list_document_groups for resumable pages; use scan operations for bounded snapshots. Resolve attachments with list_card_files or their comment or property parent metadata. Use get_attachment for metadata or a temporary link and download_attachment for bytes. Byte downloads are bounded by KAITEN_MAX_FILE_BYTES and give FILE_TOO_LARGE if exceeded; metadata reads are exempt. Storage fetches omit Kaiten credentials.',
+    description: [
+      'Find Kaiten documents and folders, read content and schemas, and inspect or download attachments.',
+      'For cursor paging use query.version=2 and reuse position as query.start_position. Use query.include_search_preview=true on list_documents for excerpts, or scan operations with max_items for bounded snapshots.',
+      'Resolve IDs with list_card_files or parent metadata. For a direct restricted attachment, use target=card with card_uid and file_uid. Numeric card_id and file_id select target=legacy_card.',
+      'For restricted files, get_attachment with query.redirect=true returns a signed link. Omit redirect for metadata. query.download controls disposition. Use download_attachment for bytes.',
+      'Downloads exceeding KAITEN_MAX_FILE_BYTES return FILE_TOO_LARGE. Metadata reads are exempt. Storage fetches omit Kaiten credentials.',
+    ].join(' '),
     operations: {
       list_documents: {
         source: 'documents.retrieveListOfDocuments',
@@ -192,8 +197,12 @@ export const contentCatalog: CatalogDefinition = {
     },
   },
   content_write: {
-    description:
-      'Create, edit, move, publish or archive Kaiten documents and folders, and attach, rename or delete card-related files. Resolve document and parent identifiers with content_read. Writes depend on permissions on the affected entity and parent; restricted attachments inherit their parent’s access controls. Prefer restricted UUID uploads, and select legacy_card only for existing numeric attachments or an explicitly enabled deprecated upload. The server exposes no attachment restore. After a timeout, read back the target before retrying a write.',
+    description: [
+      'Create, edit, move, publish or archive Kaiten documents and folders. Attach, rename, set covers or delete files. Use kaiten_cards_write for card fields and placement.',
+      'Resolve document and attachment IDs with kaiten_content_read. Use card_uid for restricted targets and include comment_uid or property_uid for that parent. Edit or delete by file_uid. Use target=legacy_card with numeric IDs for existing legacy files or explicitly enabled deprecated uploads. Upload padded base64 in file.data_base64.',
+      'For a schema change, send a concrete body.schema_version such as v28 with the entire ProseMirror body.data and omit backup_version.',
+      'Kaiten checks entity and parent permissions. Restricted files inherit parent access. Deleted attachments have no restore. Read back after timeouts before retrying.',
+    ].join(' '),
     operations: {
       create_document: {
         source: 'documents.createNewDocument',
@@ -222,12 +231,12 @@ export const contentCatalog: CatalogDefinition = {
         {
           source: 'documents.updateDocumentWithSchema',
           description:
-            'Update content using an explicit ProseMirror schema. Get the current or newer supported schema with get_document_schema and pass its concrete version with the full validated tree. Kaiten saves schema and content together and rejects downgrades. Use the ordinary form to restore a backup.',
+            'Save a complete ProseMirror tree with its schema. Resolve the current or a newer schema using get_document_schema, then pass result.version as body.schema_version. Kaiten validates the tree as supplied and saves schema and content together.',
           fields: {
             ...documentUpdateFields,
             body: 'Document patch with a concrete schema_version and complete data. This form excludes backup_version.',
             'body.schema_version':
-              'Concrete v<number> from get_document_schema, such as v28. Resolve latest before calling.',
+              'Use result.version from get_document_schema, for example v28. If you queried latest, use the returned concrete version. Include the full body.data tree and omit body.backup_version.',
           },
           output: entityOutput,
         },

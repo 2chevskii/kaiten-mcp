@@ -117,17 +117,18 @@ const editableFields = {
   title: 'Card title.',
   description:
     'Card description, with its format determined by text_format_type_id. Null clears it on update.',
-  due_date: 'Date or date-time, in Kaiten format. Null clears the due date.',
+  due_date:
+    'ISO 8601 deadline, such as 2026-12-15T18:00:00+03:00. Null clears it.',
   due_date_time_present:
-    'Whether Kaiten should display a time with the due date.',
+    'Set true for a timed deadline with due_date. False represents a date-only deadline.',
   asap: 'Set or clear the urgent (ASAP) flag.',
   sort_order: 'Explicit ordering value for the card in its cell.',
   expires_later:
     'Whether the deadline moves rather than staying fixed under Kaiten’s date-dependent Kanban rules.',
   size_text: 'Size label displayed on the card. Null clears it on update.',
-  owner_id:
-    'Kaiten user ID of the card owner, distinct from its responsible member.',
-  type_id: 'Card type ID supported by the destination board.',
+  owner_id: 'Numeric owner ID from kaiten_workspace_read list_users.',
+  type_id:
+    'Numeric ID from kaiten_workspace_read list_card_types. Choose a type supported by the destination board.',
   service_id:
     'Service desk service ID from workflows. Null clears the association on update.',
   external_id:
@@ -135,9 +136,8 @@ const editableFields = {
   text_format_type_id:
     'Kaiten description format: 1 for Markdown, 2 for HTML, 3 for Jira wiki markup.',
   properties:
-    'Custom values keyed by id_<propertyId>. Read property definitions first for each value shape.',
-  owner_email:
-    'Email identifying the owner when using Kaiten email-based assignment.',
+    'Use custom_properties_read to resolve the property ID and type. For example, a select property with ID 7 and option 23 uses {"id_7": [23]}.',
+  owner_email: 'Company user email for email-based owner assignment.',
 };
 
 function bodyFields(fields: Record<string, string>): Record<string, string> {
@@ -151,8 +151,14 @@ function bodyFields(fields: Record<string, string>): Record<string, string> {
 
 export const cardsCatalog: CatalogDefinition = {
   cards_read: {
-    description:
-      'Find Kaiten cards by text, location, participant or state, and inspect fields, baselines or movement history. For my cards, follow the connection instructions for identity and role. The default is the user from kaiten_workspace_read get_current_user in responsible_ids. Search for candidates, then get_card for the selected card. Use kaiten_collaboration_read for discussion and relationships and kaiten_content_read for attachments. Results reflect the token’s access.',
+    description: [
+      'Search Kaiten cards or inspect a card’s details, baselines and movement history.',
+      'Use search_cards for resumable results (default limit=25). Repeat the filters with cursor=next_cursor, or use mode=native_page with query.version=2 and pass position as query.start_position.',
+      'Use scan_cards for a bounded snapshot (max_items defaults to 100). If truncated, restart with paged search.',
+      'Use encode_card_filter for a standalone base64 filter token. Native search accepts the filter object directly.',
+      'For my cards, get the token user via kaiten_workspace_read get_current_user and use responsible_ids=[id] (query.responsible_ids in native mode) unless asked for another role or the connection overrides the default.',
+      'Results follow token access. Use get_card for details, kaiten_collaboration_read for discussion or links, and kaiten_content_read for attachments.',
+    ].join(' '),
     operations: {
       search_cards: [
         {
@@ -280,8 +286,12 @@ export const cardsCatalog: CatalogDefinition = {
     },
   },
   cards_write: {
-    description:
-      'Create and edit Kaiten cards, move them across board cells, and manage their lifecycle. Discover target layout and users with kaiten_workspace_read. Update one card with update_card, and use batch_update_cards for an explicitly selected set or cell sort. Check affected cards before a batch mutation. A batch returns a background job ID. Archive for reversible removal from active work. Delete removes the card without a restore operation. Kaiten checks the token user’s rights on the affected cards and boards. After a timeout, verify the resulting state before repeating a write.',
+    description: [
+      'Create, edit, move, archive, restore or delete Kaiten cards. Resolve numeric layout and user IDs with kaiten_workspace_read.',
+      'Use update_card for one card. For batch_update_cards, preview targets with search_cards and send a selector such as body.board_id alongside body.attributes. Sort one cell with body.column_id, body.lane_id and body.order_by.',
+      'Batches return a background job ID. Kaiten checks card and board permissions.',
+      'Archive when the card may need restoring. Deletion has no restore route. After a timeout, verify state before retrying.',
+    ].join(' '),
     operations: {
       create_card: {
         source: 'cards.createNewCard',
@@ -290,12 +300,14 @@ export const cardsCatalog: CatalogDefinition = {
         description:
           'Create one card with a title and board. Omit column and lane to let Kaiten choose placement; supply them for a specific cell. Returns the created card.',
         fields: {
-          body: 'Fields for one new card. Discover target IDs and verify field types before providing optional details.',
+          body: 'Send title and board_id. Add column_id and lane_id for an explicit cell. Resolve the IDs from workspace tools.',
           ...bodyFields({
             ...layoutFields,
             ...editableFields,
-            responsible_id: 'Kaiten user ID of the initial responsible member.',
-            position: 'Place at the start (1) or end (2) of the target cell.',
+            responsible_id:
+              'Numeric company user ID from kaiten_workspace_read list_users for the initial responsible member.',
+            position:
+              'Set 1 for the start or 2 for the end of the cell. This overrides sort_order.',
           }),
         },
       },
@@ -315,7 +327,7 @@ export const cardsCatalog: CatalogDefinition = {
           ),
         fields: {
           ...cardId,
-          body: 'Partial card patch. Complex changes may include placement, lifecycle, or custom properties alongside regular fields.',
+          body: 'Send at least one field to change. For example, {"due_date": null} clears the deadline while leaving omitted fields as they were.',
           ...bodyFields({
             ...layoutFields,
             ...editableFields,
@@ -367,7 +379,7 @@ export const cardsCatalog: CatalogDefinition = {
         description:
           'Change all cards matching the given selectors, or sort one explicit cell. Confirm the selection with search_cards before mutation. Kaiten runs this job in the background.',
         fields: {
-          body: 'Provide a selector and attributes to patch, or column_id, lane_id and order_by to sort a cell.',
+          body: 'For a patch, send at least one of board_id, column_id, lane_id, owner_id, type_id or condition with attributes. For a sort, send column_id, lane_id and order_by.',
           ...bodyFields({
             board_id: 'Select cards on this board.',
             column_id:
@@ -384,7 +396,7 @@ export const cardsCatalog: CatalogDefinition = {
             'attributes.column_id': 'New column for the selected cards.',
             'attributes.lane_id': 'New lane for the selected cards.',
             'attributes.condition':
-              'New lifecycle condition: 1 activates, 2 archives.',
+              'Use 1 to activate or 2 to archive. Kaiten removes parent/child links when it archives cards in queued or in-progress columns.',
             'attributes.owner_id': editableFields.owner_id,
             'attributes.type_id': editableFields.type_id,
             'attributes.title': editableFields.title,
@@ -397,12 +409,13 @@ export const cardsCatalog: CatalogDefinition = {
             'attributes.expires_later': editableFields.expires_later,
             'attributes.size_text': editableFields.size_text,
             'attributes.service_id': editableFields.service_id,
-            'attributes.blocked': 'New blocked flag for each matched card.',
+            'attributes.blocked':
+              'Send false to release all blocks for each matched card.',
             'attributes.external_id': editableFields.external_id,
             order_by:
-              'Cell sort specification. Supply the cell column and lane alongside it.',
+              'Sort a cell using column_id and lane_id. For example, send {"field_type": "due_date", "direction": "asc"}.',
             'order_by.field_type':
-              'Field to sort by; cp selects a custom property.',
+              'Use cp for a custom property and supply its numeric ID in order_by.id.',
             'order_by.id': 'Custom property ID for a cp sort.',
             'order_by.direction': 'Ascending or descending order.',
           }),
