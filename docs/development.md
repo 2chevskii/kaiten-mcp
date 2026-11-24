@@ -34,6 +34,35 @@ Generated output is excluded from Git and must not be edited by hand.
 `npm start` launches the compiled CLI for development. For the published package,
 use the [npx or npm exec configuration](./guide.md#2-configure-your-mcp-client).
 
+## Verify the MCP catalog with TDQS
+
+`npm run check` includes an offline TDQS lint of the built stdio server. The
+capture uses a fixture token and an empty connection context. It only lists
+tools and makes no Kaiten API calls. The output directory contains
+`catalog.json`, `lint.json` and `provenance.json` with the definition hash,
+the installed scorer version and the Git revision.
+
+```sh
+npm run build
+npm run tdqs -- lint --output artifacts/tdqs/current
+npm run tdqs -- goal --report path/to/score.json
+```
+
+Use `--profile legacy` to capture that profile explicitly when supported.
+`--strict` also fails on lint warnings. A `shadow-candidate` warning is a
+heuristic and needs review of the two tools' purposes.
+
+The goal command accepts a [TDQS JSON score report](https://tdqs.dev/spec#output-format)
+and checks its definition hashes against the same built catalog. It fails
+if any of the six dimensions for any tool or any of the four server
+dimensions is below 5. Offline lint only checks deterministic rules.
+
+For the public rating, wait for Glama to inspect the default-branch commit
+and compare the resulting schema and per-tool scores with the build.
+Record the [Glama schema report](https://glama.ai/mcp/servers/2chevskii/kaiten-mcp/schema),
+inspection date and source revision when reviewing the result.
+See [Glama's indexing schedule](https://glama.ai/mcp/methodology).
+
 ## Measure tool context with OpenAI
 
 The token-count lab uses the pinned development-only `openai` SDK and

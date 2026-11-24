@@ -48,6 +48,7 @@ jobs:
       - run: npm run build
       - run: npm run test:types
       - run: npm test
+      - run: npm run tdqs -- lint
 
   build:
     runs-on: ubuntu-26.04
