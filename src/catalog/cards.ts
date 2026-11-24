@@ -1,6 +1,17 @@
 import * as z from 'zod/v4';
 import type {CatalogDefinition} from '../catalog.ts';
-import {hasChanges} from '../schemas.ts';
+import {hasChanges, id} from '../schemas.ts';
+
+const nativeCard = z.looseObject({
+  id: id.describe('Numeric Kaiten card ID.'),
+  uid: z
+    .string()
+    .optional()
+    .describe(
+      'Card UID when returned. Use it for restricted attachment operations.',
+    ),
+});
+const nativeCardResult = z.object({result: nativeCard});
 
 const cardId = {
   card_id: 'Numeric ID of an existing card returned by search_cards.',
@@ -95,11 +106,11 @@ const nativeSearchFields = {
   'query.order_space_id': 'Apply ordering from the specified space.',
   'query.is_request': 'Match card service requests.',
   'query.broken_api':
-    'Kaiten compatibility flag. Set only for an integration that already relies on this API option.',
+    'Kaiten user-property format flag: true returns UID strings; false returns numeric IDs.',
   'query.start_position':
-    'Kaiten pagination start position for callers using a native position token.',
+    'For native v2, pass the previous position with the same filters and sorting. An empty position ends the search.',
   'query.limit':
-    'Maximum cards in this Kaiten API page. Omit for the API default.',
+    'Maximum cards in this Kaiten API page, up to 100. The API defaults to 100.',
 };
 
 const editableFields = {
@@ -111,7 +122,8 @@ const editableFields = {
     'Whether Kaiten should display a time with the due date.',
   asap: 'Set or clear the urgent (ASAP) flag.',
   sort_order: 'Explicit ordering value for the card in its cell.',
-  expires_later: 'Kaiten expires-later flag for the deadline.',
+  expires_later:
+    'Whether the deadline moves rather than staying fixed under Kaiten’s date-dependent Kanban rules.',
   size_text: 'Size label displayed on the card. Null clears it on update.',
   owner_id:
     'Kaiten user ID of the card owner, distinct from its responsible member.',
@@ -121,7 +133,7 @@ const editableFields = {
   external_id:
     'Integration-owned identifier external to Kaiten. Null clears it on update.',
   text_format_type_id:
-    'Kaiten description format: 1 for Markdown, 2 for HTML, 3 for plain text.',
+    'Kaiten description format: 1 for Markdown, 2 for HTML, 3 for Jira wiki markup.',
   properties:
     'Custom values keyed by id_<propertyId>. Read property definitions first for each value shape.',
   owner_email:
@@ -148,6 +160,11 @@ export const cardsCatalog: CatalogDefinition = {
           description:
             'Page through card summaries in ascending ID order. Repeat the same filters with next_cursor until it is null.',
           fields: searchFields,
+          outputFields: {
+            items: 'Card summaries in ascending ID order.',
+            next_cursor:
+              'Pass to the same search as cursor. Null means the search is exhausted.',
+          },
         },
         {
           source: 'cards.retrieveCardList',
@@ -162,6 +179,23 @@ export const cardsCatalog: CatalogDefinition = {
                 ),
             }),
           mapArgs: ({query}) => ({query}),
+          output: z.object({
+            result: z
+              .union([
+                z.array(nativeCard),
+                z.looseObject({
+                  result: z
+                    .array(nativeCard)
+                    .describe('Cards in the native v2 page.'),
+                  position: z
+                    .string()
+                    .describe(
+                      'Opaque position for the next native v2 page. An empty string ends the search.',
+                    ),
+                }),
+              ])
+              .describe('Native search v1 array or v2 page.'),
+          }),
           fields: {
             ...nativeSearchFields,
             'query.version':
@@ -173,6 +207,18 @@ export const cardsCatalog: CatalogDefinition = {
       ],
       scan_cards: {
         source: 'cards.iterate',
+        output: z.object({
+          result: z.object({
+            items: z
+              .array(nativeCard)
+              .describe('Cards collected across upstream pages.'),
+            truncated: z
+              .boolean()
+              .describe(
+                'True when additional matches remain after the requested cap.',
+              ),
+          }),
+        }),
         description:
           'Collect a bounded snapshot across native search pages. Result truncated means the cap was reached with additional data available; use search_cards to resume a pageable workflow.',
         fields: {
@@ -190,6 +236,7 @@ export const cardsCatalog: CatalogDefinition = {
         },
         {
           source: 'cards.retrieveCard',
+          output: nativeCardResult,
           description:
             'Read full upstream card JSON when you need additional native fields such as card UID, file metadata or scheduling data.',
           input: input =>
@@ -202,14 +249,14 @@ export const cardsCatalog: CatalogDefinition = {
           fields: {
             ...cardId,
             broken_api:
-              'Kaiten compatibility flag. Set only if the consuming integration needs the compatibility response.',
+              'Kaiten user-property format flag: true returns UID strings; false returns numeric IDs.',
           },
         },
       ],
       list_card_baselines: {
         source: 'cards.retrieveCardBaselines',
         description:
-          'Read saved planning baselines to compare planned start and end dates with the current card.',
+          'Read unarchived baselines of unarchived projects connected to this card.',
         fields: cardId,
       },
       list_card_location_history: {
@@ -220,6 +267,9 @@ export const cardsCatalog: CatalogDefinition = {
       },
       encode_card_filter: {
         source: 'encodeCardFilter',
+        output: z.object({
+          result: z.string().describe('Kaiten base64 card filter token.'),
+        }),
         description:
           'Serialize a reusable Kaiten card-filter token locally for use by external integrations. The native search and scan operations accept structured filters directly.',
         fields: {
@@ -231,10 +281,11 @@ export const cardsCatalog: CatalogDefinition = {
   },
   cards_write: {
     description:
-      'Create and edit Kaiten cards, move them across board cells, and manage their lifecycle. Discover target layout and users with kaiten_workspace_read. Update one card with update_card, and use batch_update_cards for an explicitly selected set or cell sort. Check affected cards before a batch mutation. Archive for reversible removal from active work. Delete removes the card without a restore operation. Kaiten checks the token user’s rights on the affected cards and boards. After a timeout, verify the resulting state before repeating a write.',
+      'Create and edit Kaiten cards, move them across board cells, and manage their lifecycle. Discover target layout and users with kaiten_workspace_read. Update one card with update_card, and use batch_update_cards for an explicitly selected set or cell sort. Check affected cards before a batch mutation. A batch returns a background job ID. Archive for reversible removal from active work. Delete removes the card without a restore operation. Kaiten checks the token user’s rights on the affected cards and boards. After a timeout, verify the resulting state before repeating a write.',
     operations: {
       create_card: {
         source: 'cards.createNewCard',
+        output: nativeCardResult,
         replaces: ['create_card', 'cards.create'],
         description:
           'Create one card with a title and board. Omit column and lane to let Kaiten choose placement; supply them for a specific cell. Returns the created card.',
@@ -250,6 +301,7 @@ export const cardsCatalog: CatalogDefinition = {
       },
       update_card: {
         source: 'cards.updateCard',
+        output: nativeCardResult,
         replaces: ['update_card'],
         description:
           'Patch supplied fields. Omission preserves a field; explicit null clears nullable values. Use move_card for explicit placement, archive_card or restore_card for lifecycle, and custom_properties_write to update only custom values.',
@@ -273,7 +325,7 @@ export const cardsCatalog: CatalogDefinition = {
             sd_new_comment:
               'Set or clear the service-desk new-comment indicator.',
             prev_card_id: 'Place after the card identified by this ID.',
-            estimate_workload: 'Estimated workload in Kaiten’s native units.',
+            estimate_workload: 'Estimated workload in hours.',
             ignore_planned_dates_recalculation:
               'Control whether Kaiten skips automatic planned-date recalculation for the card.',
           }),
@@ -299,6 +351,7 @@ export const cardsCatalog: CatalogDefinition = {
       },
       delete_card: {
         source: 'cards.deleteCard',
+        output: nativeCardResult,
         replaces: ['delete_card'],
         description:
           'Delete the selected card. Select archive_card when future recovery may be needed.',
@@ -306,8 +359,13 @@ export const cardsCatalog: CatalogDefinition = {
       },
       batch_update_cards: {
         source: 'cards.batchUpdateForCards',
+        output: z.object({
+          result: z.looseObject({
+            id: z.string().describe('Background job ID assigned by Kaiten.'),
+          }),
+        }),
         description:
-          'Change all cards matching the given selectors, or sort one explicit cell. Confirm the selection with search_cards before mutation. Changes apply to a set rather than a card ID.',
+          'Change all cards matching the given selectors, or sort one explicit cell. Confirm the selection with search_cards before mutation. Kaiten runs this job in the background.',
         fields: {
           body: 'Provide a selector and attributes to patch, or column_id, lane_id and order_by to sort a cell.',
           ...bodyFields({

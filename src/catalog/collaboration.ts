@@ -3,6 +3,22 @@ import type {CatalogDefinition, CatalogRoute} from '../catalog.ts';
 import {fileUpload} from '../file-transfer.ts';
 import {id, text} from '../schemas.ts';
 
+const nativeRecords = z.object({
+  result: z
+    .array(z.looseObject({}))
+    .describe(
+      'Records from the upstream API response including additional fields returned by Kaiten.',
+    ),
+});
+const nativeComment = z.object({
+  result: z.looseObject({
+    id: id.describe('Numeric comment ID for edits and removal.'),
+    uid: z
+      .string()
+      .optional()
+      .describe('Comment UID for restricted attachments.'),
+  }),
+});
 const cardField = {card_id: 'Numeric ID of the card that owns these records.'};
 const memberFields = {
   ...cardField,
@@ -67,6 +83,7 @@ function localPage(
     },
     {
       source: full,
+      output: nativeRecords,
       description:
         'Include extra upstream fields in the entire available list.',
       input: z.strictObject({
@@ -78,10 +95,6 @@ function localPage(
           ),
       }),
       mapArgs: args => ({card_id: args[scope]}),
-      outputFields: {
-        result:
-          'Original record list from Kaiten, including extra upstream fields.',
-      },
     },
   ];
 }
@@ -96,9 +109,7 @@ const formParts = z
         value: z.string().describe('String value for this form field.'),
       }),
       z.strictObject({
-        name: text.describe(
-          'Multipart field name for the existing legacy upload contract.',
-        ),
+        name: text.describe('Legacy file field name, normally files[].'),
         file: fileUpload
           .extend({
             filename: fileUpload.shape.filename.describe(
@@ -121,7 +132,7 @@ const formParts = z
 export const collaborationCatalog: CatalogDefinition = {
   collaboration_read: {
     description:
-      'Inspect collaboration records attached to Kaiten cards: comments, URL links, members, tags, blockers and child links. Read the corresponding list before editing a record to get its ID. For eligible members use list_allowed_card_users; existing assignments come from list_card_members. List blockers for one card with list_card_blockers or for the token user with list_my_blocked_cards. Comment, link, member, tag and child pagination slices the data already fetched; comment reads are limited to Kaiten’s default upstream page. Use cards_read for card search and content_read for attachment bytes.',
+      'Inspect collaboration records attached to Kaiten cards: comments, URL links, members, tags, blockers and child links. Read the corresponding list before editing a record to get its ID. For eligible members use list_allowed_card_users; existing assignments come from list_card_members. List blockers for one card with list_card_blockers or for the token user with list_my_blocked_cards. Comment, link, member, tag and child pagination slices the data already fetched; comment and child lists are limited to Kaiten’s first upstream page of up to 100 records. Use cards_read for card search and content_read for attachment bytes.',
     operations: {
       list_comments: localPage(
         'list_comments',
@@ -151,6 +162,7 @@ export const collaborationCatalog: CatalogDefinition = {
       ),
       list_allowed_card_users: {
         source: 'cardAllowedUsers.retrieveUsersList',
+        output: nativeRecords,
         description:
           'Find users Kaiten allows for the selected card. Use the search query to narrow candidates before adding a member.',
         fields: {
@@ -161,47 +173,35 @@ export const collaborationCatalog: CatalogDefinition = {
           'query.orderBy': 'Native Kaiten field used to order candidates.',
           'query.role': 'Only match users with this Kaiten role code.',
           'query.limit':
-            'Maximum candidates requested from Kaiten for this page.',
+            'Maximum candidates requested from Kaiten for this page. The server defaults to 100 and caps the page at 100.',
           'query.offset':
             'Zero-based API page offset; retain the query filters when advancing it.',
-        },
-        outputFields: {
-          result:
-            'Eligible-user records returned by Kaiten for this native page.',
         },
       },
       list_blocker_categories: {
         source: 'cardBlockerCategories.retrieveListOfCategories',
+        output: nativeRecords,
         description:
           'Read available blocker categories. Use the category UID when detaching a category.',
-        outputFields: {
-          result: 'Blocker category records, including their UIDs.',
-        },
       },
       list_my_blocked_cards: {
         source: 'cardBlockerUsers.retrieveBlockersCardsListOnCurrentUser',
         description:
-          'Read blocked cards attributed by Kaiten to the user associated with this token.',
-        outputFields: {
-          result: 'Blocked cards and optional summary data for the token user.',
-        },
+          'Read the first upstream page of up to 100 blocked cards attributed by Kaiten to the token user.',
       },
       list_blocker_users: {
         source: 'cardBlockerUsers.retrieveListOfUsers',
+        output: nativeRecords,
         description:
           'Read users linked to one blocker. Get the blocker record ID from list_card_blockers.',
         fields: blockerField,
-        outputFields: {result: 'Users linked to the selected blocker.'},
       },
       list_card_blockers: {
         source: 'cardBlockers.retrieveCardBlockersList',
+        output: nativeRecords,
         description:
-          'Read blocker records for one selected card. A blocker record ID identifies the impediment; blocker_card_id identifies another card that is causing it.',
+          'Read the first upstream page of up to 100 blocker records for one card. blocker_id selects the record; blocker_card_id points to the card causing it.',
         fields: cardField,
-        outputFields: {
-          result:
-            'Blocker records for the specified card, with IDs and release state as supplied by Kaiten.',
-        },
       },
     },
   },
@@ -212,6 +212,7 @@ export const collaborationCatalog: CatalogDefinition = {
       add_comment: [
         {
           source: 'cardComments.addComment',
+          output: nativeComment,
           replaces: ['add_comment'],
           description:
             'Post a comment with text. The result includes native comment identifiers and any attachment metadata.',
@@ -222,27 +223,22 @@ export const collaborationCatalog: CatalogDefinition = {
               .describe('Text to post on the selected card’s comment thread.'),
           }),
           mapArgs: ({card_id, text}) => ({card_id, body: {text}}),
-          outputFields: {
-            result:
-              'Created comment, including numeric ID and UID when supplied by Kaiten.',
-          },
         },
         {
           source: 'cardComments.addComment',
+          output: nativeComment,
           description:
             'Post a comment through Kaiten’s multipart contract when a legacy file must accompany the text. For a new restricted attachment use content_write after creating the comment.',
           input: z.strictObject({
             card_id: id.describe(cardField.card_id),
             form: formParts,
           }),
-          outputFields: {
-            result: 'Created comment with native attachment metadata.',
-          },
         },
       ],
       update_comment: [
         {
           source: 'cardComments.updateComment',
+          output: nativeComment,
           replaces: ['update_comment'],
           description:
             'Replace the selected comment’s text. Resolve the comment’s numeric ID from the card’s thread.',
@@ -256,12 +252,10 @@ export const collaborationCatalog: CatalogDefinition = {
             comment_id,
             body: {text},
           }),
-          outputFields: {
-            result: 'Updated comment, including available native metadata.',
-          },
         },
         {
           source: 'cardComments.updateComment',
+          output: nativeComment,
           description:
             'Edit a comment through Kaiten’s multipart contract for legacy file parts. Submit text and files as ordered parts.',
           input: z.strictObject({
@@ -269,9 +263,6 @@ export const collaborationCatalog: CatalogDefinition = {
             comment_id: id.describe(commentId.comment_id),
             form: formParts,
           }),
-          outputFields: {
-            result: 'Updated comment with native attachment metadata.',
-          },
         },
       ],
       delete_comment: {
@@ -280,10 +271,6 @@ export const collaborationCatalog: CatalogDefinition = {
         description:
           'Remove a comment from its card thread. Choose update_comment to retain the record and correct its text.',
         fields: {...cardField, ...commentId},
-        outputFields: {
-          result:
-            'Removal response from Kaiten, including the removed comment ID when returned.',
-        },
       },
       add_card_external_link: {
         source: 'cardExternalLinks.addExternalLink',
@@ -294,10 +281,6 @@ export const collaborationCatalog: CatalogDefinition = {
           ...cardField,
           url: 'Destination URL for the native card link.',
           description: 'Optional display label for the link.',
-        },
-        outputFields: {
-          result:
-            'Created link record with the ID for subsequent edits or removal.',
         },
       },
       update_card_external_link: {
@@ -313,7 +296,6 @@ export const collaborationCatalog: CatalogDefinition = {
           'body.description':
             'Replacement display label. Null clears the label.',
         },
-        outputFields: {result: 'Updated native URL-link record.'},
       },
       remove_card_external_link: {
         source: 'cardExternalLinks.removeExternalLink',
@@ -323,7 +305,6 @@ export const collaborationCatalog: CatalogDefinition = {
         input: input => input.omit({id: true}).extend({link_id: id}),
         mapArgs: ({card_id, link_id}) => ({card_id, id: link_id}),
         fields: linkFields,
-        outputFields: {result: 'Kaiten removal response for the link record.'},
       },
       add_card_member: {
         source: 'cardMembers.addMemberToCard',
@@ -331,10 +312,6 @@ export const collaborationCatalog: CatalogDefinition = {
         description:
           'Attach an existing Kaiten user as a card member. Use list_allowed_card_users to check eligible users for this card.',
         fields: {...cardField, ...userField},
-        outputFields: {
-          result:
-            'Created membership record. Use its id in subsequent membership writes.',
-        },
       },
       update_card_member_role: {
         source: 'cardMembers.updateMemberRole',
@@ -345,10 +322,6 @@ export const collaborationCatalog: CatalogDefinition = {
           ...memberFields,
           type: 'Membership role code 2 assigns responsibility.',
         },
-        outputFields: {
-          result:
-            'Kaiten’s updated membership record, including the user and role when supplied.',
-        },
       },
       remove_card_member: {
         source: 'cardMembers.removeMemberFromCard',
@@ -356,9 +329,6 @@ export const collaborationCatalog: CatalogDefinition = {
         description:
           'Detach a member from a card, removing that card membership and its role.',
         fields: memberFields,
-        outputFields: {
-          result: 'Kaiten’s response for the detached membership.',
-        },
       },
       add_card_tag: {
         source: 'cardTags.addTag',
@@ -366,9 +336,6 @@ export const collaborationCatalog: CatalogDefinition = {
         description:
           'Attach a tag by name. Kaiten may create a tag with that name if it does not yet exist.',
         fields: {...cardField, name: 'Name of the tag to attach or create.'},
-        outputFields: {
-          result: 'Attached tag record, with its ID for detachment.',
-        },
       },
       remove_card_tag: {
         source: 'cardTags.removeTagFromCard',
@@ -376,7 +343,6 @@ export const collaborationCatalog: CatalogDefinition = {
         description:
           'Remove a tag from this card while keeping the tag itself available.',
         fields: tagFields,
-        outputFields: {result: 'Kaiten’s response for the detached tag.'},
       },
       add_card_child: {
         source: 'cardChildren.addChildren',
@@ -384,7 +350,6 @@ export const collaborationCatalog: CatalogDefinition = {
         description:
           'Attach an existing card as a child. Use cards_write create_card first when the child does not exist.',
         fields: childFields,
-        outputFields: {result: 'The linked child card returned by Kaiten.'},
       },
       remove_card_child: {
         source: 'cardChildren.removeChildren',
@@ -397,9 +362,6 @@ export const collaborationCatalog: CatalogDefinition = {
           id: child_card_id,
         }),
         fields: childFields,
-        outputFields: {
-          result: 'Kaiten’s confirmation of the unlinked child ID.',
-        },
       },
       block_card: {
         source: 'cardBlockers.blockCard',
@@ -412,10 +374,6 @@ export const collaborationCatalog: CatalogDefinition = {
             'Human-readable explanation of what is blocking this card.',
           'body.blocker_card_id':
             'ID of the card causing the impediment, if applicable.',
-        },
-        outputFields: {
-          result:
-            'Created blocker record with the blocker ID for future edits and release.',
         },
       },
       update_card_blocker: {
@@ -432,30 +390,24 @@ export const collaborationCatalog: CatalogDefinition = {
           'body.due_date_time_present':
             'Whether the date includes a display time. Null clears the indicator.',
         },
-        outputFields: {result: 'Updated blocker record returned by Kaiten.'},
       },
       release_card_blocker: {
         source: 'cardBlockers.deleteCardBlockers',
         description:
           'Release the specified impediment from one card. Use the blocker record ID to choose which impediment to release.',
         fields: {...cardField, ...blockerField},
-        outputFields: {result: 'Kaiten response for the released blocker.'},
       },
       add_blocker_user: {
         source: 'cardBlockerUsers.addUserToTheCardBlocker',
         description:
           'Link a user to a specific blocker record. For participation on the card itself, use add_card_member.',
         fields: {...blockerField, ...userField},
-        outputFields: {result: 'User association added to the blocker.'},
       },
       remove_blocker_user: {
         source: 'cardBlockerUsers.removeUser',
         description:
           'Detach a user from a blocker while retaining the blocker record and underlying card membership.',
         fields: {...blockerField, ...userField},
-        outputFields: {
-          result: 'Kaiten response for the detached blocker user.',
-        },
       },
       add_blocker_category: {
         source: 'cardBlockerCategories.addBlockerCategory',
@@ -465,7 +417,6 @@ export const collaborationCatalog: CatalogDefinition = {
           ...blockerField,
           name: 'Category name to link to the blocker.',
         },
-        outputFields: {result: 'Category record with its UID when returned.'},
       },
       remove_blocker_category: {
         source: 'cardBlockerCategories.removeCategory',
@@ -474,9 +425,6 @@ export const collaborationCatalog: CatalogDefinition = {
         fields: {
           ...blockerField,
           category_uuid: 'UID of the category to detach from this blocker.',
-        },
-        outputFields: {
-          result: 'Kaiten response for the detached blocker category.',
         },
       },
       add_planned_relation: {
@@ -489,10 +437,6 @@ export const collaborationCatalog: CatalogDefinition = {
           'body.target_card_id': plannedRelationFields.target_card_id,
           'body.type': plannedRelationType,
         },
-        outputFields: {
-          result:
-            'New dependency between the specified source and target cards.',
-        },
       },
       update_planned_relation: {
         source: 'cardPlannedRelations.updatePlannedRelation',
@@ -500,18 +444,18 @@ export const collaborationCatalog: CatalogDefinition = {
           'Change a scheduling dependency’s date endpoints or signed gap. To clear the gap, supply null for both gap and gap_type.',
         fields: {
           ...plannedRelationFields,
-          body: 'Partial dependency patch: type, signed gap, gap units (hours or days), or paired nulls to clear the gap.',
+          body: 'Partial dependency patch. A partial change of the gap or its units requires an existing gap.',
+          'body.type': plannedRelationType,
+          'body.gap':
+            'Signed gap between the connected dates. Set both gap and gap_type to null to clear it.',
+          'body.gap_type': 'Unit for gap: hours or days.',
         },
-        outputFields: {result: 'Updated scheduling dependency.'},
       },
       remove_planned_relation: {
         source: 'cardPlannedRelations.removePlannedRelation',
         description:
           'Delete the scheduling dependency between the source and target cards. Both cards remain available.',
         fields: plannedRelationFields,
-        outputFields: {
-          result: 'Kaiten confirmation for the removed dependency.',
-        },
       },
     },
   },
