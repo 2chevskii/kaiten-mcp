@@ -1,5 +1,13 @@
 # Automations
 
+With the canonical profile, list a space's rules with `list_automations` in
+`kaiten_workflows_read`. Use the returned UID for `update_automation` or
+`delete_automation` in `kaiten_workflows_write`. Use `create_automation` for a
+new event, date or on-demand rule. Changes may affect subsequent cards matching
+the rule.
+
+## Legacy profile
+
 Automation operations share `kaiten_navigation_read` and
 `kaiten_navigation_write`. The server still exposes 20 tools.
 

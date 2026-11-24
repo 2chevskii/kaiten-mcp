@@ -1,5 +1,11 @@
 # Incoming card webhooks
 
+With the canonical profile, call `send_card_webhook` in
+`kaiten_workflows_write` to create a card at a configured webhook destination.
+For direct card creation, use `kaiten_cards_write`.
+
+## Legacy profile
+
 `sendCardWebhook` in `kaiten_cards_write` calls the public client's incoming
 webhook helper. It creates a card through an existing Kaiten webhook URL.
 The total remains 20 tools.
