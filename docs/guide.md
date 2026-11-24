@@ -131,6 +131,7 @@ For a source checkout, follow [development](./development.md).
 | `KAITEN_ADDON_SECRET_FILE` | No            | Rotating addon secret file; mutually exclusive with `KAITEN_ADDON_SECRET`                                                |
 | `KAITEN_API_VERSION`       | No            | REST prefix: `v1` (default) or `latest`                                                                                  |
 | `KAITEN_MAX_FILE_BYTES`    | No            | Binary upload/download cap; default `5242880` (5 MiB), range `1`–`104857600`; also caps combined comment-form file bytes |
+| `KAITEN_TOOL_PROFILE`      | No            | `canonical` is the default catalog on new builds. `legacy` retains the v2 catalog.                                       |
 
 HTTPS is required for a Kaiten company. The client library accepts loopback HTTP
 for local fixtures. REST requests use API v1 by default. See [connection options](./connection-options.md) for API-version selection and rotating credentials.
@@ -141,14 +142,15 @@ unique names and their own environment variables.
 ### Identity and connection context
 
 Without additional configuration, “I”, “me” and “my” refer to the account returned
-by `kaiten_navigation_read` (`get_current_user`). The assistant is instructed to use its Kaiten ID,
+by `kaiten_workspace_read` (`get_current_user`). The assistant is instructed to use its Kaiten ID,
 without asking whether its name matches your OpenAI profile, OS username or
 nickname. “My tasks” defaults to `responsible_ids`; explicit requests such as
 “cards I created” take precedence.
 
 For a service token, set `user_id` to the person whose tasks should count as
 yours. This does not change the token account or its permissions:
-`kaiten_navigation_read` (`get_current_user`) always returns the actual token account.
+`get_current_user` always returns the actual token account. Use
+`kaiten_navigation_read` as the workspace tool in the v2 catalog.
 
 Optionally create `.agents/kaiten-mcp.context.json` in your project or user profile:
 
@@ -210,18 +212,17 @@ JSON stop startup with a generic diagnostic on stderr. Files are read once;
 restart the server after edits. Each server entry can use its own files. Their
 merged contents are shared with the model, so keep secrets out.
 
-The server sends this guidance in MCP initialization `instructions` and repeats it
-in the description of `kaiten_navigation_read` (`get_current_user`) for clients that omit server
-instructions. No extra Kaiten requests are made during initialization. A client
-must expose the instructions or tool descriptions to the model; this cannot repair
-tools missing from a client's catalog.
+The server sends this guidance in MCP initialization `instructions`.
+The legacy profile also repeats it in the `get_current_user` operation description.
+The canonical profile keeps private connection context in initialization.
+No extra Kaiten requests are made during initialization.
 
 Explicit user requests override connection preferences. For omitted scope, the
 assistant should choose a configured space or board only if its purpose fits
 unambiguously. Otherwise it should discover available scopes and ask when needed.
-Before using configured references, it should check `kaiten_navigation_read` (`get_space`) or
-`kaiten_navigation_read` (`get_board`) and verify a configured board/space relationship with
-`kaiten_navigation_read` (`list_boards`) (following pagination). Missing or inaccessible references
+Before using configured references, it should use `get_space` or `get_board`
+and verify a configured board/space relationship with `list_boards` in the
+workspace read tool, following pagination. Missing or inaccessible references
 require reporting the problem and asking for a replacement, without silently
 switching scope. A request for all tasks must not be silently narrowed to a default.
 
@@ -232,12 +233,13 @@ at startup. Actual model behavior needs verification in your MCP client.
 
 ## 3. Verify the connection
 
-Reload your client's MCP configuration and check that it discovers **20 tools**
-with the `kaiten_` prefix. Ask the assistant:
+Reload your client's MCP configuration and check that it discovers the
+`kaiten_` tools. The canonical catalog has **14 tools**, while the published npm
+2.0.0 package and the explicit legacy profile have **20**. Ask the assistant:
 
 > Identify my Kaiten user, then list the spaces I can access.
 
-This uses `kaiten_navigation_read` (`get_current_user`) and `kaiten_navigation_read` (`list_spaces`) and verifies a real
+This uses `get_current_user` and `list_spaces` and verifies a real
 read through the configured token. A successful MCP connection alone verifies
 process startup and tool discovery; the first tool call verifies Kaiten access.
 
@@ -261,10 +263,10 @@ items with their dedicated tools. Lists default to 25 items and accept at most
 
 ## Supported scope
 
-The server exposes **20 tools** as ten read/write domain pairs. The original
-convenient card workflows and every public REST/SCIM resource method in
-`@2chevskii/kaiten-client` **1.1.0** are available. [Advanced operations](./api.md)
-retain complete API inputs and JSON responses.
+New builds expose **14 tools** across seven read/write domains. See the
+[tool reference](./tools.md) to select a domain and operation. The legacy
+profile keeps [v2 advanced client operations](./api.md) and their original
+inputs and JSON response envelopes.
 
 - Workspace hierarchy, profiles, groups, roles and access; [SCIM provisioning](./scim.md).
 - Cards, filters, blockers, dependencies, relationships, members, tags and types.

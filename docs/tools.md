@@ -1,6 +1,31 @@
 # Tool reference
 
-The server exposes 20 tools. See [advanced client operations](./api.md) for
+The default catalog for this build exposes 14 tools. Each domain has one
+read tool and one write tool. Invoke them with `request.operation` and
+its matching `request.args`.
+
+| Domain                                    | What it handles                                                                                           |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| `kaiten_workspace_read` / `write`         | Spaces, boards, layout, users, roles, groups, SCIM, taxonomy and audit                                    |
+| `kaiten_cards_read` / `write`             | Search, details, lifecycle, batch changes and card history                                                |
+| `kaiten_collaboration_read` / `write`     | Comments, native links, members, attached tags, children, blockers and planned relations                  |
+| `kaiten_checklists_read` / `write`        | Checklists, items and templates                                                                           |
+| `kaiten_custom_properties_read` / `write` | Field definitions, values, directories and card property assignment                                       |
+| `kaiten_content_read` / `write`           | Documents, document groups, schemas and file attachments                                                  |
+| `kaiten_workflows_read` / `write`         | Iterations, historical sprints, time logs, timesheets, automation, service desk, SLA and webhook delivery |
+
+The current server's tool schemas describe each operation and its arguments.
+See [cards and collaboration](./cards-and-collaboration.md) for examples and
+the migration table for those operations. The domain guides cover
+[workspace access](./identity.md), [planning](./planning.md),
+[custom fields](./custom-fields.md) and [documents and files](./content-catalog.md).
+
+## v2 catalog compatibility
+
+The stable npm 2.0.0 package uses the 20-tool v2 catalog documented below.
+On builds with the canonical catalog, select `KAITEN_TOOL_PROFILE=legacy`
+to keep these tool names, arguments and response envelopes.
+See [advanced client operations](./api.md) for
 complete API fields, workspace management, advanced cards, search, blockers and
 planned relations. See also [identity and access](./identity.md).
 Use [workflows](./workflows.md) for step-by-step

@@ -48,7 +48,7 @@ export function createServer(
       ? {}
       : {apiVersion: configuration.apiVersion}),
   });
-  const profile = configuration.toolProfile ?? 'legacy';
+  const profile = configuration.toolProfile ?? 'canonical';
   const instructions = modelInstructions(configuration.context, profile);
   const server = new McpServer(
     {name: 'kaiten-mcp', version: packageJson.version},
