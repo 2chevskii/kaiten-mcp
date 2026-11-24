@@ -5,6 +5,7 @@ import {McpServer} from '@modelcontextprotocol/server';
 import packageJson from '../package.json' with {type: 'json'};
 import type {Configuration} from './config.ts';
 import {modelInstructions} from './model-context.ts';
+import {canonicalCatalog} from './catalog/index.ts';
 import {ToolRegistry} from './tool-registry.ts';
 import {registerNavigation} from './tools/navigation.ts';
 import {registerCardRead} from './tools/card-read.ts';
@@ -47,7 +48,8 @@ export function createServer(
       ? {}
       : {apiVersion: configuration.apiVersion}),
   });
-  const instructions = modelInstructions(configuration.context);
+  const profile = configuration.toolProfile ?? 'legacy';
+  const instructions = modelInstructions(configuration.context, profile);
   const server = new McpServer(
     {name: 'kaiten-mcp', version: packageJson.version},
     {instructions},
@@ -125,6 +127,6 @@ export function createServer(
   registerAdvancedComments(registry, maximum);
   registry.group('files');
   registerFiles(registry, maximum, configuration.origin);
-  registry.register();
+  registry.register(profile === 'canonical' ? canonicalCatalog : undefined);
   return {server};
 }
