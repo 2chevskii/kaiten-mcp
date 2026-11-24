@@ -5,6 +5,7 @@ import {
 } from './model-context.ts';
 import type {TokenProvider} from '@2chevskii/kaiten-client';
 import {configuredToken} from './token-provider.ts';
+import type {ToolProfile} from './catalog.ts';
 
 export interface Configuration {
   origin: string;
@@ -13,6 +14,7 @@ export interface Configuration {
   addonSecret?: TokenProvider;
   apiVersion?: 'v1' | 'latest';
   maxFileBytes?: number;
+  toolProfile?: ToolProfile;
   context?: ModelContext;
 }
 
@@ -57,6 +59,14 @@ export function readConfiguration(
   ) {
     throw new Error('KAITEN_API_VERSION must be v1 or latest.');
   }
+  const toolProfile = environment.KAITEN_TOOL_PROFILE?.trim();
+  if (
+    toolProfile !== undefined &&
+    toolProfile !== 'canonical' &&
+    toolProfile !== 'legacy'
+  ) {
+    throw new Error('KAITEN_TOOL_PROFILE must be canonical or legacy.');
+  }
   const maxFileBytes =
     environment.KAITEN_MAX_FILE_BYTES === undefined
       ? undefined
@@ -79,5 +89,6 @@ export function readConfiguration(
     ...(apiVersion === undefined ? {} : {apiVersion}),
     ...(maxFileBytes === undefined ? {} : {maxFileBytes}),
     ...(context === undefined ? {} : {context}),
+    ...(toolProfile === undefined ? {} : {toolProfile}),
   };
 }

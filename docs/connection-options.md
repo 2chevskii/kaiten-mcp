@@ -4,6 +4,10 @@
 `latest`. It affects all regular REST calls. SCIM keeps `/scim/v2`; addon OAuth
 keeps `/api/v1`, following their public clients. Webhooks use the supplied URL.
 
+`KAITEN_TOOL_PROFILE=legacy` selects the v2 tool names and wire contract.
+The `canonical` profile previews the new catalog as domains are added. During
+this transition, omitting the setting selects `legacy`.
+
 Use either `KAITEN_TOKEN` or `KAITEN_TOKEN_FILE` for API credentials. Similarly,
 use either `KAITEN_ADDON_SECRET` or `KAITEN_ADDON_SECRET_FILE` for optional addon
 OAuth credentials. Supplying both nonempty sources for a credential is an
@@ -35,4 +39,4 @@ Example server environment (omit `KAITEN_TOKEN` when using its file source):
 
 On Windows, use an absolute Windows path with JSON backslashes escaped, such as
 `C:\\secrets\\kaiten-token`. API version and credential source settings do not
-add MCP tools. The total remains 20 tools.
+add MCP tools. The legacy catalog contains 20 tools.

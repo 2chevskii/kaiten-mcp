@@ -54,6 +54,7 @@ try {
     env: {
       KAITEN_ORIGIN: 'https://package-check.invalid',
       KAITEN_TOKEN: 'package-check-only',
+      KAITEN_TOOL_PROFILE: 'legacy',
     },
     stderr: 'inherit',
   });

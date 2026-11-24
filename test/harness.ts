@@ -105,6 +105,7 @@ export async function startHarness(
       USERPROFILE: directory,
       KAITEN_ORIGIN: `http://127.0.0.1:${address.port}`,
       KAITEN_TOKEN: token,
+      KAITEN_TOOL_PROFILE: 'legacy',
       KAITEN_TIMEOUT_MS: String(timeoutMs),
       ...environment,
     },
