@@ -5,17 +5,41 @@ import {
 import {createHash} from 'node:crypto';
 import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import {resolve} from 'node:path';
-import {parseArgs} from 'node:util';
+import {parseArgs, parseEnv} from 'node:util';
 import {
   PACKAGE_VERSION,
   ScoreReportZodSchema,
   computeInputHash,
   lintServer,
   parseToolDefinitions,
+  requestHostedReport,
   type ScoreReport,
   type ToolDefinition,
 } from 'mcp-tdqs';
 import {readCatalog} from './read-catalog.ts';
+
+async function hostedKey() {
+  const configured = process.env.TDQS_API_KEY?.trim();
+  if (configured) return configured;
+  let contents: string;
+  try {
+    contents = (await readFile('.env.tdqs', 'utf8')).trim();
+  } catch (error) {
+    if (!(
+      error instanceof Error &&
+      'code' in error &&
+      error.code === 'ENOENT'
+    )) {
+      throw error;
+    }
+    throw new Error('Set TDQS_API_KEY or add it to .env.tdqs.', {cause: error});
+  }
+  const key = /^tdqs_[A-Za-z0-9_-]+$/.test(contents)
+    ? contents
+    : parseEnv(contents).TDQS_API_KEY?.trim();
+  if (!key) throw new Error('Set TDQS_API_KEY or add it to .env.tdqs.');
+  return key;
+}
 
 function gitMetadata() {
   try {
@@ -96,11 +120,11 @@ async function main() {
   const [mode] = positionals;
   if (
     positionals.length !== 1 ||
-    (mode !== 'lint' && mode !== 'goal') ||
+    (mode !== 'lint' && mode !== 'score' && mode !== 'goal') ||
     (mode === 'goal' && values.report === undefined)
   ) {
     throw new Error(
-      'Use lint or goal --report score.json [--profile name] [--output directory] [--strict].',
+      'Use lint, score, or goal --report score.json [--profile name] [--output directory] [--strict].',
     );
   }
   const catalog = await readCatalog(values.profile);
@@ -143,11 +167,32 @@ async function main() {
     );
   }
   if (failures.length > 0) process.exitCode = 1;
-  if (mode === 'lint' || values.report === undefined) return;
+  if (mode === 'lint') return;
 
-  const report = ScoreReportZodSchema.parse(
-    JSON.parse(await readFile(values.report, 'utf8')),
-  );
+  let report: ScoreReport;
+  if (mode === 'score') {
+    const apiKey = await hostedKey();
+    const hosted = await requestHostedReport({
+      apiKey,
+      hostedUrl: 'https://tdqs.dev',
+      serverName,
+      tools,
+      timeoutMs: 180_000,
+      onStatus: status => console.log(`Hosted TDQS: ${status}`),
+    }).catch(() => {
+      throw new Error(
+        'Hosted TDQS request failed. Check the key and service availability.',
+      );
+    });
+    await save('hosted.json', hosted);
+    console.log(`Hosted report: ${hosted.url}`);
+    report = ScoreReportZodSchema.parse(hosted.score);
+  } else {
+    const path = values.report!;
+    report = ScoreReportZodSchema.parse(
+      JSON.parse(await readFile(path, 'utf8')),
+    );
+  }
   verifyReportCatalog(report, serverName, tools);
   await save('score.json', report);
   const misses = belowPerfect(report);
@@ -155,7 +200,7 @@ async function main() {
     `TDQS ${report.specVersion} overall: ${report.serverScore.overallScore}/5`,
   );
   for (const miss of misses) console.log(miss);
-  if (misses.length > 0) process.exitCode = 1;
+  if (mode === 'goal' && misses.length > 0) process.exitCode = 1;
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === import.meta.filename) {

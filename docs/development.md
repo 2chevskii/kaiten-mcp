@@ -45,12 +45,19 @@ the installed scorer version and the Git revision.
 ```sh
 npm run build
 npm run tdqs -- lint --output artifacts/tdqs/current
+npm run tdqs -- score --output artifacts/tdqs/hosted-current
 npm run tdqs -- goal --report path/to/score.json
 ```
 
 Use `--profile legacy` to capture that profile explicitly when supported.
 `--strict` also fails on lint warnings. A `shadow-candidate` warning is a
 heuristic and needs review of the two tools' purposes.
+
+The score command submits the fixture catalog to the [hosted TDQS service](https://tdqs.dev/api).
+Set `TDQS_API_KEY` in the environment or put the key in the ignored `.env.tdqs`
+file, either on its own or as `TDQS_API_KEY=...`. The command saves the hosted
+report URL and validates that the scored definitions match the built catalog.
+It records the evaluator's result even when scores are below the goal.
 
 The goal command accepts a [TDQS JSON score report](https://tdqs.dev/spec#output-format)
 and checks its definition hashes against the same built catalog. It fails
