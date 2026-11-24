@@ -70,10 +70,10 @@ test('external links preserve IDs and card data, paginate and report failures', 
       await harness.call('update_card_external_link', {
         card_id: 10,
         link_id: link.id,
-        changes: {description: null},
+        body: {description: null},
       })
     ).structuredContent,
-    {item: {...link, description: null}},
+    {result: {...link, description: null}},
   );
   assert.deepEqual(harness.requests.at(-1)?.body, {description: null});
   const before = harness.requests.length;
@@ -82,7 +82,7 @@ test('external links preserve IDs and card data, paginate and report failures', 
       await harness.call('update_card_external_link', {
         card_id: 10,
         link_id: 20,
-        changes: {},
+        body: {},
       })
     ).isError,
     true,
@@ -105,9 +105,9 @@ test('external link creation IDs can be reused and edits preserve optional field
     card_id: 10,
     url: link.url,
   });
-  assert.deepEqual(created.structuredContent, {item: link});
+  assert.deepEqual(created.structuredContent, {result: link});
   assert.deepEqual(harness.requests.at(-1)?.body, {url: link.url});
-  const {item} = created.structuredContent as {item: {id: number}};
+  const {result: item} = created.structuredContent as {result: {id: number}};
   const changes = {url: 'https://example.org', description: ''};
   harness.reply({...link, ...changes});
   assert.deepEqual(
@@ -115,10 +115,10 @@ test('external link creation IDs can be reused and edits preserve optional field
       await harness.call('update_card_external_link', {
         card_id: 10,
         link_id: item.id,
-        changes,
+        body: changes,
       })
     ).structuredContent,
-    {item: {...link, ...changes}},
+    {result: {...link, ...changes}},
   );
   assert.equal(
     harness.requests.at(-1)?.path,
@@ -133,7 +133,7 @@ test('external link creation IDs can be reused and edits preserve optional field
         link_id: item.id,
       })
     ).structuredContent,
-    {item: {id: item.id}},
+    {result: {id: item.id}},
   );
   assert.equal(
     harness.requests.at(-1)?.path,
@@ -153,7 +153,7 @@ test('external link inputs enforce API URL and description constraints before HT
   ]) {
     for (const [name, args] of [
       ['add_card_external_link', {card_id: 10, ...field}],
-      ['update_card_external_link', {card_id: 10, link_id: 20, changes: field}],
+      ['update_card_external_link', {card_id: 10, link_id: 20, body: field}],
     ] as const) {
       assert.equal((await harness.call(name, args)).isError, true);
     }
@@ -217,7 +217,7 @@ test('role updates retain the client response without a membership ID', async co
     member_id: 9,
     type: 2,
   });
-  assert.deepEqual(result.structuredContent, {item: response});
+  assert.deepEqual(result.structuredContent, {result: response});
   for (const type of [0, 1, 3, 2.5]) {
     const before = harness.requests.length;
     const rejected = await harness.call('update_card_member_role', {
@@ -237,18 +237,26 @@ test('card mutations preserve tag arrays in their write responses', async contex
   >;
   for (const returnedTags of [tags, []]) {
     harness.reply({...cardFixture, tags: returnedTags});
-    const cases: [string, Record<string, unknown>][] = [
-      ['update_card', {card_id: 10, changes: {asap: false}}],
-      ['move_card', {card_id: 10, board_id: 2, column_id: 3, lane_id: 4}],
-      ['archive_card', {card_id: 10}],
-      ['restore_card', {card_id: 10}],
-      ['set_card_properties', {card_id: 10, properties: {id_1: 'value'}}],
-    ];
-    for (const [name, args] of cases) {
+    const cases = [
+      ['update_card', {card_id: 10, body: {asap: false}}, 'result'],
+      [
+        'move_card',
+        {card_id: 10, board_id: 2, column_id: 3, lane_id: 4},
+        'item',
+      ],
+      ['archive_card', {card_id: 10}, 'item'],
+      ['restore_card', {card_id: 10}, 'item'],
+      [
+        'set_card_properties',
+        {card_id: 10, properties: {id_1: 'value'}},
+        'item',
+      ],
+    ] as const;
+    for (const [name, args, resultKey] of cases) {
       const result = await harness.call(name, args);
       assert.notEqual(result.isError, true);
-      const {item} = result.structuredContent as {item: {tags: unknown}};
-      assert.deepEqual(item.tags, returnedTags);
+      const card = result.structuredContent?.[resultKey] as {tags: unknown};
+      assert.deepEqual(card.tags, returnedTags);
     }
   }
 });
@@ -435,10 +443,10 @@ test('invalid arguments never reach Kaiten', async context => {
     ['get_card', {card_id: Number.MAX_SAFE_INTEGER + 1}],
     ['get_card', {}],
     ['get_card', {card_id: 1, unknown: true}],
-    ['create_card', {title: '', board_id: 1}],
-    ['update_card', {card_id: 1, changes: {}}],
-    ['update_card', {card_id: 1, changes: {board_id: 2}}],
-    ['update_card', {card_id: 1, changes: {due_date: 'tomorrow'}}],
+    ['create_card', {body: {board_id: 1}}],
+    ['update_card', {card_id: 1, body: {}}],
+    ['update_card', {card_id: 1, body: {board_id: 'two'}}],
+    ['update_card', {card_id: 1, body: {due_date: true}}],
     ['search_cards', {states: [4]}],
     ['search_cards', {limit: 101}],
     ['search_cards', {cursor: 'old-opensearch-cursor'}],
@@ -475,7 +483,7 @@ test('updates preserve null, false, zero and omitted fields', async context => {
   harness.reply(cardFixture);
   await harness.call('update_card', {
     card_id: 10,
-    changes: {description: null, due_date: null, asap: false},
+    body: {description: null, due_date: null, asap: false},
   });
   assert.deepEqual(harness.requests.at(-1)?.body, {
     description: null,
@@ -522,8 +530,7 @@ test('upstream failures return sanitized errors without retrying writes', async 
     harness.reply({message: `sensitive ${token}`}, status);
     const before = harness.requests.length;
     const result = await harness.call('create_card', {
-      title: 'Task',
-      board_id: 2,
+      body: {title: 'Task', board_id: 2},
     });
     assert.deepEqual(errorPayload(result), {
       code: 'KAITEN_HTTP_ERROR',
@@ -550,7 +557,7 @@ test('upstream failures return sanitized errors without retrying writes', async 
   const before = harness.requests.length;
   assert.equal(
     errorPayload(
-      await harness.call('create_card', {title: 'Task', board_id: 2}),
+      await harness.call('create_card', {body: {title: 'Task', board_id: 2}}),
     ).code,
     'NETWORK_ERROR',
   );
@@ -564,7 +571,9 @@ test('timeout aborts the outgoing HTTP request', async context => {
   const received = once(harness.events, 'request', {
     signal: AbortSignal.timeout(5000),
   });
-  const pending = harness.call('create_card', {title: 'Task', board_id: 2});
+  const pending = harness.call('create_card', {
+    body: {title: 'Task', board_id: 2},
+  });
   const [, response] = (await received) as [unknown, ServerResponse];
   const closed = once(response, 'close', {signal: AbortSignal.timeout(5000)});
   assert.equal(errorPayload(await pending).code, 'TIMEOUT');
