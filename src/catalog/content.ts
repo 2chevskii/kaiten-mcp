@@ -122,7 +122,7 @@ const documentUpdateFields = {
   'body.settings.content_width':
     'Default or wide layout. Wide requires the corresponding Kaiten rollout.',
   'body.published_version':
-    'Pass a revision number to pin it, current to publish the latest saved revision, or null to leave the published revision unpinned.',
+    'Pass a revision number to publish that revision. Use current or null to publish the current revision.',
   'body.notification_period_start':
     'Start timestamp of the notification window. Null clears it.',
   'body.notification_period_end':

@@ -126,7 +126,7 @@ const editableFields = {
   expires_later:
     'Whether the deadline moves rather than staying fixed under Kaiten’s date-dependent Kanban rules.',
   size_text: 'Size label displayed on the card. Null clears it on update.',
-  owner_id: 'Numeric owner ID from kaiten_workspace_read list_users.',
+  owner_id: 'Numeric owner ID from kaiten_workspace_read list_company_users.',
   type_id:
     'Numeric ID from kaiten_workspace_read list_card_types. Choose a type supported by the destination board.',
   service_id:
@@ -136,7 +136,7 @@ const editableFields = {
   text_format_type_id:
     'Kaiten description format: 1 for Markdown, 2 for HTML, 3 for Jira wiki markup.',
   properties:
-    'Use custom_properties_read to resolve the property ID and type. For example, a select property with ID 7 and option 23 uses {"id_7": [23]}.',
+    'Resolve the property ID and type with kaiten_custom_properties_read. For example, a select property with ID 7 and option 23 uses {"id_7": [23]}.',
   owner_email: 'Company user email for email-based owner assignment.',
 };
 
@@ -305,7 +305,7 @@ export const cardsCatalog: CatalogDefinition = {
             ...layoutFields,
             ...editableFields,
             responsible_id:
-              'Numeric company user ID from kaiten_workspace_read list_users for the initial responsible member.',
+              'Numeric company user ID from kaiten_workspace_read list_company_users for the initial responsible member.',
             position:
               'Set 1 for the start or 2 for the end of the cell. This overrides sort_order.',
           }),
