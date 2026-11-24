@@ -14,7 +14,7 @@ export const customPropertiesCatalog: CatalogDefinition = {
   },
   custom_properties_write: {
     description: [
-      'Set Kaiten custom field values or administer their definitions. Select request.operation for a card value, definition, option, contribution or directory record. Use kaiten_cards_write for card creation, content and lifecycle.',
+      'Set Kaiten custom field values or administer their definitions. Select request.operation for a value, definition, option, contribution or directory record. Use set_card_properties for property-only changes on an existing card. For initial values or changes made together with card fields, pass body.properties to kaiten_cards_write.',
       '- Read the definition and options with kaiten_custom_properties_read. For set_card_properties, use id_<propertyId> keys and numeric option arrays even for single-select fields. Omit keys to keep them and use null to clear them. Directory record body.values uses field UUID keys.',
       '- Submit scores as strings and add votes in the numeric or emoji form defined for the field. For updates, pass a score record’s id as value_id or a numeric vote record’s id as id. Find them with list_collective_scores and list_collective_votes. Add and update return contribution records. Read back the record after a timeout before resubmitting.',
       '- Definition and directory schema writes require custom-property management rights. Record writes can also use the directory’s allow_editing setting. When replacing a directory’s field list, include every field to keep and expected_field_ids from the current active and inactive fields. Reload on 409. Omissions soft-delete fields. Check bindings and linked cards before deleting shared data.',

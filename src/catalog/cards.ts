@@ -288,6 +288,7 @@ export const cardsCatalog: CatalogDefinition = {
   cards_write: {
     description: [
       'Create, edit, move, archive, restore or delete Kaiten cards. Resolve numeric layout and user IDs with kaiten_workspace_read.',
+      'Use kaiten_custom_properties_write set_card_properties for a property-only change on an existing card. Include body.properties here when creating a card with initial values or updating those values together with card fields.',
       'Use update_card for one card. For batch_update_cards, preview targets with search_cards and send a selector such as body.board_id alongside body.attributes. Sort one cell with body.column_id, body.lane_id and body.order_by.',
       'Batches return a background job ID. Kaiten checks card and board permissions.',
       'Archive when the card may need restoring. Deletion has no restore route. After a timeout, verify state before retrying.',
