@@ -2,13 +2,12 @@ import {mkdir, writeFile} from 'node:fs/promises';
 import {parseArgs} from 'node:util';
 import {resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
-import {Client} from '@modelcontextprotocol/client';
-import {StdioClientTransport} from '@modelcontextprotocol/client/stdio';
 import OpenAI from 'openai';
 import type {InputTokenCountParams} from 'openai/resources/responses/input-tokens';
 import type {FunctionTool} from 'openai/resources/responses/responses';
+import {readCatalog} from './read-catalog.ts';
 
-type McpTool = Awaited<ReturnType<Client['listTools']>>['tools'][number];
+type McpTool = Awaited<ReturnType<typeof readCatalog>>['tools'][number];
 
 export interface CountCase {
   name: string;
@@ -65,37 +64,6 @@ export async function countCases(client: OpenAI, cases: CountCase[]) {
     ...result,
     deltaFromBaseline: result.inputTokens - baseline.inputTokens,
   }));
-}
-
-async function readCatalog() {
-  const client = new Client({name: 'kaiten-token-count', version: '1.0.0'});
-  const transport = new StdioClientTransport({
-    command: process.execPath,
-    args: [fileURLToPath(new URL('../bin/cli.js', import.meta.url))],
-    env: {
-      KAITEN_ORIGIN: 'http://127.0.0.1:1',
-      KAITEN_TOKEN: 'catalog-only-placeholder',
-    },
-    stderr: 'inherit',
-  });
-  try {
-    await client.connect(transport);
-    const tools: McpTool[] = [];
-    const cursors = new Set<string>();
-    let cursor: string | undefined;
-    do {
-      const page = await client.listTools(cursor ? {cursor} : {});
-      tools.push(...page.tools);
-      cursor = page.nextCursor;
-      if (cursor && cursors.has(cursor))
-        throw new Error('Repeated tools cursor.');
-      if (cursor) cursors.add(cursor);
-    } while (cursor);
-    tools.sort((left, right) => left.name.localeCompare(right.name));
-    return {server: client.getServerVersion(), tools};
-  } finally {
-    await client.close();
-  }
 }
 
 async function main() {

@@ -33,12 +33,13 @@
     "test": "node --test test/*.test.ts",
     "test:types": "tsc -p tsconfig.test.json",
     "tokens:count": "npm run build && node --env-file-if-exists=.env.tokens tools/token-count.ts",
+    "tdqs": "node tools/tdqs.ts",
     "lint": "eslint .",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
     "docs:dev": "npm run dev --workspace docs",
     "docs:build": "npm run build --workspace docs",
-    "check": "npm run build && npm run test:types && npm test && npm run lint && npm run format:check && npm run docs:build"
+    "check": "npm run build && npm run test:types && npm test && npm run lint && npm run format:check && npm run docs:build && npm run tdqs -- lint"
   },
   "dependencies": {
     "@2chevskii/kaiten-client": "1.1.0",
@@ -56,6 +57,7 @@
     "eslint-config-prettier": "^10.1.8",
     "globals": "^17.13.0",
     "jiti": "^2.7.0",
+    "mcp-tdqs": "0.2.0",
     "openai": "7.47.0",
     "prettier": "^3.9.9",
     "typescript": "^6.0.3",
