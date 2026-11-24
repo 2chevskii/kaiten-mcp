@@ -1,9 +1,16 @@
 # Shared checklists and space templates
 
-These [advanced operations](./api.md) share `kaiten_checklists_read` and
-`kaiten_checklists_write`; the total remains 20 tools. Responses preserve the
-complete client JSON in `{result}`. Existing convenient checklist operations
-remain available.
+Use `list_checklists` to find checklist IDs on a card and `get_checklist` to read
+complete item details. The canonical write pair uses a single operation name for
+each intent. Supply a native body to copy or share a checklist or move it to
+another card. When editing a shared checklist, first call
+`list_cards_using_checklist` to review the affected cards.
+
+Use `list_checklist_templates` to find space templates and their item UIDs.
+Template writes change the reusable defaults in a space.
+
+The table shows v2 operation names for `KAITEN_TOOL_PROFILE=legacy`. Their
+responses preserve the complete client JSON in `{result}`.
 
 | Resource                      | Operations after `resource.`                                                                                                          | Arguments                                                                                                                |
 | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
@@ -32,7 +39,7 @@ Copy a checklist with `kaiten_checklists_write`:
 ```json
 {
   "request": {
-    "operation": "cardChecklists.addChecklistToCard",
+    "operation": "create_checklist",
     "args": {
       "card_id": 10,
       "body": {
