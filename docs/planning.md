@@ -15,6 +15,35 @@ members. The public API rejects the old `with_data` query.
 - [Iteration list API](https://developers.kaiten.ru/iterations/retrieve-list-of-iterations)
 - [Iteration membership API](https://developers.kaiten.ru/iterations/retrieve-cards-in-iteration)
 
+## Add or transfer iteration memberships
+
+Use `kaiten_workflows_write` with `add_iteration_member`. Supply `space_uid`,
+`iteration_id` and either `card_uid` for one card or `card_uids` for a batch of
+1–500 distinct card UUIDs. Get the iteration ID with `list_iterations` and each
+card UUID from `result.uid` in `kaiten_cards_read` by calling `get_card` with
+`format: "full"`.
+
+Add active cards from the space's primary boards to a planned or active
+iteration. If a card already belongs to another planned or active iteration,
+Kaiten transfers it to the target.
+
+The single-card form returns one membership. The batch form returns four arrays
+in `result`.
+
+- `added` contains new memberships in the target iteration.
+- `removed` contains memberships removed from previous iterations during transfers.
+- `skipped` contains memberships already present in the target iteration.
+- `ineligible` contains UUIDs of cards that became ineligible during execution.
+
+Kaiten checks addition and active-source removal restrictions for the whole
+batch before writing. A restriction refusal leaves the batch unapplied. Once
+execution begins, Kaiten writes transactions of up to 100 cards. A later
+failure can leave earlier batches applied. Check current membership with
+`list_iteration_memberships` and each card's history with
+`list_card_iteration_history` before retrying.
+
+[Addition API](https://developers.kaiten.ru/iterations/add-card-to-iteration)
+
 ## Remove iteration memberships
 
 Use `kaiten_workflows_write` with `remove_iteration_member`. Supply `space_uid`,
