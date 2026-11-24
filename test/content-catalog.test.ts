@@ -22,7 +22,9 @@ test('canonical content covers all legacy documents and attachments', async cont
       ('source' in routes ? [routes] : routes).map(route => route.source),
     ),
   );
-  assert.deepEqual(sources.sort(), expected.sort());
+  const explicitSchemaSource = 'documents.updateDocumentWithSchema';
+  assert.ok(!legacy.operations.has(explicitSchemaSource));
+  assert.deepEqual(sources.sort(), [...expected, explicitSchemaSource].sort());
 
   const tools = (await harness.client.listTools()).tools.filter(tool =>
     tool.name.startsWith('kaiten_content_'),

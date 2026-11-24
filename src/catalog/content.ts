@@ -100,6 +100,36 @@ const accessBody = {
   'body.icon_color': 'Kaiten icon color code. Null clears it.',
 };
 
+const documentUpdateFields = {
+  ...documentUid,
+  body: 'Document patch. Omitted fields retain their values; explicit null only clears nullable fields.',
+  ...commonBody,
+  ...accessBody,
+  'body.publish_date':
+    'Publication timestamp. Null clears the configured date.',
+  'body.data':
+    'Replacement ProseMirror document tree with root type doc and a content array. Submit the full tree for the selected schema.',
+  'body.data.type': 'Root node type, doc.',
+  'body.data.content':
+    'Ordered top-level nodes, which can nest content and contain schema-defined marks and attributes.',
+  'body.data.attrs':
+    'Root node attributes defined by Kaiten’s document schema.',
+  'body.data.marks':
+    'Optional marks defined by the selected Kaiten document schema.',
+  'body.data.text': 'Root text field where supported by the document schema.',
+  'body.public': 'Set public-site publication visibility.',
+  'body.settings': 'Document display settings.',
+  'body.settings.content_width':
+    'Default or wide layout. Wide requires the corresponding Kaiten rollout.',
+  'body.published_version':
+    'Revision to publish, current for the latest saved version, or null to clear the published revision.',
+  'body.notification_period_start':
+    'Start timestamp of the notification window. Null clears it.',
+  'body.notification_period_end':
+    'End timestamp of the notification window. Null clears it.',
+  'body.slug': 'Public URL slug. Null clears the custom slug.',
+};
+
 export const contentCatalog: CatalogDefinition = {
   content_read: {
     description:
@@ -178,43 +208,30 @@ export const contentCatalog: CatalogDefinition = {
         },
         output: entityOutput,
       },
-      update_document: {
-        source: 'documents.updateDocument',
-        description:
-          'Change supplied fields of one document. For a content edit, fetch and validate against its current schema, then submit the complete ProseMirror tree. Review audience and revision before publishing.',
-        fields: {
-          ...documentUid,
-          body: 'Document patch. Omitted fields retain their values; explicit null only clears nullable fields.',
-          ...commonBody,
-          ...accessBody,
-          'body.publish_date':
-            'Publication timestamp. Null clears the configured date.',
-          'body.data':
-            'Replacement ProseMirror document tree with root type doc and a content array. Submit the full tree in the existing document schema.',
-          'body.data.type': 'Root node type, doc.',
-          'body.data.content':
-            'Ordered top-level nodes, which can nest content and contain schema-defined marks and attributes.',
-          'body.data.attrs':
-            'Root node attributes defined by Kaiten’s document schema.',
-          'body.data.marks':
-            'Optional marks defined by the current Kaiten document schema.',
-          'body.data.text':
-            'Root text field where supported by the document schema.',
-          'body.public': 'Set public-site publication visibility.',
-          'body.settings': 'Document display settings.',
-          'body.settings.content_width':
-            'Default or wide layout. Wide requires the corresponding Kaiten rollout.',
-          'body.backup_version': 'Version of the document backup to restore.',
-          'body.published_version':
-            'Revision to publish, current for the latest saved version, or null to clear the published revision.',
-          'body.notification_period_start':
-            'Start timestamp of the notification window. Null clears it.',
-          'body.notification_period_end':
-            'End timestamp of the notification window. Null clears it.',
-          'body.slug': 'Public URL slug. Null clears the custom slug.',
+      update_document: [
+        {
+          source: 'documents.updateDocument',
+          description:
+            'Patch metadata, restore a backup, or edit content using the document’s current schema. Fetch get_document_schema before submitting the complete ProseMirror tree. Review audience and revision before publishing.',
+          fields: {
+            ...documentUpdateFields,
+            'body.backup_version': 'Version of the document backup to restore.',
+          },
+          output: entityOutput,
         },
-        output: entityOutput,
-      },
+        {
+          source: 'documents.updateDocumentWithSchema',
+          description:
+            'Update content using an explicit ProseMirror schema. Get the current or newer supported schema with get_document_schema and pass its concrete version with the full validated tree. Kaiten saves schema and content together and rejects downgrades. Use the ordinary form to restore a backup.',
+          fields: {
+            ...documentUpdateFields,
+            body: 'Document patch with a concrete schema_version and complete data. This form excludes backup_version.',
+            'body.schema_version':
+              'Concrete v<number> from get_document_schema, such as v28. Resolve latest before calling.',
+          },
+          output: entityOutput,
+        },
+      ],
       archive_document: {
         source: 'documents.removeDocument',
         description:

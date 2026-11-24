@@ -1,8 +1,45 @@
 import * as z from 'zod/v4';
 import {documentData} from '../document-schemas.ts';
-import {hasChanges, pageFields, text} from '../schemas.ts';
+import {defined, hasChanges, pageFields, text} from '../schemas.ts';
 import {read, change, type ToolRegistry} from '../tool-registry.ts';
 import {apiResult, collectItems} from '../results.ts';
+
+const documentUpdateBody = z.strictObject({
+  title: z.string().optional(),
+  sort_order: z.number().optional(),
+  publish_date: z.string().nullable().optional(),
+  data: documentData.optional(),
+  access: z
+    .union([z.literal('for_everyone'), z.literal('by_invite')])
+    .optional(),
+  parent_entity_uid: text.nullable().optional(),
+  for_everyone_access_role_id: text.optional(),
+  public: z.boolean().optional(),
+  redirect_url: z.string().nullable().optional(),
+  hidden_on_public_site: z.boolean().optional(),
+  settings: z
+    .strictObject({
+      content_width: z
+        .union([z.literal('default'), z.literal('wide')])
+        .optional(),
+    })
+    .optional(),
+  backup_version: z.number().optional(),
+  published_version: z
+    .union([z.number(), z.literal('current')])
+    .nullable()
+    .optional(),
+  key: z.string().nullable().optional(),
+  icon_type: z
+    .union([z.literal('material_icon'), z.literal('emoji')])
+    .nullable()
+    .optional(),
+  icon_value: z.string().nullable().optional(),
+  icon_color: z.number().nullable().optional(),
+  notification_period_start: z.string().nullable().optional(),
+  notification_period_end: z.string().nullable().optional(),
+  slug: z.string().nullable().optional(),
+});
 
 export function registerDocumentsAndGroups(registry: ToolRegistry): void {
   const {client} = registry;
@@ -286,44 +323,10 @@ export function registerDocumentsAndGroups(registry: ToolRegistry): void {
     'Update document (documents); full API fields and JSON response.',
     z.strictObject({
       document_uid: text,
-      body: z
-        .strictObject({
-          title: z.string().optional(),
-          sort_order: z.number().optional(),
-          publish_date: z.string().nullable().optional(),
-          data: documentData.optional(),
-          access: z
-            .union([z.literal('for_everyone'), z.literal('by_invite')])
-            .optional(),
-          parent_entity_uid: text.nullable().optional(),
-          for_everyone_access_role_id: text.optional(),
-          public: z.boolean().optional(),
-          redirect_url: z.string().nullable().optional(),
-          hidden_on_public_site: z.boolean().optional(),
-          settings: z
-            .strictObject({
-              content_width: z
-                .union([z.literal('default'), z.literal('wide')])
-                .optional(),
-            })
-            .optional(),
-          backup_version: z.number().optional(),
-          published_version: z
-            .union([z.number(), z.literal('current')])
-            .nullable()
-            .optional(),
-          key: z.string().nullable().optional(),
-          icon_type: z
-            .union([z.literal('material_icon'), z.literal('emoji')])
-            .nullable()
-            .optional(),
-          icon_value: z.string().nullable().optional(),
-          icon_color: z.number().nullable().optional(),
-          notification_period_start: z.string().nullable().optional(),
-          notification_period_end: z.string().nullable().optional(),
-          slug: z.string().nullable().optional(),
-        })
-        .refine(hasChanges, 'Supply at least one change.'),
+      body: documentUpdateBody.refine(
+        hasChanges,
+        'Supply at least one change.',
+      ),
     }),
     apiResult,
     change,
@@ -334,5 +337,31 @@ export function registerDocumentsAndGroups(registry: ToolRegistry): void {
         options,
       ),
     }),
+  );
+  registry.add(
+    'documents.updateDocumentWithSchema',
+    'Save a complete document tree using a concrete ProseMirror schema version.',
+    z.strictObject({
+      document_uid: text,
+      body: documentUpdateBody.omit({backup_version: true}).extend({
+        schema_version: z.string().regex(/^v[1-9][0-9]*$/),
+        data: documentData,
+      }),
+    }),
+    apiResult,
+    change,
+    async (args, options) => {
+      const {settings, ...body} = defined(args.body);
+      return {
+        result: await client.documents.updateDocument(
+          args.document_uid,
+          settings === undefined
+            ? body
+            : {...body, settings: defined(settings)},
+          options,
+        ),
+      };
+    },
+    {canonicalOnly: true},
   );
 }
