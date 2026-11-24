@@ -2,7 +2,7 @@
 
 File reads and downloads use `kaiten_files_read`; uploads, metadata changes and
 deletion use `kaiten_files_write`. The server exposes exactly **20 tools**.
-All Kaiten API requests use public methods of the pinned client **1.1.0**.
+All Kaiten API requests use public methods of the pinned client **1.2.0**.
 
 ## Discover attachments and identifiers
 
@@ -138,10 +138,11 @@ For legacy comment uploads, use Kaiten's `files[]` field where supported:
 
 For restricted files, create the comment first, then use its UUID with
 `restrictedAccessCommentFiles.attachFileToComment`.
-The pinned client's comment read has no server pagination arguments.
+The legacy comment read has no server pagination arguments.
 [Kaiten caps this endpoint at 100 comments](https://developers.kaiten.ru/card-comments/retrieve-card-comments),
 so advanced reads expose the returned page and convenient `list_comments` can
-only page locally within it. Neither operation promises a complete history.
+only page locally within it. Use the canonical `list_comments` operation for
+server-side pages.
 
 ## Limits and errors
 
