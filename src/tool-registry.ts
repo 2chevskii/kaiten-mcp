@@ -41,6 +41,7 @@ interface Operation {
   input: z.ZodObject;
   output: z.ZodObject;
   annotations: ToolAnnotations;
+  canonicalOnly: boolean;
   execute: (args: unknown, options: OperationOptions) => Promise<unknown>;
 }
 
@@ -113,6 +114,7 @@ export class ToolRegistry {
       args: z.output<Input>,
       options: OperationOptions,
     ) => Promise<unknown>,
+    options: {canonicalOnly?: boolean} = {},
   ): void {
     const group = `${this.groupName}_${annotations.readOnlyHint ? 'read' : 'write'}`;
     const operations = this.groups.get(group) ?? [];
@@ -122,6 +124,7 @@ export class ToolRegistry {
       input,
       output,
       annotations,
+      canonicalOnly: options.canonicalOnly ?? false,
       execute: (args, options) => execute(input.parse(args), options),
     });
     this.groups.set(group, operations);
@@ -132,10 +135,14 @@ export class ToolRegistry {
       this.registerCatalog(catalog);
       return;
     }
-    if (this.groups.size > 20) {
+    const legacyGroups = Array.from(this.groups, ([group, operations]) => ({
+      group,
+      operations: operations.filter(operation => !operation.canonicalOnly),
+    })).filter(({operations}) => operations.length > 0);
+    if (legacyGroups.length > 20) {
       throw new Error('The MCP surface must not exceed 20 tools.');
     }
-    for (const [group, operations] of this.groups) {
+    for (const {group, operations} of legacyGroups) {
       const variants = operations.map(operation =>
         z.strictObject({
           operation: z.literal(operation.name),
