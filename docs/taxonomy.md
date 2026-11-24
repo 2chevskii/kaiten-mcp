@@ -1,8 +1,13 @@
 # Card types and tags
 
-These [advanced operations](./api.md) use `kaiten_navigation_read` and
-`kaiten_navigation_write`; the total remains 20 tools. They return the full
-client response in `{result}`.
+Use the canonical workspace pair for workspace-level card types and tags.
+`list_card_types` and `list_workspace_tags` return compact pages by default.
+Supply `format: "native"` for the complete upstream metadata and native list
+options. Use `kaiten_collaboration_read` and `kaiten_collaboration_write` for
+tags already on a specific card.
+
+The table lists v2 names available with `KAITEN_TOOL_PROFILE=legacy`.
+Advanced calls return the full client response in `{result}`.
 
 | Resource               | Operations after `resource.`                                                                 | Arguments                                                                                                        |
 | ---------------------- | -------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
@@ -27,12 +32,12 @@ it returns `{result: {items, truncated}}`, with `max_items` defaulting to 100
 `tags.retrieveListOfTags` for explicit pages. Existing card-tag operations
 continue to attach and detach tags from cards.
 
-Create a type through `kaiten_navigation_write`:
+Create a type through canonical `kaiten_workspace_write`.
 
 ```json
 {
   "request": {
-    "operation": "cardTypes.createNewCardType",
+    "operation": "create_card_type",
     "args": {
       "body": {
         "name": "Task",

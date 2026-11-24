@@ -3,10 +3,16 @@
 See also [SCIM provisioning](./scim.md).
 Time-tracking [role inputs](./time-tracking.md) accept the built-in Employee ID `-1`.
 
-These [advanced operations](./api.md) share `kaiten_navigation_read` and
-`kaiten_navigation_write`; the server still exposes 20 tools. Mutations use the
-configured token's Kaiten administrative permissions. Responses preserve the
-complete upstream JSON in `{result}`.
+Use `kaiten_workspace_read` and `kaiten_workspace_write` with the canonical
+profile. Start with `get_current_user` for the token account, `list_company_users`
+for owner and participant IDs, or `list_space_users` for access to one space.
+Company access changes require the corresponding Kaiten permissions. Use
+`list_tree_roles` for the role UIDs used in space invites and entity grants.
+
+The reference below lists legacy operation names. Set
+`KAITEN_TOOL_PROFILE=legacy` to use them through `kaiten_navigation_read` and
+`kaiten_navigation_write`. Advanced responses preserve the complete upstream
+JSON in `{result}`.
 
 | Resource          | Operations after `resource.`                                                                                     | Arguments                                                                                                                                                  |
 | ----------------- | ---------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -44,12 +50,12 @@ Upstream marks group and tree-access APIs as beta. Its current group-list
 contract warns that `with_tree_entities: true` is rejected; list group entities
 with `groupEntities.getListOfGroupEntities` instead.
 
-Invite a space user without sending email, via `kaiten_navigation_write`:
+Invite a space user without sending email through canonical `kaiten_workspace_write`.
 
 ```json
 {
   "request": {
-    "operation": "spaceUsers.inviteUserToSpace",
+    "operation": "invite_space_user",
     "args": {
       "space_id": 1,
       "body": {

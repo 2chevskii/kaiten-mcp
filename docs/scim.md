@@ -1,8 +1,12 @@
 # SCIM provisioning
 
 SCIM operations use the public `KaitenScimClient` with the configured company
-origin and `KAITEN_TOKEN`. Reads share `kaiten_navigation_read`; creates and
-patches share `kaiten_navigation_write`. The server still exposes 20 tools.
+origin and `KAITEN_TOKEN`. The canonical profile uses `kaiten_workspace_read`
+for SCIM lookups, pages and snapshots, and `kaiten_workspace_write` for
+provisioning and patches. Use `list_scim_users` to resume from a known index or
+`scan_scim_users` to collect a bounded snapshot without a continuation index.
+
+The table uses v2 names from `KAITEN_TOOL_PROFILE=legacy` for compatibility.
 
 Calls use the [advanced operation envelope](./api.md). Top-level argument names
 are `snake_case`; nested SCIM payloads and responses preserve their native
@@ -39,12 +43,12 @@ value. Group patches accept `add`/`remove members` with a numeric user ID, and
 `add`/`replace displayName` with a string. The client constructs the capitalized
 `Operations` wrapper. Group provisioning is marked beta upstream.
 
-Deactivate a user with `kaiten_navigation_write`:
+Deactivate a user through canonical `kaiten_workspace_write`.
 
 ```json
 {
   "request": {
-    "operation": "scim.users.updateUser",
+    "operation": "update_scim_user",
     "args": {
       "user_id": 5,
       "operations": [{"op": "replace", "path": "active", "value": false}]
