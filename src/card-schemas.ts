@@ -11,6 +11,12 @@ const batchSelectors = {
   condition: z.union([z.literal(1), z.literal(2)]).optional(),
 };
 
+const batchOrderBy = z.strictObject({
+  field_type: z.enum(['cp', 'size', 'created', 'due_date', 'title']),
+  id: id.optional(),
+  direction: z.enum(['asc', 'desc']),
+});
+
 export const cardBatchBody = z
   .strictObject({
     ...batchSelectors,
@@ -30,15 +36,7 @@ export const cardBatchBody = z
         external_id: z.union([z.string(), z.number()]).nullable().optional(),
       })
       .optional(),
-    order_by: z
-      .strictObject({
-        field_type: z
-          .enum(['cp', 'size', 'created', 'due_date', 'title'])
-          .optional(),
-        id: id.optional(),
-        direction: z.enum(['asc', 'desc']).optional(),
-      })
-      .optional(),
+    order_by: batchOrderBy.partial().optional(),
   })
   .refine(value => {
     const selected = Object.keys(batchSelectors).some(
@@ -51,6 +49,17 @@ export const cardBatchBody = z
         value.order_by !== undefined)
     );
   }, 'Supply a selector and attributes, or column_id, lane_id and order_by.');
+
+export const canonicalCardBatchBody = cardBatchBody
+  .safeExtend({order_by: batchOrderBy.optional()})
+  .meta({
+    anyOf: [
+      ...Object.keys(batchSelectors).map(key => ({
+        required: [key, 'attributes'],
+      })),
+      {required: ['column_id', 'lane_id', 'order_by']},
+    ],
+  });
 
 export const cardCreateBody = z.strictObject({
   title: z.union([z.string(), z.number()]),

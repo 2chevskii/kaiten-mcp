@@ -174,6 +174,37 @@ test('canonical card lifecycle preserves native fields and rejects an empty patc
   assert.deepEqual(harness.requests.at(-1)?.body, {condition: 2});
 });
 
+test('canonical batch updates require complete cell sort arguments', async context => {
+  const harness = await startHarness(context, 30_000, canonical);
+  const cell = {column_id: 3, lane_id: 4};
+  for (const body of [
+    {...cell, order_by: {}},
+    {...cell, order_by: {field_type: 'title'}},
+    {...cell, order_by: {direction: 'asc'}},
+    {column_id: 3, order_by: {field_type: 'title', direction: 'asc'}},
+    {attributes: {condition: 2}},
+  ]) {
+    const result = await harness.call('batch_update_cards', {body});
+    assert.equal(result.isError, true);
+  }
+  assert.equal(harness.requests.length, 0);
+
+  const job = {id: 'card-batch-job'};
+  harness.reply(job);
+  for (const body of [
+    {...cell, order_by: {field_type: 'title', direction: 'asc'}},
+    {board_id: 2, attributes: {condition: 2}},
+  ]) {
+    const result = await harness.call('batch_update_cards', {body});
+    assert.equal(result.isError, undefined);
+    assert.deepEqual(result.structuredContent, {result: job});
+    const request = harness.requests.at(-1);
+    assert.equal(request?.method, 'PATCH');
+    assert.equal(request?.path, '/api/v1/cards');
+    assert.deepEqual(request?.body, body);
+  }
+});
+
 test('canonical comments use one operation for JSON or legacy multipart', async context => {
   const harness = await startHarness(context, 30_000, canonical);
   const comment = {
