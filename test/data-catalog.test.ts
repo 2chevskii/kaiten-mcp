@@ -5,7 +5,7 @@ import {checklistsCatalog} from '../src/catalog/checklists.ts';
 import {customPropertiesCatalog} from '../src/catalog/custom-properties.ts';
 import {checklistApiCases} from './checklist-api-cases.ts';
 import {directoryCases} from './directory-cases.ts';
-import {startHarness, token} from './harness.ts';
+import {cardFixture, startHarness, token} from './harness.ts';
 import {propertyCases} from './property-cases.ts';
 import {toolCases} from './tool-cases.ts';
 
@@ -72,6 +72,70 @@ test('canonical checklist, custom property and directory branches preserve their
       });
     });
   }
+});
+
+test('canonical checklist references preserve nullable and omitted template IDs', async context => {
+  const harness = await canonicalHarness(context);
+  const manual = {id: 8, name: 'Manual', checklist_id: null};
+  const checklists = [
+    manual,
+    {id: 9, name: 'From template', checklist_id: 42},
+    {id: 10, name: 'Without reference field'},
+  ];
+  harness.reply({...cardFixture, checklists});
+
+  const page = await harness.call('list_checklists', {card_id: 10});
+  assert.notEqual(page.isError, true, JSON.stringify(page));
+  assert.deepEqual(page.structuredContent, {
+    items: checklists,
+    next_offset: null,
+  });
+
+  const card = await harness.call('get_card', {card_id: 10});
+  assert.deepEqual(card.structuredContent, {
+    item: {...cardFixture, checklists},
+  });
+
+  const checklist = {
+    ...manual,
+    items: [{id: 6, checklist_id: 8, text: 'Read me'}],
+  };
+  harness.reply(checklist);
+  const details = await harness.call('get_checklist', {
+    card_id: 10,
+    checklist_id: manual.id,
+  });
+  assert.deepEqual(details.structuredContent, {item: checklist});
+  assert.deepEqual(
+    harness.requests.map(({method, path}) => `${method} ${path}`),
+    [
+      'GET /api/v1/cards/10',
+      'GET /api/v1/cards/10',
+      'GET /api/v1/cards/10/checklists/8',
+    ],
+  );
+
+  const {tools} = await harness.client.listTools();
+  const output = tools.find(
+    tool => tool.name === 'kaiten_checklists_read',
+  )?.outputSchema;
+  const variants = output?.anyOf as
+    | Array<{
+        properties: {
+          items?: {
+            items: {
+              properties: {checklist_id: {type: string | string[]}};
+              required: string[];
+            };
+          };
+        };
+      }>
+    | undefined;
+  const reference = variants?.find(variant => variant.properties.items)
+    ?.properties.items?.items;
+  assert.ok(reference);
+  assert.deepEqual(reference.properties.checklist_id.type, ['number', 'null']);
+  assert.ok(!reference.required.includes('checklist_id'));
 });
 
 test('the canonical data catalog maps every legacy operation and advertises its choice semantics', async context => {
