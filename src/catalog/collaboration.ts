@@ -127,8 +127,11 @@ const formParts = z
 
 export const collaborationCatalog: CatalogDefinition = {
   collaboration_read: {
-    description:
-      'Inspect collaboration records attached to Kaiten cards: comments, URL links, members, tags, blockers and child links. Read the corresponding list before editing a record to get its ID. For eligible members use list_allowed_card_users. Existing assignments come from list_card_members. List blockers for one card with list_card_blockers or for the token user with list_my_blocked_cards. Comments, children and blockers use server pages. Native link, member and tag pages are local slices. Pass next_offset back as offset with the same filters. Use kaiten_cards_read for card search and kaiten_content_read for attachment bytes.',
+    description: [
+      'Read Kaiten card comments, native links, members, tags, blockers and child links. Find cards with kaiten_cards_read and fetch attachment bytes with kaiten_content_read.',
+      'IDs: use list_allowed_card_users before adding a member. For an existing membership, use its record id. Use list_card_blockers with card_id or list_my_blocked_cards for the token user. Feed a returned blocker record id into list_blocker_users. Use list_blocker_categories for category UUIDs.',
+      'Paging: comments, children and blockers use server pages. Compact link, membership and tag lists slice locally. To discover comment UUIDs for attachments, start list_comments with card_id, format: "full" and limit: 20. Pass next_offset back as offset with the same arguments until it is null.',
+    ].join('\n'),
     operations: {
       list_comments: {
         source: 'catalog.listComments',
@@ -240,8 +243,11 @@ export const collaborationCatalog: CatalogDefinition = {
     },
   },
   collaboration_write: {
-    description:
-      'Change Kaiten card comments, native URL links, memberships, attached tags, blockers, child links and planned dependencies. Resolve record IDs with kaiten_collaboration_read first. Use cards_write for card fields and lifecycle, and content_write for separate attachment uploads. Kaiten enforces the token’s rights on the target card or relationship. Deleting a comment removes it from the thread with no restore operation. Unlinking a child keeps both cards; removing a membership leaves the account intact. Check resulting records before retrying a write after a timeout.',
+    description: [
+      'Change Kaiten card discussion, native links, memberships, tags, blockers, child links and planned dependencies. Resolve IDs with kaiten_collaboration_read. Use kaiten_cards_write for card fields and lifecycle, and kaiten_content_write for separate attachments.',
+      'Choose request.operation and its matching args. For add_comment send card_id with text, or use form for ordered legacy multipart parts. For a restricted attachment, post the comment first and use its returned UID in kaiten_content_write. For a role change, send card_id, member_id from the existing membership and type: 2 for responsible.',
+      'Adding a tag by name may create it. Release a blocker with card_id and blocker_id. The linked card stays intact. Unlinking a child keeps both cards, and detaching a member keeps the account. Comment deletion has no restore operation. Kaiten enforces target access. After a timeout, read the affected record before retrying.',
+    ].join('\n'),
     operations: {
       add_comment: [
         {
