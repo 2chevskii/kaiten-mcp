@@ -153,12 +153,13 @@ export const cardsCatalog: CatalogDefinition = {
   cards_read: {
     description: [
       'Search Kaiten cards or inspect a card’s details, baselines and movement history.',
-      'Use search_cards for resumable results (default limit=25). Repeat the filters with cursor=next_cursor, or use mode=native_page with query.version=2 and pass position as query.start_position.',
-      'Use scan_cards for a bounded snapshot (max_items defaults to 100). If truncated, restart with paged search.',
-      'Use encode_card_filter for a standalone base64 filter token. Native search accepts the filter object directly.',
-      'For my cards, get the token user via kaiten_workspace_read get_current_user and use responsible_ids=[id] (query.responsible_ids in native mode) unless asked for another role or the connection overrides the default.',
-      'Results follow token access. Use get_card for details, kaiten_collaboration_read for discussion or links, and kaiten_content_read for attachments.',
-    ].join(' '),
+      '- Search. Filter by card text, location, role or status with search_cards (limit defaults to 25). Reuse filters with cursor=next_cursor. For native cursor pages, use mode=native_page with query.version=2 and reuse position as query.start_position.',
+      '- Snapshot. Use scan_cards with max_items (default 100). If truncated, restart with paged search.',
+      '- Filter tokens. Use encode_card_filter for standalone base64 reuse. Native search accepts the filter object directly.',
+      '- Identity. For my cards, call kaiten_workspace_read get_current_user. Use responsible_ids=[id] (query.responsible_ids in native mode) unless the request or connection specifies another filter.',
+      '- Follow-up. Results follow the token’s access. Use get_card for details, kaiten_collaboration_read for discussion or links, and kaiten_content_read for attachments.',
+      '- Workflows. Use kaiten_workflows_read list_iteration_memberships for cards in an iteration or list_card_iteration_history for one card’s participation. Read logged time with list_card_time_logs and SLA measurements with get_card_sla.',
+    ].join('\n'),
     operations: {
       search_cards: [
         {
@@ -287,12 +288,12 @@ export const cardsCatalog: CatalogDefinition = {
   },
   cards_write: {
     description: [
-      'Create, edit, move, archive, restore or delete Kaiten cards. Resolve numeric layout and user IDs with kaiten_workspace_read.',
-      'Use kaiten_custom_properties_write set_card_properties for a property-only change on an existing card. Include body.properties here when creating a card with initial values or updating those values together with card fields.',
-      'Use update_card for one card. For batch_update_cards, preview targets with search_cards and send a selector such as body.board_id alongside body.attributes. Sort one cell with body.column_id, body.lane_id and body.order_by.',
-      'Batches return a background job ID. Kaiten checks card and board permissions.',
-      'Archive when the card may need restoring. Deletion has no restore route. After a timeout, verify state before retrying.',
-    ].join(' '),
+      'Create, edit, move, archive, restore or delete Kaiten cards.',
+      '- Create. Resolve numeric layout and user IDs with kaiten_workspace_read. To reuse a card type’s description template, call kaiten_workspace_read get_card_type and pass result.id as body.type_id and selected text from result.description_template as body.description.',
+      '- Edit. Use update_card for a single card and include body.properties when changing fields and values together. Include initial property values in create_card. Use kaiten_custom_properties_write set_card_properties for property-only changes on existing cards.',
+      '- Batch. Preview targets with kaiten_cards_read search_cards. Put a selector such as body.board_id alongside body.attributes, or send body.column_id, body.lane_id and body.order_by to sort one cell. Batches return a background job ID.',
+      '- Effects. Kaiten checks card and board permissions. Archive when the card may need restoring. Deletion has no restore route. Verify state before retrying after a timeout.',
+    ].join('\n'),
     operations: {
       create_card: {
         source: 'cards.createNewCard',
@@ -305,6 +306,8 @@ export const cardsCatalog: CatalogDefinition = {
           ...bodyFields({
             ...layoutFields,
             ...editableFields,
+            description:
+              'Card text in the format selected by text_format_type_id. To apply a card type description template, pass its text explicitly from get_card_type result.description_template.',
             responsible_id:
               'Numeric company user ID from kaiten_workspace_read list_company_users for the initial responsible member.',
             position:
@@ -378,7 +381,7 @@ export const cardsCatalog: CatalogDefinition = {
           }),
         }),
         description:
-          'Change all cards matching the given selectors, or sort one explicit cell. Confirm the selection with search_cards before mutation. Kaiten runs this job in the background.',
+          'Change all cards matching the given selectors, or sort one explicit cell. Confirm the selection with kaiten_cards_read search_cards before mutation. Kaiten runs this job in the background.',
         fields: {
           body: 'For a patch, send at least one of board_id, column_id, lane_id, owner_id, type_id or condition with attributes. For a sort, send column_id, lane_id and order_by.',
           ...bodyFields({

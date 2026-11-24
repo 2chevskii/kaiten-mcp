@@ -47,7 +47,8 @@ export const taxonomyReads = {
   ],
   get_card_type: {
     source: 'cardTypes.getCardType',
-    description: 'Inspect one card type and its existing field configuration.',
+    description:
+      'Read one card type’s field settings and result.description_template, which is text or null. To use the template text on a new card, pass the type ID and explicit description to kaiten_cards_write create_card. Use kaiten_checklists_read for checklist templates.',
     fields: {id: cardType},
   },
   list_card_type_bindings: {

@@ -28,8 +28,8 @@ const timeLogBody = {
 export const workflowsCatalog: CatalogDefinition = {
   workflows_read: {
     description: [
-      'Read Kaiten planning, time, service desk, SLA and automation data.',
-      '- Planning. List iterations by space UID, then read membership by iteration ID or history by card UID. Use legacy sprint lookup for historical numeric sprint IDs.',
+      'Read Kaiten planning, time, service desk, SLA and automation data. Use kaiten_cards_read search_cards to find cards by text, location, assignee or status.',
+      '- Planning. Use list_iterations by space UID and list_iteration_memberships with the iteration ID. Use list_card_iteration_history with result.uid from kaiten_cards_read get_card in full format to read one card’s participation. Use legacy sprint lookup for historical numeric sprint IDs.',
       '- Time logs. Use list_card_time_logs for one card’s minute-based records. Pass next_offset with the same card, date, personal filter and page size.',
       '- Timesheets. Use get_timesheet with query.from and query.to in YYYY-MM-DD for reports across dates or cards. Use group_by=0 for individual records, 1 for user groups, or 2 for card groups. Request daily distribution only with user or card grouping. Choose only_general_sum for a grand total. Kaiten shapes the result for the selected report and applies time_precision to the chosen time_unit.',
       '- Service desk and SLA. List services for routing and recipient policy. Read SLA by card_id for rules, calendars and working minutes.',
@@ -83,7 +83,7 @@ export const workflowsCatalog: CatalogDefinition = {
       list_card_iteration_history: {
         source: 'iterations.getCardIterationsHistory',
         description:
-          'Follow a single card’s past and current iteration participation.',
+          'Read past and current iteration participation for one card. Get its UID in result.uid from kaiten_cards_read get_card with format=full.',
         fields: {
           card_uid: cardUid,
           with_details: 'Include details of the linked iterations.',
