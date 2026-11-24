@@ -50,10 +50,8 @@ function pageBounds(args: {
 
 export function registerCanonicalPages(registry: ToolRegistry): void {
   const {client} = registry;
-  registry.group('collaboration');
   registry.add(
     'catalog.listComments',
-    'Read a server page of card comments.',
     z.strictObject({card_id: id, format: fullMetadata, ...upstreamPage}),
     recordPage,
     read,
@@ -67,11 +65,9 @@ export function registerCanonicalPages(registry: ToolRegistry): void {
         pageBounds(query),
       );
     },
-    {canonicalOnly: true},
   );
   registry.add(
     'catalog.listCardChildren',
-    'Read a server page of child link records.',
     z.strictObject({
       parent_card_id: id,
       format: fullMetadata,
@@ -90,11 +86,9 @@ export function registerCanonicalPages(registry: ToolRegistry): void {
         pageBounds(query),
       );
     },
-    {canonicalOnly: true},
   );
   registry.add(
     'catalog.listCardBlockers',
-    'Read a server page of a selected card’s blockers.',
     z.strictObject({card_id: id, broken_api: brokenApi, ...upstreamPage}),
     nativePage,
     read,
@@ -108,11 +102,9 @@ export function registerCanonicalPages(registry: ToolRegistry): void {
         next_offset: offsetPage(result, pageBounds(query)).next_offset,
       };
     },
-    {canonicalOnly: true},
   );
   registry.add(
     'catalog.listMyBlockedCards',
-    'Read a server page of cards blocked by the token user.',
     z.strictObject(upstreamPage),
     currentUserBlockersPage,
     read,
@@ -128,12 +120,9 @@ export function registerCanonicalPages(registry: ToolRegistry): void {
           .next_offset,
       };
     },
-    {canonicalOnly: true},
   );
-  registry.group('workflows');
   registry.add(
     'catalog.listCardTimeLogs',
-    'Read a server page of time logs for one card.',
     z.strictObject({
       card_id: id,
       for_date: dateOnly.optional(),
@@ -154,6 +143,5 @@ export function registerCanonicalPages(registry: ToolRegistry): void {
         next_offset: offsetPage(result, pageBounds(query)).next_offset,
       };
     },
-    {canonicalOnly: true},
   );
 }

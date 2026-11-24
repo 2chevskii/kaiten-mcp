@@ -1,18 +1,15 @@
 # Общие чек-листы и шаблоны пространств
 
-Эти [расширенные операции](./api.md) используют `kaiten_checklists_read` и
-`kaiten_checklists_write`; общее число остаётся равным 20. Полный JSON-ответ
-клиента сохраняется в `{result}`. Существующие удобные операции чек-листов
-остаются доступны.
+Читайте чек-листы карточек и шаблоны через `kaiten_checklists_read`, изменяйте через `kaiten_checklists_write`. Перед изменением общего чек-листа проверьте связанные карточки через `list_cards_using_checklist`. Для копирования и переноса передавайте `body`.
 
-| Ресурс                        | Операции после `resource.`                                                                                                            | Аргументы                                                                                                                          |
-| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `cardChecklists`              | `addChecklistToCard`, `retrieveCardChecklist`, `updateChecklist`, `removeChecklistFromCard`                                           | `card_id`; `body` для добавления/изменения; `checklist_id` для чтения/изменения/удаления                                           |
-| `cardChecklistItems`          | `addItemToChecklist`, `updateChecklistItem`, `removeChecklistItem`                                                                    | `card_id`, `checklist_id`; `body` для добавления/изменения; `item_id` для изменения/удаления                                       |
-| `checklistItems`              | `addItemToChecklist`, `updateChecklistItem`, `removeChecklistItem`                                                                    | `checklist_id`; `body` для добавления/изменения; `item_id` для изменения/удаления                                                  |
-| `checklists`                  | `retrieveCardsWithChecklist`                                                                                                          | `id`, обязательный логический `only_shared_cards`                                                                                  |
-| `spaceTemplateChecklist`      | `createNewSpaceTemplateChecklist`, `getListOfSpaceTemplateChecklists`, `updateSpaceTemplateChecklist`, `removeSpaceTemplateChecklist` | `space_uid`; `name`, `sort_order?` для создания; `template_checklist_uid` для изменения/удаления; `body` для изменения             |
-| `spaceTemplateChecklistItems` | `createNewSpaceTemplateChecklistItem`, `updateSpaceTemplateChecklistItem`, `removeSpaceTemplateChecklistItem`                         | `space_uid`, `template_checklist_uid`; `text`, `sort_order?` для создания; `item_uid` для изменения/удаления; `body` для изменения |
+| Область         | Операции                                                                                                          | Аргументы                                                                                                                          |
+| --------------- | ----------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Чек-листы       | `create_checklist`, `get_checklist`, `update_checklist`, `delete_checklist`                                       | `card_id`; `body` для добавления/изменения; `checklist_id` для чтения/изменения/удаления                                           |
+| Пункты карточки | `add_checklist_item`, `update_checklist_item`, `delete_checklist_item`                                            | `card_id`, `checklist_id`; `body` для добавления/изменения; `item_id` для изменения/удаления                                       |
+| Общие пункты    | `add_checklist_item`, `update_checklist_item`, `delete_checklist_item`                                            | `checklist_id`; `body` для добавления/изменения; `item_id` для изменения/удаления                                                  |
+| Общие чек-листы | `list_cards_using_checklist`                                                                                      | `id`, обязательный логический `only_shared_cards`                                                                                  |
+| Шаблоны         | `create_checklist_template`, `list_checklist_templates`, `update_checklist_template`, `delete_checklist_template` | `space_uid`; `name`, `sort_order?` для создания; `template_checklist_uid` для изменения/удаления; `body` для изменения             |
+| Пункты шаблона  | `add_checklist_template_item`, `update_checklist_template_item`, `delete_checklist_template_item`                 | `space_uid`, `template_checklist_uid`; `text`, `sort_order?` для создания; `item_uid` для изменения/удаления; `body` для изменения |
 
 Создание чек-листа принимает `name` или `source_share_id`, порядок,
 `items_source_checklist_id` и `exclude_item_ids` для копирования выбранных
@@ -33,7 +30,7 @@ nullable-текст, ответственного и срок. Предоста�
 ```json
 {
   "request": {
-    "operation": "cardChecklists.addChecklistToCard",
+    "operation": "create_checklist",
     "args": {
       "card_id": 10,
       "body": {

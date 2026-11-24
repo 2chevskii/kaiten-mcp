@@ -2,7 +2,7 @@ import * as z from 'zod/v4';
 import {commentForm, multipartForm} from '../file-transfer.ts';
 import {apiResult} from '../results.ts';
 import {defined, id} from '../schemas.ts';
-import {change, read, type ToolRegistry} from '../tool-registry.ts';
+import {change, type ToolRegistry} from '../tool-registry.ts';
 
 const exactlyOneBody = (args: {body?: unknown; form?: unknown}) =>
   (args.body === undefined) !== (args.form === undefined);
@@ -13,18 +13,7 @@ export function registerAdvancedComments(
 ): void {
   const {cardComments} = registry.client;
   registry.add(
-    'cardComments.retrieveCardComments',
-    'Retrieve the complete comment JSON including UUIDs. The public client exposes no server paging parameters; only the upstream default page can be read.',
-    z.strictObject({card_id: id}),
-    apiResult,
-    read,
-    async (args, options) => ({
-      result: await cardComments.retrieveCardComments(args.card_id, options),
-    }),
-  );
-  registry.add(
     'cardComments.addComment',
-    'Add a comment with either native JSON body or portable ordered FormData parts; retain full UUID/attachment response metadata.',
     z
       .strictObject({
         card_id: id,
@@ -44,7 +33,6 @@ export function registerAdvancedComments(
   );
   registry.add(
     'cardComments.updateComment',
-    'Update a comment with either native partial JSON or ordered FormData parts, including legacy file parts where supported.',
     z
       .strictObject({
         card_id: id,
@@ -68,7 +56,6 @@ export function registerAdvancedComments(
   );
   registry.add(
     'cardComments.removeComment',
-    'Delete a comment and preserve the complete native JSON response.',
     z.strictObject({card_id: id, comment_id: id}),
     apiResult,
     change,

@@ -24,12 +24,14 @@ export const timeCases: ToolCase[] = [
     response: log,
   },
   {
-    name: 'cardTimeLogs.getTimeLogs',
+    name: 'list_card_time_logs',
+    canonical: true,
     args: {card_id: 10, for_date: '2026-11-06', personal: false},
     method: 'GET',
     path: '/cards/10/time-logs',
     query: {for_date: '2026-11-06', personal: 'false'},
     response: [log],
+    expectedContent: {result: [log], next_offset: null},
   },
   {
     name: 'cardTimeLogs.updateLogRecord',

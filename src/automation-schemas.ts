@@ -5,7 +5,7 @@ import type {
 import * as z from 'zod/v4';
 import {defined, text} from './schemas.ts';
 
-const legacyTriggerTypes = {
+const triggerTypes = {
   card_moved_in_path: true,
   card_created: true,
   comment_posted: true,
@@ -27,10 +27,6 @@ const legacyTriggerTypes = {
   checklist_item_due_date_on_date: true,
   custom_property_date_on_date: true,
   all_conditions_met: true,
-} satisfies Partial<Record<AutomationTriggerType, true>>;
-
-const canonicalTriggerTypes = {
-  ...legacyTriggerTypes,
   iteration_card_added: true,
   iteration_card_removed: true,
   iteration_start_date_on_date: true,
@@ -39,9 +35,7 @@ const canonicalTriggerTypes = {
 
 const data = z.record(z.string(), z.json());
 const trigger = z.strictObject({
-  type: z.enum(
-    Object.keys(legacyTriggerTypes) as (keyof typeof legacyTriggerTypes)[],
-  ),
+  type: z.enum(Object.keys(triggerTypes) as AutomationTriggerType[]),
   hasToFireOnCardCreation: z.boolean().optional(),
   data: data.optional(),
 });
@@ -80,19 +74,8 @@ const onDemand = z.strictObject({
   name: z.string(),
   actions,
 });
-const canonicalTriggered = triggered.extend({
-  trigger: trigger.extend({
-    type: z.enum(Object.keys(canonicalTriggerTypes) as AutomationTriggerType[]),
-  }),
-});
-
 export const automationBody = z.union([triggered, onDemand]);
 export const automationUpdateBody = z.union([
   triggered.partial(),
-  onDemand.partial(),
-]);
-export const canonicalAutomationBody = z.union([canonicalTriggered, onDemand]);
-export const canonicalAutomationUpdateBody = z.union([
-  canonicalTriggered.partial(),
   onDemand.partial(),
 ]);

@@ -27,7 +27,8 @@ export const cardApiCases: ToolCase[] = [
     response: card,
   },
   {
-    name: 'cards.create',
+    name: 'create_card',
+    canonical: true,
     args: {body: creation},
     method: 'POST',
     path: '/cards',

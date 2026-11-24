@@ -36,9 +36,7 @@ const nativeFormats = new Set([
 ]);
 
 test('canonical workspace variants preserve workspace and access HTTP contracts', async context => {
-  const harness = await startHarness(context, 30_000, {
-    KAITEN_TOOL_PROFILE: 'canonical',
-  });
+  const harness = await startHarness(context);
   const advanced = [
     ...workspaceCases,
     ...identityCases,
@@ -81,21 +79,8 @@ test('canonical workspace variants preserve workspace and access HTTP contracts'
   }
 });
 
-test('workspace advertises a single intent for each legacy alternative and documents scope and side effects', async context => {
-  const canonical = await startHarness(context, 30_000, {
-    KAITEN_TOOL_PROFILE: 'canonical',
-  });
-  const legacy = await startHarness(context, 30_000, {
-    KAITEN_TOOL_PROFILE: 'legacy',
-  });
-  const reassigned = /^(?:automations|iterations|sprints)\./;
-  const workspaceSources = [...legacy.operations]
-    .filter(
-      ([name, entry]) =>
-        entry.tool.startsWith('kaiten_navigation_') && !reassigned.test(name),
-    )
-    .map(([name]) => name);
-  assert.deepEqual([...routes.keys()].sort(), workspaceSources.sort());
+test('workspace advertises one public operation per intent and documents scope and side effects', async context => {
+  const canonical = await startHarness(context);
   for (const [source, canonicalRoute] of routes) {
     const operation = canonical.operations.get(canonicalRoute.operation);
     assert.equal(operation?.tool, canonicalRoute.tool);
@@ -129,9 +114,7 @@ test('workspace advertises a single intent for each legacy alternative and docum
 });
 
 test('canonical workspace validates scope and exposes bounded activity snapshots and OAuth prerequisites', async context => {
-  const harness = await startHarness(context, 30_000, {
-    KAITEN_TOOL_PROFILE: 'canonical',
-  });
+  const harness = await startHarness(context);
 
   const wrongScope = await harness.call('get_board', {
     space_id: 1,

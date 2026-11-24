@@ -1,15 +1,14 @@
 # Активность и аудит
 
-Все пять операций используют `kaiten_navigation_read`; общее число
-инструментов остаётся равным 20. Полный JSON сохраняет исходные детали событий.
+Используйте `kaiten_workspace_read` для `list_activity`, `scan_activity` и `list_audit_events`. Передайте `space_id` для активности пространства. Без него читается лента компании.
 
-| Операция                           | Аргументы                                       | Результат                               |
-| ---------------------------------- | ----------------------------------------------- | --------------------------------------- |
-| `auditLogs.retrieveAuditLogEvents` | Необязательный `query`                          | `{result: events[]}`                    |
-| `activity.listCompanyActivity`     | Необязательный `query`                          | `{result: {items, limit, next_cursor}}` |
-| `activity.listSpaceActivity`       | `space_id`, необязательный `query`              | Такая же страница активности            |
-| `activity.iterateCompanyActivity`  | Необязательные `query`, `max_items`             | `{result: {items, truncated}}`          |
-| `activity.iterateSpaceActivity`    | `space_id`, необязательные `query`, `max_items` | Такой же ограниченный снимок            |
+| Операция            | Аргументы                                       | Результат                               |
+| ------------------- | ----------------------------------------------- | --------------------------------------- |
+| `list_audit_events` | Необязательный `query`                          | `{result: events[]}`                    |
+| `list_activity`     | Необязательный `query`                          | `{result: {items, limit, next_cursor}}` |
+| `list_activity`     | `space_id`, необязательный `query`              | Такая же страница активности            |
+| `scan_activity`     | Необязательные `query`, `max_items`             | `{result: {items, truncated}}`          |
+| `scan_activity`     | `space_id`, необязательные `query`, `max_items` | Такой же ограниченный снимок            |
 
 Фильтры активности: `limit`, непрозрачный `cursor`, строка `actions` через
 запятую, `author_id`, `created_after`, `created_before`. Для компании также
@@ -33,7 +32,7 @@ Kaiten. HTTP-ошибки сохраняют статус без раскрыт�
 ```json
 {
   "request": {
-    "operation": "activity.listCompanyActivity",
+    "operation": "list_activity",
     "args": {"query": {"card_id": 10, "limit": 25}}
   }
 }

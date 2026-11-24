@@ -1,20 +1,15 @@
 # Управление пользовательскими полями
 
-См. также [справочники](./directories.md): управление справочниками, полями и записями.
+Читайте определения и доступные значения через `kaiten_custom_properties_read`. Изменяйте их и значения карточек через `kaiten_custom_properties_write`. Для полных списков передавайте `format: "native"`. См. также [справочники](./directories.md).
 
-Эти [расширенные операции](./api.md) используют `kaiten_custom_properties_read`
-и `kaiten_custom_properties_write`; сервер по-прежнему предоставляет
-20 инструментов. Полный ответ клиента сохраняется в `{result}`. Существующие
-удобные операции чтения и `set_card_properties` остаются доступны.
-
-| Ресурс                                | Операции после `resource.`                                                                                   | Аргументы                                                                                                                          |
-| ------------------------------------- | ------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------- |
-| `customProperties`                    | `createNewProperty`, `getListOfProperties`, `getProperty`, `updateProperty`, `removeProperty`                | `body` для создания/изменения; `query?` для списка; `property_id` для чтения/изменения/удаления                                    |
-| `customPropertySelectValues`          | `createNewSelectValue`, `getListOfSelectValues`, `getSelectValue`, `updateSelectValue`, `removeProperty`     | `property_id`; `value`, `color?` для создания; `query?` для списка; `value_id` для чтения/изменения/удаления; `body` для изменения |
-| `customPropertyCatalogValues`         | `createNewCatalogValue`, `getListOfCatalogValues`, `getCatalogValue`, `updateCatalogValue`, `removeProperty` | `property_id`; `body` для создания/изменения; `query?` для списка; `value_id` для чтения/изменения/удаления                        |
-| `customPropertyCollectiveScoreValues` | `createNewScoreValue`, `getListOfScoreValues`, `updateScoreValue`                                            | `card_id`, `property_id`; строковый `value` для создания; `value_id` и nullable-строка `value` для изменения                       |
-| `customPropertyCollectiveVoteValues`  | `createNewVoteValue`, `getListOfVoteValues`, `updateVoteValue`, `removeVoteValue`                            | `card_id`, `property_id`; `body` для создания; `id`, `number_vote?` для изменения; `id`, `emoji_vote` для удаления                 |
-| `customPropertyTreeEntities`          | `addTreeEntityToCustomProperty`, `getListOfCustomPropertyTreeEntities`, `deleteTreeEntityFromCustomProperty` | `property_id`; `tree_entity_uid` для добавления; `uid` для удаления                                                                |
+| Область            | Операции                                                                                                                      | Аргументы                                                                                                                          |
+| ------------------ | ----------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Определения        | `create_custom_property`, `list_custom_properties`, `get_custom_property`, `update_custom_property`, `delete_custom_property` | `body` для создания/изменения; `query?` для списка; `property_id` для чтения/изменения/удаления                                    |
+| Варианты выбора    | `create_select_value`, `list_select_values`, `get_select_value`, `update_select_value`, `delete_select_value`                 | `property_id`; `value`, `color?` для создания; `query?` для списка; `value_id` для чтения/изменения/удаления; `body` для изменения |
+| Значения каталогов | `create_catalog_value`, `list_catalog_values`, `get_catalog_value`, `update_catalog_value`, `delete_catalog_value`            | `property_id`; `body` для создания/изменения; `query?` для списка; `value_id` для чтения/изменения/удаления                        |
+| Оценки             | `add_collective_score`, `list_collective_scores`, `update_collective_score`                                                   | `card_id`, `property_id`; строковый `value` для создания; `value_id` и nullable-строка `value` для изменения                       |
+| Голоса             | `add_collective_vote`, `list_collective_votes`, `update_collective_vote`, `remove_collective_emoji_vote`                      | `card_id`, `property_id`; `body` для создания; `id`, `number_vote?` для изменения; `id`, `emoji_vote` для удаления                 |
+| Привязки           | `bind_custom_property`, `list_property_bindings`, `unbind_custom_property`                                                    | `property_id`; `tree_entity_uid` для добавления; `uid` для удаления                                                                |
 
 ## Определения и формулы
 
@@ -37,8 +32,7 @@ nullable-поля; пропущенные поля не меняются. Схе
 Изменение варианта списка требует хотя бы одно поле: значение, цвет, состояние,
 порядок или флаг удаления. Тело каталога содержит JSON-словарь `value`;
 изменение требует `condition` или `value`, дополнительно допускается `deleted`.
-Методы `removeProperty` у ресурсов select/catalog удаляют указанное **значение**,
-а `customProperties.removeProperty` удаляет поле.
+`delete_select_value` и `delete_catalog_value` удаляют один вариант. `delete_custom_property` удаляет определение поля.
 
 Оценки передаются строками, в том числе числовые; `value: null` очищает оценку.
 Создание коллективного голоса требует `emoji_vote` или `number_vote`. Числовой
@@ -59,7 +53,7 @@ nullable-поля; пропущенные поля не меняются. Схе
 ```json
 {
   "request": {
-    "operation": "customPropertySelectValues.createNewSelectValue",
+    "operation": "create_select_value",
     "args": {"property_id": 7, "value": "Urgent", "color": null}
   }
 }

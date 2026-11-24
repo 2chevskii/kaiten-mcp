@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
-import {startHarness} from './harness.ts';
+import {startSourceHarness} from './harness.ts';
 
 test('card type changes validate required fields and typed property configurations', async context => {
-  const harness = await startHarness(context);
+  const harness = await startSourceHarness(context);
   for (const body of [
     {},
     {suggest_fields: false},
@@ -22,7 +22,7 @@ test('card type changes validate required fields and typed property configuratio
 });
 
 test('tag iterator preserves IDs, space and search filters on each page', async context => {
-  const harness = await startHarness(context);
+  const harness = await startSourceHarness(context);
   harness.respond((request, response) => {
     response.setHeader('Content-Type', 'application/json');
     response.end(JSON.stringify(request.query.offset === '0' ? [{id: 8}] : []));

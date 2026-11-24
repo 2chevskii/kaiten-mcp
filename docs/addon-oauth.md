@@ -1,16 +1,11 @@
 # Addon OAuth
 
-Use `get_addon_token` through canonical `kaiten_workspace_read` to read the
-current token. When a refresh is required, use `refresh_addon_token` through
-`kaiten_workspace_write`. Both return sensitive OAuth credentials when a token
-is available.
+Use `kaiten_workspace_read` to read an addon token and `kaiten_workspace_write` to refresh it. Both calls return sensitive OAuth credentials when available.
 
-The table lists the v2 names for `KAITEN_TOOL_PROFILE=legacy`.
-
-| Operation                 | Tool                      | Arguments                            |
-| ------------------------- | ------------------------- | ------------------------------------ |
-| `addonOAuth.getToken`     | `kaiten_navigation_read`  | `addon_uid`, `user_id`, `company_id` |
-| `addonOAuth.refreshToken` | `kaiten_navigation_write` | Same token key                       |
+| Operation             | Tool                     | Arguments                            |
+| --------------------- | ------------------------ | ------------------------------------ |
+| `get_addon_token`     | `kaiten_workspace_read`  | `addon_uid`, `user_id`, `company_id` |
+| `refresh_addon_token` | `kaiten_workspace_write` | Same token key                       |
 
 Configure `KAITEN_ADDON_SECRET` or `KAITEN_ADDON_SECRET_FILE` in the server environment. See [connection options](./connection-options.md) for rotating file credentials. It authenticates these
 two operations against the configured `KAITEN_ORIGIN`; regular REST and SCIM

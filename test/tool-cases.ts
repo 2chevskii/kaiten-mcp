@@ -2,6 +2,8 @@ import {cardFixture} from './harness.ts';
 
 export interface ToolCase {
   name: string;
+  canonical?: true;
+  expectedContent?: Record<string, unknown>;
   args: Record<string, unknown>;
   method: string;
   path: string;
@@ -28,6 +30,7 @@ export const toolCases: ToolCase[] = [
   },
   {
     name: 'add_card_external_link',
+    canonical: true,
     args: {...card, url: 'https://example.com', description: 'Reference'},
     method: 'POST',
     path: '/cards/10/external-links',
@@ -36,7 +39,8 @@ export const toolCases: ToolCase[] = [
   },
   {
     name: 'update_card_external_link',
-    args: {...card, link_id: 20, changes: {description: 'New'}},
+    canonical: true,
+    args: {...card, link_id: 20, body: {description: 'New'}},
     method: 'PATCH',
     path: '/cards/10/external-links/20',
     body: {description: 'New'},
@@ -44,6 +48,7 @@ export const toolCases: ToolCase[] = [
   },
   {
     name: 'remove_card_external_link',
+    canonical: true,
     args: {...card, link_id: 20},
     method: 'DELETE',
     path: '/cards/10/external-links/20',
@@ -51,13 +56,16 @@ export const toolCases: ToolCase[] = [
   },
   {
     name: 'list_card_children',
-    args: {parent_card_id: 10},
+    canonical: true,
+    args: {parent_card_id: 10, format: 'full'},
     method: 'GET',
     path: '/cards/10/children',
     response: [{...cardFixture, id: 20}],
+    expectedContent: {items: [{...cardFixture, id: 20}], next_offset: null},
   },
   {
     name: 'add_card_child',
+    canonical: true,
     args: {parent_card_id: 10, child_card_id: 20},
     method: 'POST',
     path: '/cards/10/children',
@@ -66,6 +74,7 @@ export const toolCases: ToolCase[] = [
   },
   {
     name: 'remove_card_child',
+    canonical: true,
     args: {parent_card_id: 10, child_card_id: 20},
     method: 'DELETE',
     path: '/cards/10/children/20',
@@ -171,7 +180,8 @@ export const toolCases: ToolCase[] = [
   },
   {
     name: 'create_card',
-    args: {title: 'A card', board_id: 2, properties: {id_7: 'initial'}},
+    canonical: true,
+    args: {body: {title: 'A card', board_id: 2, properties: {id_7: 'initial'}}},
     method: 'POST',
     path: '/cards',
     body: {title: 'A card', board_id: 2, properties: {id_7: 'initial'}},
@@ -179,7 +189,8 @@ export const toolCases: ToolCase[] = [
   },
   {
     name: 'update_card',
-    args: {...card, changes: {description: null, asap: false}},
+    canonical: true,
+    args: {...card, body: {description: null, asap: false}},
     method: 'PATCH',
     path: '/cards/10',
     body: {description: null, asap: false},
@@ -211,6 +222,7 @@ export const toolCases: ToolCase[] = [
   },
   {
     name: 'delete_card',
+    canonical: true,
     args: card,
     method: 'DELETE',
     path: '/cards/10',
@@ -218,13 +230,16 @@ export const toolCases: ToolCase[] = [
   },
   {
     name: 'list_comments',
+    canonical: true,
     args: card,
     method: 'GET',
     path: '/cards/10/comments',
     response: [{id: 6, text: 'Comment'}],
+    expectedContent: {items: [{id: 6, text: 'Comment'}], next_offset: null},
   },
   {
     name: 'add_comment',
+    canonical: true,
     args: {...card, text: 'Comment'},
     method: 'POST',
     path: '/cards/10/comments',
@@ -233,6 +248,7 @@ export const toolCases: ToolCase[] = [
   },
   {
     name: 'update_comment',
+    canonical: true,
     args: {...card, comment_id: 6, text: 'Edited'},
     method: 'PATCH',
     path: '/cards/10/comments/6',
@@ -241,6 +257,7 @@ export const toolCases: ToolCase[] = [
   },
   {
     name: 'delete_comment',
+    canonical: true,
     args: {...card, comment_id: 6},
     method: 'DELETE',
     path: '/cards/10/comments/6',
@@ -255,6 +272,7 @@ export const toolCases: ToolCase[] = [
   },
   {
     name: 'add_card_member',
+    canonical: true,
     args: {...card, user_id: 5},
     method: 'POST',
     path: '/cards/10/members',
@@ -263,6 +281,7 @@ export const toolCases: ToolCase[] = [
   },
   {
     name: 'update_card_member_role',
+    canonical: true,
     args: {...card, member_id: 9, type: 2},
     method: 'PATCH',
     path: '/cards/10/members/9',
@@ -277,6 +296,7 @@ export const toolCases: ToolCase[] = [
   },
   {
     name: 'remove_card_member',
+    canonical: true,
     args: {...card, member_id: 9},
     method: 'DELETE',
     path: '/cards/10/members/9',
@@ -291,6 +311,7 @@ export const toolCases: ToolCase[] = [
   },
   {
     name: 'add_card_tag',
+    canonical: true,
     args: {...card, name: 'Tag'},
     method: 'POST',
     path: '/cards/10/tags',
@@ -299,6 +320,7 @@ export const toolCases: ToolCase[] = [
   },
   {
     name: 'remove_card_tag',
+    canonical: true,
     args: {...card, tag_id: 11},
     method: 'DELETE',
     path: '/cards/10/tags/11',

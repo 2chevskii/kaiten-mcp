@@ -1,31 +1,19 @@
 # SCIM provisioning
 
-SCIM operations use the public `KaitenScimClient` with the configured company
-origin and `KAITEN_TOKEN`. The canonical profile uses `kaiten_workspace_read`
-for SCIM lookups, pages and snapshots, and `kaiten_workspace_write` for
-provisioning and patches. Use `list_scim_users` to resume from a known index or
-`scan_scim_users` to collect a bounded snapshot without a continuation index.
+Use `kaiten_workspace_read` for SCIM lookups, pages and snapshots, and `kaiten_workspace_write` to provision and patch. Top-level arguments use `snake_case`; nested SCIM payloads retain `userName`, `givenName`, `displayName` and other native names. Read the complete API response from `{result}`.
 
-The table uses v2 names from `KAITEN_TOOL_PROFILE=legacy` for compatibility.
-
-Calls use the [advanced operation envelope](./api.md). Top-level argument names
-are `snake_case`; nested SCIM payloads and responses preserve their native
-casing: `userName`, `givenName`, `displayName`, `Operations`, `Resources`,
-`totalResults`. Results are the complete client response inside `{result}`.
-Access errors use the same sanitized HTTP status format as REST operations.
-
-| Operation                 | Arguments                                         | Behavior                                                       |
-| ------------------------- | ------------------------------------------------- | -------------------------------------------------------------- |
-| `scim.users.addUser`      | `body`: `emails`, `userName?`, `name?`            | Create a user; `emails` follows the client's JSON-map contract |
-| `scim.users.getUser`      | `user_id`                                         | Read a user with SCIM metadata                                 |
-| `scim.users.getUsers`     | `start_index?`, `count?`, `filter?`               | Read one page, including `Resources` and pagination metadata   |
-| `scim.users.updateUser`   | `user_id`, `operations`                           | Patch activation or name fields                                |
-| `scim.users.iterate`      | `start_index?`, `count?`, `filter?`, `max_items?` | Collect a bounded snapshot through the client iterator         |
-| `scim.groups.addGroup`    | `display_name`                                    | Create a group                                                 |
-| `scim.groups.getGroup`    | `group_id` (string or numeric ID)                 | Read a group                                                   |
-| `scim.groups.getGroups`   | `start_index?`, `count?`                          | Read a group page                                              |
-| `scim.groups.updateGroup` | `group_id`, `operations`                          | Patch display name or membership                               |
-| `scim.groups.iterate`     | `start_index?`, `count?`, `max_items?`            | Collect a bounded group snapshot                               |
+| Operation              | Arguments                                         | Behavior                                                       |
+| ---------------------- | ------------------------------------------------- | -------------------------------------------------------------- |
+| `provision_scim_user`  | `body`: `emails`, `userName?`, `name?`            | Create a user; `emails` follows the client's JSON-map contract |
+| `get_scim_user`        | `user_id`                                         | Read a user with SCIM metadata                                 |
+| `list_scim_users`      | `start_index?`, `count?`, `filter?`               | Read one page, including `Resources` and pagination metadata   |
+| `update_scim_user`     | `user_id`, `operations`                           | Patch activation or name fields                                |
+| `scan_scim_users`      | `start_index?`, `count?`, `filter?`, `max_items?` | Collect a bounded snapshot through the client iterator         |
+| `provision_scim_group` | `display_name`                                    | Create a group                                                 |
+| `get_scim_group`       | `group_id` (string or numeric ID)                 | Read a group                                                   |
+| `list_scim_groups`     | `start_index?`, `count?`                          | Read a group page                                              |
+| `update_scim_group`    | `group_id`, `operations`                          | Patch display name or membership                               |
+| `scan_scim_groups`     | `start_index?`, `count?`, `max_items?`            | Collect a bounded group snapshot                               |
 
 `start_index` is a positive safe integer and maps to SCIM's one-based
 `startIndex`; `count` is a nonnegative safe integer. Client iterators default to

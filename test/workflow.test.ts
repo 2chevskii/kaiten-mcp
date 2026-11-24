@@ -67,10 +67,10 @@ test('complete card workflow through stdio retains state between operations', as
     items: [{id: 2, title: 'Work'}],
     next_offset: null,
   });
-  await call('create_card', {board_id: 2, title: 'New task'});
+  await call('create_card', {body: {board_id: 2, title: 'New task'}});
   await call('update_card', {
     card_id: 10,
-    changes: {description: 'Task details'},
+    body: {description: 'Task details'},
   });
   await call('move_card', {
     card_id: 10,

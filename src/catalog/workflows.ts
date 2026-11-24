@@ -364,8 +364,7 @@ export const workflowsCatalog: CatalogDefinition = {
         },
       },
       create_automation: {
-        source: 'catalog.createAutomation',
-        replaces: ['automations.createAutomation'],
+        source: 'automations.createAutomation',
         description:
           'Configure an event, date, or on-demand rule. Event and date types require a trigger. On-demand requires a name. Supply at least one action.',
         fields: {
@@ -384,8 +383,7 @@ export const workflowsCatalog: CatalogDefinition = {
         },
       },
       update_automation: {
-        source: 'catalog.updateAutomation',
-        replaces: ['automations.updateAutomation'],
+        source: 'automations.updateAutomation',
         description:
           'Update only supplied rule fields. Provide the full desired action list or condition tree when changing it.',
         fields: {

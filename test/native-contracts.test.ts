@@ -3,11 +3,8 @@ import {test} from 'node:test';
 import {richDocument} from './document-cases.ts';
 import {startHarness, token} from './harness.ts';
 
-const canonical = {KAITEN_TOOL_PROFILE: 'canonical'};
-const legacy = {KAITEN_TOOL_PROFILE: 'legacy'};
-
 test('canonical workflow posts iteration additions in single and bulk forms', async context => {
-  const harness = await startHarness(context, 30_000, canonical);
+  const harness = await startHarness(context);
   const scope = {space_uid: 'space-uid', iteration_id: 'iteration-uid'};
   const cardUid = (number: number) =>
     `8e0456aa-856f-4b67-8c21-${number.toString(16).padStart(12, '0')}`;
@@ -90,7 +87,7 @@ test('canonical workflow posts iteration additions in single and bulk forms', as
 });
 
 test('canonical workflow uses the native bulk DELETE and preserves single removal', async context => {
-  const harness = await startHarness(context, 30_000, canonical);
+  const harness = await startHarness(context);
   const scope = {space_uid: 'space-uid', iteration_id: 'iteration-uid'};
   const root = '/api/v1/spaces/space-uid/iterations/iteration-uid/cards';
   const result = {
@@ -154,7 +151,7 @@ test('canonical workflow uses the native bulk DELETE and preserves single remova
 });
 
 test('canonical document updates forward explicit schema and reject invalid combinations', async context => {
-  const harness = await startHarness(context, 30_000, canonical);
+  const harness = await startHarness(context);
   const document_uid = 'doc-uid';
   const body = {
     schema_version: 'v28',
@@ -200,17 +197,4 @@ test('canonical document updates forward explicit schema and reject invalid comb
   });
   assert.notEqual(restore.isError, true);
   assert.deepEqual(harness.requests[1]?.body, restoreBody);
-});
-
-test('new native forms are absent from the v2 profile', async context => {
-  const harness = await startHarness(context, 30_000, legacy);
-  assert.ok(!harness.operations.has('iterations.addCardsToIteration'));
-  assert.ok(!harness.operations.has('iterations.removeCardsFromIteration'));
-  assert.ok(!harness.operations.has('documents.updateDocumentWithSchema'));
-  const result = await harness.call('documents.updateDocument', {
-    document_uid: 'doc-uid',
-    body: {schema_version: 'v28', data: richDocument},
-  });
-  assert.equal(result.isError, true);
-  assert.equal(harness.requests.length, 0);
 });

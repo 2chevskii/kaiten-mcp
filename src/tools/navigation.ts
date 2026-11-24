@@ -15,7 +15,6 @@ export function registerNavigation(registry: ToolRegistry): void {
   const {client} = registry;
   registry.add(
     'list_spaces',
-    'List accessible Kaiten spaces. Use their IDs to discover boards.',
     pageInput,
     pageResult(namedView),
     read,
@@ -31,7 +30,6 @@ export function registerNavigation(registry: ToolRegistry): void {
   );
   registry.add(
     'get_space',
-    'Get a space and its available board references.',
     z.strictObject({space_id: id}),
     entityResult(spaceView),
     read,
@@ -41,7 +39,6 @@ export function registerNavigation(registry: ToolRegistry): void {
   );
   registry.add(
     'list_boards',
-    'List boards in a space. Pagination is applied locally.',
     z.strictObject({space_id: id, ...pageFields}),
     pageResult(namedView),
     read,
@@ -54,7 +51,6 @@ export function registerNavigation(registry: ToolRegistry): void {
   );
   registry.add(
     'get_board',
-    'Get board details, columns, lanes and custom property configuration.',
     z.strictObject({board_id: id}),
     entityResult(boardView),
     read,
@@ -64,7 +60,6 @@ export function registerNavigation(registry: ToolRegistry): void {
   );
   registry.add(
     'list_columns',
-    'List columns on a board in Kaiten order. Pagination is applied locally.',
     z.strictObject({board_id: id, ...pageFields}),
     pageResult(locationView),
     read,
@@ -77,7 +72,6 @@ export function registerNavigation(registry: ToolRegistry): void {
   );
   registry.add(
     'list_lanes',
-    'List lanes on a board. Pagination is applied locally.',
     z.strictObject({board_id: id, ...pageFields}),
     pageResult(locationView),
     read,
@@ -90,7 +84,6 @@ export function registerNavigation(registry: ToolRegistry): void {
   );
   registry.add(
     'get_current_user',
-    `Identify the user associated with the configured Kaiten token and read connection guidance. Call before searching my Kaiten tasks.\n\n${registry.instructions}`,
     z.strictObject({}),
     entityResult(userView),
     read,
@@ -100,7 +93,6 @@ export function registerNavigation(registry: ToolRegistry): void {
   );
   registry.add(
     'list_users',
-    'Find company users by query to obtain user IDs for ownership and membership.',
     z.strictObject({...pageFields, query: z.string().optional()}),
     pageResult(userView),
     read,
@@ -112,7 +104,6 @@ export function registerNavigation(registry: ToolRegistry): void {
   );
   registry.add(
     'list_card_types',
-    'List existing card types.',
     pageInput,
     pageResult(namedView),
     read,
@@ -128,7 +119,6 @@ export function registerNavigation(registry: ToolRegistry): void {
   );
   registry.add(
     'list_tags',
-    'Find tags by name, optionally within a space.',
     z.strictObject({
       ...pageFields,
       query: z.string().optional(),

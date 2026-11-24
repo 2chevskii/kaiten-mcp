@@ -69,7 +69,7 @@ booleans must use JSON numbers and booleans. Update `changes` must be nonempty.
 Use `YYYY-MM-DD` or an ISO timestamp with a timezone for dates.
 
 For member-role changes, `member_id` is the membership ID from
-`kaiten_relations_read` (`list_card_members`); `type` accepts only `2`. For property values,
+`kaiten_collaboration_read` (`list_card_members`); `type` accepts only `2`. For property values,
 keys must have the form `id_7` and the object passed to
 `kaiten_custom_properties_write` (`set_card_properties`) must contain at least one entry.
 

@@ -22,7 +22,6 @@ export function registerActivityAndAudit(registry: ToolRegistry): void {
   const {activity, auditLogs} = registry.client;
   registry.add(
     'auditLogs.retrieveAuditLogEvents',
-    'Retrieve an audit-log page with native filters and complete event details.',
     z.strictObject({
       query: z
         .strictObject({
@@ -53,7 +52,6 @@ export function registerActivityAndAudit(registry: ToolRegistry): void {
   );
   registry.add(
     'activity.listCompanyActivity',
-    'Read company activity with native filters and an opaque next_cursor.',
     z.strictObject({query: companyQuery.optional()}),
     apiResult,
     read,
@@ -66,7 +64,6 @@ export function registerActivityAndAudit(registry: ToolRegistry): void {
   );
   registry.add(
     'activity.listSpaceActivity',
-    'Read space activity with native filters and an opaque next_cursor.',
     z.strictObject({space_id: id, query: activityQuery.optional()}),
     apiResult,
     read,
@@ -80,7 +77,6 @@ export function registerActivityAndAudit(registry: ToolRegistry): void {
   );
   registry.add(
     'activity.iterateCompanyActivity',
-    'Collect a bounded company-activity snapshot through the public client iterator; max_items defaults to 100, maximum 1000.',
     z.strictObject({query: companyQuery.optional(), max_items: maximum}),
     apiResult,
     read,
@@ -96,7 +92,6 @@ export function registerActivityAndAudit(registry: ToolRegistry): void {
   );
   registry.add(
     'activity.iterateSpaceActivity',
-    'Collect a bounded space-activity snapshot through the public client iterator; max_items defaults to 100, maximum 1000.',
     z.strictObject({
       space_id: id,
       query: activityQuery.optional(),

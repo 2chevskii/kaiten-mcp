@@ -2,7 +2,6 @@ import {readFileSync, statSync} from 'node:fs';
 import {homedir} from 'node:os';
 import {dirname, join, resolve} from 'node:path';
 import * as z from 'zod/v4';
-import type {ToolProfile} from './catalog.ts';
 
 const contextId = z.number().int().positive().max(Number.MAX_SAFE_INTEGER);
 const preference = z.strictObject({
@@ -110,14 +109,8 @@ export function readModelContext(
   return context;
 }
 
-export function modelInstructions(
-  context: ModelContext = {},
-  profile: ToolProfile = 'legacy',
-): string {
-  const navigation =
-    profile === 'canonical'
-      ? 'kaiten_workspace_read'
-      : 'kaiten_navigation_read';
+export function modelInstructions(context: ModelContext = {}): string {
+  const navigation = 'kaiten_workspace_read';
   const identity =
     context.user_id === undefined
       ? `For "I", "me" and "my", use the Kaiten token user returned by ${navigation} operation get_current_user.`

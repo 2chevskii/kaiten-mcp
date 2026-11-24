@@ -66,7 +66,6 @@ export function registerFiles(
   } = client;
   registry.add(
     'list_card_files',
-    'List full card attachment metadata through the public card read, including legacy numeric IDs and restricted UUIDs; pagination is local.',
     z.strictObject({card_id: id, ...pageFields}),
     z.strictObject({
       card_uid: z.string().nullable(),
@@ -86,7 +85,6 @@ export function registerFiles(
   );
   registry.add(
     'get_legacy_card_file',
-    'Find legacy numeric-ID file metadata in the public card read; missing files return FILE_NOT_FOUND.',
     z.strictObject({card_id: id, file_id: id}),
     apiResult,
     read,
@@ -96,7 +94,6 @@ export function registerFiles(
   );
   registry.add(
     'cardFiles.attachFileToCard',
-    'Legacy deprecated numeric-ID upload. Decode base64 to Blob and let the public client build multipart/form-data.',
     z.strictObject({card_id: id, file: fileUpload}),
     apiResult,
     change,
@@ -110,7 +107,6 @@ export function registerFiles(
   );
   registry.add(
     'cardFiles.detachFileFromCard',
-    'Delete a legacy numeric-ID card attachment.',
     z.strictObject({card_id: id, file_id: id}),
     apiResult,
     change,
@@ -124,7 +120,6 @@ export function registerFiles(
   );
   registry.add(
     'cardFiles.updateFile',
-    'Update the legacy attachment card-cover flag, preserving false and omission.',
     z.strictObject({
       card_id: id,
       file_id: id,
@@ -143,7 +138,6 @@ export function registerFiles(
   );
   registry.add(
     'restrictedAccessCardFiles.attachFileToCard',
-    'Upload base64 file bytes to a card UUID using the public multipart client method.',
     z.strictObject({card_uid: uuid, file: fileUpload}),
     apiResult,
     change,
@@ -157,7 +151,6 @@ export function registerFiles(
   );
   registry.add(
     'restrictedAccessCardFiles.getCardFile',
-    'Get complete restricted file metadata or a temporary location with redirect=true; this operation does not fetch file bytes.',
     z.strictObject({
       ...cardKey,
       redirect: z.boolean().optional(),
@@ -177,7 +170,6 @@ export function registerFiles(
   );
   registry.add(
     'restrictedAccessCardFiles.updateCardFile',
-    'Rename a restricted card file or update its card-cover flag.',
     z.strictObject({
       ...cardKey,
       name: z.string().optional(),
@@ -197,7 +189,6 @@ export function registerFiles(
   );
   registry.add(
     'restrictedAccessCardFiles.deleteCardFile',
-    'Delete a restricted card file by UUID.',
     z.strictObject(cardKey),
     apiResult,
     change,
@@ -207,7 +198,6 @@ export function registerFiles(
   );
   registry.add(
     'restrictedAccessCommentFiles.attachFileToComment',
-    'Upload base64 file bytes to a comment using card and comment UUIDs.',
     z.strictObject({card_uid: uuid, comment_uid: uuid, file: fileUpload}),
     apiResult,
     change,
@@ -222,7 +212,6 @@ export function registerFiles(
   );
   registry.add(
     'restrictedAccessCommentFiles.getCommentFile',
-    'Get complete comment-file metadata or a temporary location with query.redirect=true.',
     z.strictObject({...commentKey, query: redirectQuery.optional()}),
     apiResult,
     read,
@@ -238,7 +227,6 @@ export function registerFiles(
   );
   registry.add(
     'restrictedAccessCommentFiles.updateCommentFile',
-    'Update comment-file name and card_cover using the native partial body.',
     z.strictObject({...commentKey, body: updateBody}),
     apiResult,
     change,
@@ -254,7 +242,6 @@ export function registerFiles(
   );
   registry.add(
     'restrictedAccessCommentFiles.deleteCommentFile',
-    'Delete a restricted comment file by UUID.',
     z.strictObject(commentKey),
     apiResult,
     change,
@@ -269,7 +256,6 @@ export function registerFiles(
   );
   registry.add(
     'restrictedAccessCustomPropertyFiles.attachFileToCustomProperty',
-    'Upload base64 file bytes to a custom property using card and property UUIDs.',
     z.strictObject({card_uid: uuid, property_uid: uuid, file: fileUpload}),
     apiResult,
     change,
@@ -284,7 +270,6 @@ export function registerFiles(
   );
   registry.add(
     'restrictedAccessCustomPropertyFiles.getCustomPropertyFile',
-    'Get complete custom-property-file metadata or a temporary location with query.redirect=true.',
     z.strictObject({...propertyKey, query: redirectQuery.optional()}),
     apiResult,
     read,
@@ -300,7 +285,6 @@ export function registerFiles(
   );
   registry.add(
     'restrictedAccessCustomPropertyFiles.updateCustomPropertyFile',
-    'Update custom-property-file name and card_cover using the native partial body.',
     z.strictObject({...propertyKey, body: updateBody}),
     apiResult,
     change,
@@ -316,7 +300,6 @@ export function registerFiles(
   );
   registry.add(
     'restrictedAccessCustomPropertyFiles.deleteCustomPropertyFile',
-    'Delete a restricted custom-property file by UUID.',
     z.strictObject(propertyKey),
     apiResult,
     change,
@@ -331,7 +314,6 @@ export function registerFiles(
   );
   registry.add(
     'download_card_file',
-    'Retrieve a restricted card file as an embedded MCP binary resource, bounded by KAITEN_MAX_FILE_BYTES; never send API credentials to storage.',
     z.strictObject(cardKey),
     downloadResult,
     read,
@@ -354,7 +336,6 @@ export function registerFiles(
   );
   registry.add(
     'download_comment_file',
-    'Retrieve a restricted comment file as an embedded MCP binary resource with the configured byte limit.',
     z.strictObject(commentKey),
     downloadResult,
     read,
@@ -377,7 +358,6 @@ export function registerFiles(
   );
   registry.add(
     'download_custom_property_file',
-    'Retrieve a restricted custom-property file as an embedded MCP binary resource with the configured byte limit.',
     z.strictObject(propertyKey),
     downloadResult,
     read,
@@ -400,7 +380,6 @@ export function registerFiles(
   );
   registry.add(
     'download_legacy_card_file',
-    'Find a legacy numeric-ID attachment through the public card read and return its public URL bytes as an embedded MCP binary resource.',
     z.strictObject({card_id: id, file_id: id}),
     downloadResult,
     read,

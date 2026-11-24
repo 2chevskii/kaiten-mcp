@@ -131,7 +131,6 @@ For a source checkout, follow [development](./development.md).
 | `KAITEN_ADDON_SECRET_FILE` | No            | Rotating addon secret file; mutually exclusive with `KAITEN_ADDON_SECRET`                                                |
 | `KAITEN_API_VERSION`       | No            | REST prefix: `v1` (default) or `latest`                                                                                  |
 | `KAITEN_MAX_FILE_BYTES`    | No            | Binary upload/download cap; default `5242880` (5 MiB), range `1`–`104857600`; also caps combined comment-form file bytes |
-| `KAITEN_TOOL_PROFILE`      | No            | `canonical` is the default catalog on new builds. `legacy` retains the v2 catalog.                                       |
 
 HTTPS is required for a Kaiten company. The client library accepts loopback HTTP
 for local fixtures. REST requests use API v1 by default. See [connection options](./connection-options.md) for API-version selection and rotating credentials.
@@ -149,8 +148,7 @@ nickname. “My tasks” defaults to `responsible_ids`; explicit requests such a
 
 For a service token, set `user_id` to the person whose tasks should count as
 yours. This does not change the token account or its permissions:
-`get_current_user` always returns the actual token account. Use
-`kaiten_navigation_read` as the workspace tool in the v2 catalog.
+`get_current_user` always returns the actual token account.
 
 Optionally create `.agents/kaiten-mcp.context.json` in your project or user profile:
 
@@ -212,9 +210,7 @@ JSON stop startup with a generic diagnostic on stderr. Files are read once;
 restart the server after edits. Each server entry can use its own files. Their
 merged contents are shared with the model, so keep secrets out.
 
-The server sends this guidance in MCP initialization `instructions`.
-The legacy profile also repeats it in the `get_current_user` operation description.
-The canonical profile keeps private connection context in initialization.
+The server sends private connection context in MCP initialization `instructions`.
 No extra Kaiten requests are made during initialization.
 
 Explicit user requests override connection preferences. For omitted scope, the
@@ -233,9 +229,8 @@ at startup. Actual model behavior needs verification in your MCP client.
 
 ## 3. Verify the connection
 
-Reload your client's MCP configuration and check that it discovers the
-`kaiten_` tools. Kaiten MCP 3.0 exposes **14 tools** by default.
-The explicit legacy profile exposes the **20 tools** from v2. Ask the assistant:
+Reload your client's MCP configuration and check that it discovers **14 tools**
+with the `kaiten_` prefix. Ask the assistant:
 
 > Identify my Kaiten user, then list the spaces I can access.
 
@@ -258,15 +253,12 @@ present or approve calls; server annotations describe read and destructive
 operations. Kaiten enforces the token's permissions.
 
 Search returns compact summaries. Fetch card details, comments and checklist
-items with their dedicated tools. Lists default to 25 items and accept at most
-100; follow the returned continuation field until it is `null`.
+items with their dedicated tools. For paginated operations, follow the returned continuation field until it is `null`.
 
 ## Supported scope
 
-New builds expose **14 tools** across seven read/write domains. See the
-[tool reference](./tools.md) to select a domain and operation. The legacy
-profile keeps [v2 advanced client operations](./api.md) and their original
-inputs and JSON response envelopes.
+The server exposes **14 tools** across seven read/write domains. See the
+[tool reference](./tools.md) to select a domain and operation.
 
 - Workspace hierarchy, profiles, groups, roles and access; [SCIM provisioning](./scim.md).
 - Cards, filters, blockers, dependencies, relationships, members, tags and types.

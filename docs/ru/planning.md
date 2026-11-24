@@ -1,5 +1,7 @@
 # Итерации и прежние спринты
 
+Читайте итерации и участие карточек через `kaiten_workflows_read`. Создавайте и изменяйте итерации через `kaiten_workflows_write`. Результат Kaiten сохраняется в `{result}`.
+
 ## Добавление и перенос карточек
 
 В `kaiten_workflows_write` выберите `add_iteration_member`. Передайте
@@ -30,25 +32,21 @@
 
 [API добавления](https://developers.kaiten.ru/iterations/add-card-to-iteration)
 
-## Прежний профиль
+## Операции с итерациями и спринтами
 
-Эти [расширенные операции](./api.md) используют `kaiten_navigation_read` и
-`kaiten_navigation_write`; общее число остаётся равным 20. Полный JSON-ответ
-клиента сохраняется в `{result}`.
-
-| Операция                              | Аргументы                               | Поведение                                                                  |
-| ------------------------------------- | --------------------------------------- | -------------------------------------------------------------------------- |
-| `iterations.createIteration`          | `space_uid`, `body`                     | Создание: `title`, необязательные nullable-цель/даты начала и окончания    |
-| `iterations.getIteration`             | `space_uid`, `id`                       | Чтение итерации                                                            |
-| `iterations.retrieveListOfIterations` | `space_uid`, `query?`                   | Фильтры состояния, данных, порядка и offset-страницы                       |
-| `iterations.updateIteration`          | `space_uid`, `id`, `body`               | Изменение заголовка, цели, состояния, дат и необязательной итерации-замены |
-| `iterations.deleteIteration`          | `space_uid`, `id`, `new_iteration_id?`  | Удаление с необязательной заменой                                          |
-| `iterations.addCardToIteration`       | `space_uid`, `iteration_id`, `card_uid` | Добавление связи с карточкой                                               |
-| `iterations.retrieveCardsInIteration` | `space_uid`, `iteration_id`, `status?`  | Записи участия, а не полные карточки                                       |
-| `iterations.removeCardFromIteration`  | `space_uid`, `iteration_id`, `uid`      | Удаление участия карточки                                                  |
-| `iterations.getCardIterationsHistory` | `card_uid`, `with_details?`             | История участия                                                            |
-| `sprints.getSprintSummary`            | `id`, `exclude_deleted_cards?`          | Чтение сводки прежнего спринта                                             |
-| `sprints.getSprintsList`              | `active?`, `limit?`, `offset?`          | Список прежних спринтов                                                    |
+| Операция                      | Аргументы                                               | Поведение                                                                  |
+| ----------------------------- | ------------------------------------------------------- | -------------------------------------------------------------------------- |
+| `create_iteration`            | `space_uid`, `body`                                     | Создание: `title`, необязательные nullable-цель/даты начала и окончания    |
+| `get_iteration`               | `space_uid`, `id`                                       | Чтение итерации                                                            |
+| `list_iterations`             | `space_uid`, `query?`                                   | Фильтры состояния, порядок и offset-пагинация                              |
+| `update_iteration`            | `space_uid`, `id`, `body`                               | Изменение заголовка, цели, состояния, дат и необязательной итерации-замены |
+| `delete_iteration`            | `space_uid`, `id`, `new_iteration_id?`                  | Удаление с необязательной заменой                                          |
+| `add_iteration_member`        | `space_uid`, `iteration_id`, `card_uid` или `card_uids` | Добавление или перенос карточек                                            |
+| `list_iteration_memberships`  | `space_uid`, `iteration_id`, `status?`                  | Записи участия, а не полные карточки                                       |
+| `remove_iteration_member`     | `space_uid`, `iteration_id`, `uid` или `card_uids`      | Удаление участия одной карточки или пакета из 1–500 уникальных UID         |
+| `list_card_iteration_history` | `card_uid`, `with_details?`                             | История участия                                                            |
+| `get_legacy_sprint_summary`   | `id`, `exclude_deleted_cards?`                          | Чтение сводки прежнего спринта                                             |
+| `list_legacy_sprints`         | `active?`, `limit?`, `offset?`                          | Список прежних спринтов                                                    |
 
 ID итераций — строки, прежних спринтов — числа. Итерации должны быть включены
 для компании; API помечен upstream как beta. Kaiten проверяет доступ к
@@ -60,16 +58,15 @@ ID итераций — строки, прежних спринтов — чис
 окончания; `actual_finish_date` и `new_iteration_id` могут сопровождать их.
 Пропущенные значения не добавляются, nullable-даты/цель/замена сохраняют явный
 null. Удаление без замены не отправляет тело, а `new_iteration_id: null`
-отправляет явный null. Даты и строковые флаги query, например `with_data`,
-передаются без изменений. Следующие страницы не загружаются автоматически;
+отправляет явный null. `list_iterations` принимает `status`, `order`, `limit` и `offset` в `query`. Следующие страницы не загружаются автоматически;
 сохраняйте фильтры при изменении `offset`.
 
-Закрытие итерации через `kaiten_navigation_write`:
+Закрытие итерации через `kaiten_workflows_write`:
 
 ```json
 {
   "request": {
-    "operation": "iterations.updateIteration",
+    "operation": "update_iteration",
     "args": {
       "space_uid": "space-uid",
       "id": "iteration-id",

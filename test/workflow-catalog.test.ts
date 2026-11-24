@@ -3,9 +3,7 @@ import {test} from 'node:test';
 import {startHarness, token} from './harness.ts';
 
 test('workflow reads locate iterations and memberships using public REST paging', async context => {
-  const harness = await startHarness(context, 30_000, {
-    KAITEN_TOOL_PROFILE: 'canonical',
-  });
+  const harness = await startHarness(context);
   const iteration = {
     id: 'iteration-uid',
     space_uid: 'space-uid',
@@ -51,9 +49,7 @@ test('workflow reads locate iterations and memberships using public REST paging'
 });
 
 test('workflow writes preserve time-log values and webhook credential separation', async context => {
-  const harness = await startHarness(context, 30_000, {
-    KAITEN_TOOL_PROFILE: 'canonical',
-  });
+  const harness = await startHarness(context);
   assert.equal(
     harness.operations.get('add_card_time_log')?.tool,
     'kaiten_workflows_write',

@@ -20,7 +20,6 @@ export function registerCardRead(registry: ToolRegistry): void {
   const {client} = registry;
   registry.add(
     'search_cards',
-    'Search Kaiten tasks (cards) with filters. For my tasks, first read kaiten_navigation_read operation get_current_user and its connection guidance; default to responsible_ids for that user unless configured otherwise. Do not infer identity from OS or OpenAI names. Returns summaries and a cursor; reuse the same filters with next_cursor. Fetch details with kaiten_cards_read operation get_card.',
     z.strictObject({
       query: z.string().optional(),
       space_id: id.optional(),
@@ -68,7 +67,6 @@ export function registerCardRead(registry: ToolRegistry): void {
   );
   registry.add(
     'get_card',
-    'Get a card with its full description, members, tags, properties, external links, parent and child card references and checklist references when available. Read comments and checklist items with their dedicated tools.',
     cardInput,
     entityResult(cardDetails),
     read,

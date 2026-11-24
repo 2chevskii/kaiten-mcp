@@ -177,8 +177,7 @@ export const cardsCatalog: CatalogDefinition = {
           },
         },
         {
-          source: 'catalog.cards.retrieveCardList',
-          replaces: ['cards.retrieveCardList'],
+          source: 'cards.retrieveCardList',
           description:
             'Read one native page for custom projections, sorting or complex filters. Match version 1 to arrays and version 2 to native pagination metadata.',
           input: input =>
@@ -217,8 +216,7 @@ export const cardsCatalog: CatalogDefinition = {
         },
       ],
       scan_cards: {
-        source: 'catalog.cards.iterate',
-        replaces: ['cards.iterate'],
+        source: 'cards.iterate',
         output: z.object({
           result: z.object({
             items: z

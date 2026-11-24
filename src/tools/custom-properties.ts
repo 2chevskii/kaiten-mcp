@@ -23,7 +23,6 @@ export function registerCustomProperties(registry: ToolRegistry): void {
   });
   registry.add(
     'list_custom_properties',
-    'Find existing custom property definitions. Inspect type, multi_select and data before assigning values.',
     searchPage,
     pageResult(propertyView),
     read,
@@ -38,7 +37,6 @@ export function registerCustomProperties(registry: ToolRegistry): void {
   );
   registry.add(
     'get_custom_property',
-    'Read a custom property definition and type-specific settings.',
     z.strictObject({property_id: id}),
     entityResult(propertyView),
     read,
@@ -51,7 +49,6 @@ export function registerCustomProperties(registry: ToolRegistry): void {
   );
   registry.add(
     'list_select_values',
-    'Find existing select options. Card values use an array of numeric option IDs, including single-select properties.',
     optionsPage,
     pageResult(propertyOptionView),
     read,
@@ -67,7 +64,6 @@ export function registerCustomProperties(registry: ToolRegistry): void {
   );
   registry.add(
     'list_catalog_values',
-    'Find existing catalog values. Assign a catalog value ID as a string in card properties.',
     optionsPage,
     pageResult(propertyOptionView),
     read,
@@ -83,7 +79,6 @@ export function registerCustomProperties(registry: ToolRegistry): void {
   );
   registry.add(
     'list_custom_directories',
-    'Find existing custom directories with field definitions.',
     searchPage,
     pageResult(directoryView),
     read,
@@ -98,7 +93,6 @@ export function registerCustomProperties(registry: ToolRegistry): void {
   );
   registry.add(
     'list_custom_directory_records',
-    'Find records in an existing custom directory. Assign record UUIDs as an array in card properties.',
     z.strictObject({
       directory_id: uuid,
       ...pageFields,
@@ -118,7 +112,6 @@ export function registerCustomProperties(registry: ToolRegistry): void {
   );
   registry.add(
     'set_card_properties',
-    'Set existing card properties using id_<propertyId> keys. Omitted properties remain unchanged; null clears a value. Use native Kaiten formats: scalar text/number, select ID arrays, catalog string ID, directory UUID arrays, or a date object with date/time/tzOffset. Definitions and options are read-only.',
     z.strictObject({
       card_id: id,
       properties: properties.refine(

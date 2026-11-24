@@ -151,9 +151,6 @@ export const cardSearchQuery = z.strictObject({
   exclude_card_ids: z.union([z.string(), z.array(id)]).optional(),
   organizations_ids: z.union([z.string(), z.array(id)]).optional(),
   broken_api: z.boolean().optional(),
-});
-
-export const canonicalCardSearchQuery = cardSearchQuery.extend({
   project_ids: z
     .union([
       z

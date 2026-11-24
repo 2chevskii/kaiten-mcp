@@ -111,7 +111,6 @@ async function main() {
   const {positionals, values} = parseArgs({
     allowPositionals: true,
     options: {
-      profile: {type: 'string'},
       output: {type: 'string'},
       strict: {type: 'boolean'},
       report: {type: 'string'},
@@ -124,10 +123,10 @@ async function main() {
     (mode === 'goal' && values.report === undefined)
   ) {
     throw new Error(
-      'Use lint, score, or goal --report score.json [--profile name] [--output directory] [--strict].',
+      'Use lint, score, or goal --report score.json [--output directory] [--strict].',
     );
   }
-  const catalog = await readCatalog(values.profile);
+  const catalog = await readCatalog();
   const {tools} = parseToolDefinitions(catalog);
   const serverName = catalog.server.name;
   const lint = lintServer({serverName, tools});
@@ -145,7 +144,6 @@ async function main() {
   await save('lint.json', lint);
   await save('provenance.json', {
     ...gitMetadata(),
-    profile: values.profile ?? 'default',
     server: catalog.server,
     scorer: `mcp-tdqs@${PACKAGE_VERSION}`,
     lintSpec: lint.specVersion,

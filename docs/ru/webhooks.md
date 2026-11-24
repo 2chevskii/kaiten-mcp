@@ -1,8 +1,6 @@
 # Входящие webhooks карточек
 
-`sendCardWebhook` в `kaiten_cards_write` вызывает публичную функцию клиента
-для создания карточки через существующий webhook Kaiten. Общее число
-инструментов остаётся равным 20.
+Вызовите `send_card_webhook` в `kaiten_workflows_write`, чтобы создать карточку по настроенному входящему webhook.
 
 Аргументы — `webhook_url` и `body`. Обязателен `title`; доступны `description`,
 `asap`, `due_date`, `owner_id`, `links` (элементы с `url` и необязательным
@@ -21,7 +19,7 @@ TypeScript; пакет не предоставляет listener или серв�
 ```json
 {
   "request": {
-    "operation": "sendCardWebhook",
+    "operation": "send_card_webhook",
     "args": {
       "webhook_url": "https://your-company.kaiten.ru/your-configured-webhook-path",
       "body": {"title": "Integration task", "asap": false, "tags": ["Backend"]}

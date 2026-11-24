@@ -1,31 +1,19 @@
 # Identity and access
 
-See also [SCIM provisioning](./scim.md).
-Time-tracking [role inputs](./time-tracking.md) accept the built-in Employee ID `-1`.
+Use `kaiten_workspace_read` to inspect the token account, users and access. Write through `kaiten_workspace_write`. Start with `get_current_user`, `list_company_users` or `list_space_users`. Use `list_tree_roles` to resolve role UIDs for invitations and grants. See also [SCIM provisioning](./scim.md).
 
-Use `kaiten_workspace_read` and `kaiten_workspace_write` with the canonical
-profile. Start with `get_current_user` for the token account, `list_company_users`
-for owner and participant IDs, or `list_space_users` for access to one space.
-Company access changes require the corresponding Kaiten permissions. Use
-`list_tree_roles` for the role UIDs used in space invites and entity grants.
-
-The reference below lists legacy operation names. Set
-`KAITEN_TOOL_PROFILE=legacy` to use them through `kaiten_navigation_read` and
-`kaiten_navigation_write`. Advanced responses preserve the complete upstream
-JSON in `{result}`.
-
-| Resource          | Operations after `resource.`                                                                                     | Arguments                                                                                                                                                  |
-| ----------------- | ---------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `companyUsers`    | `getListOfUsers`, `updateUser`, `removeVirtualUser`                                                              | `query?` for list; `user_id`, `apps_permissions?`, `temporarily_inactive?` for update; `user_id` for removal                                               |
-| `users`           | `retrieveCurrentUser`, `retrieveListOfUsers`, `iterate`, `updateUser`                                            | No arguments for current user; `query?` for list/iterate; `max_items?` for iterate; `user_id`, `body` for update                                           |
-| `groups`          | `createGroup`, `getGroup`, `getListOfGroups`, `updateGroup`, `removeGroup`                                       | `name`, `permissions?`, `add_to_cards_and_spaces_enabled?` for create; `uid` for get/update/delete; optional creation fields for update; `query?` for list |
-| `groupAdmins`     | `addAdminToGroup`, `getListOfGroupAdmins`, `removeAdminFromGroup`                                                | `group_uid`; `user_id` for add/remove                                                                                                                      |
-| `groupUsers`      | `addUserToGroup`, `getListOfGroupUsers`, `removeUserFromGroup`                                                   | `group_uid`; `user_id` for add/remove; `request_id?`, `operator_comment?` for add                                                                          |
-| `groupEntities`   | `addEntity`, `getListOfGroupEntities`, `updateGroupEntity`, `removeEntity`                                       | `group_uid`; `entity_uid`, `role_ids` for add; `uid`, `role_ids` for update; `uid` for delete                                                              |
-| `userRoles`       | `createUserRole`, `getListOfUserRoles`, `getUserRole`, `updateUserRole`, `removeUserRole`                        | `name` for create; `role_id` for get/update/delete; `name` for update; `replace_role_id` for delete                                                        |
-| `spaceUsers`      | `inviteUserToSpace`, `getListOfUsers`, `getUser`, `changeUserRoleAndNotificationSettings`, `removeUserFromSpace` | `space_id`; `body` for invite/change; `id` for get/change/remove; `query?` for list                                                                        |
-| `treeEntities`    | `getListOfEntities`                                                                                              | `query?`: `parent_entity_uid`, `levels_count`, `limit`, `offset`                                                                                           |
-| `treeEntityRoles` | `getListOfTreeEntityRoles`                                                                                       | No arguments                                                                                                                                               |
+| Area                  | Operations                                                                                          | Arguments                                                                                                                                                  |
+| --------------------- | --------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Company access        | `list_company_users`, `update_company_user_access`, `delete_virtual_user`                           | `query?` for list; `user_id`, `apps_permissions?`, `temporarily_inactive?` for update; `user_id` for removal                                               |
+| Account and directory | `get_current_user`, `list_directory_users`, `scan_directory_users`, `update_user_profile`           | No arguments for current user; `query?` for list/iterate; `max_items?` for iterate; `user_id`, `body` for update                                           |
+| Groups                | `create_group`, `get_group`, `list_groups`, `update_group`, `delete_group`                          | `name`, `permissions?`, `add_to_cards_and_spaces_enabled?` for create; `uid` for get/update/delete; optional creation fields for update; `query?` for list |
+| Group admins          | `add_group_admin`, `list_group_admins`, `remove_group_admin`                                        | `group_uid`; `user_id` for add/remove                                                                                                                      |
+| Group members         | `add_group_member`, `list_group_members`, `remove_group_member`                                     | `group_uid`; `user_id` for add/remove; `request_id?`, `operator_comment?` for add                                                                          |
+| Group grants          | `grant_group_access`, `list_group_access`, `update_group_access`, `revoke_group_access`             | `group_uid`; `entity_uid`, `role_ids` for add; `uid`, `role_ids` for update; `uid` for delete                                                              |
+| Company roles         | `create_user_role`, `list_user_roles`, `get_user_role`, `update_user_role`, `delete_user_role`      | `name` for create; `role_id` for get/update/delete; `name` for update; `replace_role_id` for delete                                                        |
+| Space access          | `invite_space_user`, `list_space_users`, `get_space_user`, `update_space_user`, `remove_space_user` | `space_id`; `body` for invite/change; `id` for get/change/remove; `query?` for list                                                                        |
+| Workspace tree        | `list_tree_entities`                                                                                | `query?`: `parent_entity_uid`, `levels_count`, `limit`, `offset`                                                                                           |
+| Tree roles            | `list_tree_roles`                                                                                   | No arguments                                                                                                                                               |
 
 The company-user query includes invitation, licence, inactivity, group and
 permission filters. Native query fields such as `invitesOnly` and
@@ -39,16 +27,16 @@ email-delivery flag. Space access updates require `role_id` or `space_group_id`;
 notification/settings fields may accompany that change. `space_group_id: null`
 clears the group association. Group entity `role_ids: []` clears assigned roles.
 
-`users.iterate` returns a bounded `{result: {items, truncated}}` snapshot (default
+`scan_directory_users` returns a bounded `{result: {items, truncated}}` snapshot (default
 100, maximum 1,000). It keeps all query filters, advances offsets by the number
 actually received, and continues through short pages until an empty page or
 the bound. It may read one lookahead item to determine truncation and does not
-return a continuation token. Use `users.retrieveListOfUsers` for individual
+return a continuation token. Use `list_directory_users` for individual
 offset pages. Space user lists instead use `last_user_id` pagination.
 
 Upstream marks group and tree-access APIs as beta. Its current group-list
 contract warns that `with_tree_entities: true` is rejected; list group entities
-with `groupEntities.getListOfGroupEntities` instead.
+with `list_group_access` instead.
 
 Invite a space user without sending email through canonical `kaiten_workspace_write`.
 

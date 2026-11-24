@@ -45,7 +45,6 @@ export function registerDocumentsAndGroups(registry: ToolRegistry): void {
   const {client} = registry;
   registry.add(
     'documentGroups.iterate',
-    'Collect a bounded snapshot through the public client iterator; returns items and truncated.',
     z.strictObject({
       query: z
         .strictObject({
@@ -72,7 +71,6 @@ export function registerDocumentsAndGroups(registry: ToolRegistry): void {
   );
   registry.add(
     'documentGroups.createNewDocumentGroup',
-    'Create new document group (documentGroups); full API fields and JSON response.',
     z.strictObject({
       body: z.strictObject({
         title: z.string(),
@@ -95,7 +93,6 @@ export function registerDocumentsAndGroups(registry: ToolRegistry): void {
   );
   registry.add(
     'documentGroups.removeDocumentGroup',
-    'Remove document group (documentGroups); full API fields and JSON response.',
     z.strictObject({document_group_uid: text}),
     apiResult,
     change,
@@ -108,7 +105,6 @@ export function registerDocumentsAndGroups(registry: ToolRegistry): void {
   );
   registry.add(
     'documentGroups.retrieveDocumentGroup',
-    'Retrieve document group (documentGroups); full API fields and JSON response.',
     z.strictObject({document_group_uid: text}),
     apiResult,
     read,
@@ -121,7 +117,6 @@ export function registerDocumentsAndGroups(registry: ToolRegistry): void {
   );
   registry.add(
     'documentGroups.retrieveListOfDocumentGroups',
-    'Retrieve list of document groups (documentGroups); full API fields and JSON response.',
     z.strictObject({
       query: z
         .strictObject({
@@ -148,7 +143,6 @@ export function registerDocumentsAndGroups(registry: ToolRegistry): void {
   );
   registry.add(
     'documentGroups.updateDocumentGroup',
-    'Update document group (documentGroups); full API fields and JSON response.',
     z.strictObject({
       document_group_uid: text,
       body: z
@@ -199,7 +193,6 @@ export function registerDocumentsAndGroups(registry: ToolRegistry): void {
   );
   registry.add(
     'documentSchemas.getDocumentDataSchema',
-    'Get document data schema (documentSchemas); full API fields and JSON response.',
     z.strictObject({
       schema_version: text,
       format: z
@@ -218,7 +211,6 @@ export function registerDocumentsAndGroups(registry: ToolRegistry): void {
   );
   registry.add(
     'documents.iterate',
-    'Collect a bounded snapshot through the public client iterator; returns items and truncated.',
     z.strictObject({
       query: z
         .strictObject({
@@ -246,7 +238,6 @@ export function registerDocumentsAndGroups(registry: ToolRegistry): void {
   );
   registry.add(
     'documents.createNewDocument',
-    'Create new document (documents); full API fields and JSON response.',
     z.strictObject({
       body: z.strictObject({
         title: z.string().optional(),
@@ -269,7 +260,6 @@ export function registerDocumentsAndGroups(registry: ToolRegistry): void {
   );
   registry.add(
     'documents.removeDocument',
-    'Remove document (documents); full API fields and JSON response.',
     z.strictObject({document_uid: text}),
     apiResult,
     change,
@@ -279,7 +269,6 @@ export function registerDocumentsAndGroups(registry: ToolRegistry): void {
   );
   registry.add(
     'documents.retrieveDocument',
-    'Retrieve document (documents); full API fields and JSON response.',
     z.strictObject({document_uid: text}),
     apiResult,
     read,
@@ -292,7 +281,6 @@ export function registerDocumentsAndGroups(registry: ToolRegistry): void {
   );
   registry.add(
     'documents.retrieveListOfDocuments',
-    'Retrieve list of documents (documents); full API fields and JSON response.',
     z.strictObject({
       query: z
         .strictObject({
@@ -320,7 +308,6 @@ export function registerDocumentsAndGroups(registry: ToolRegistry): void {
   );
   registry.add(
     'documents.updateDocument',
-    'Update document (documents); full API fields and JSON response.',
     z.strictObject({
       document_uid: text,
       body: documentUpdateBody.refine(
@@ -340,7 +327,6 @@ export function registerDocumentsAndGroups(registry: ToolRegistry): void {
   );
   registry.add(
     'documents.updateDocumentWithSchema',
-    'Save a complete document tree using a concrete ProseMirror schema version.',
     z.strictObject({
       document_uid: text,
       body: documentUpdateBody.omit({backup_version: true}).extend({
@@ -362,6 +348,5 @@ export function registerDocumentsAndGroups(registry: ToolRegistry): void {
         ),
       };
     },
-    {canonicalOnly: true},
   );
 }

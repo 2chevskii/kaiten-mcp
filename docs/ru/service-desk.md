@@ -1,15 +1,13 @@
 # Service Desk и SLA
 
-Эти [расширенные операции](./api.md) используют `kaiten_cards_read` и
-`kaiten_cards_write`; общее число остаётся равным 20. Полные ответы клиента
-сохраняются в `{result}`.
+Читайте маршрутизацию, политику внешних получателей и SLA через `kaiten_workflows_read`, изменяйте адреса внешних получателей через `kaiten_workflows_write`. Ответ API передаётся в `{result}`.
 
-| Операция                                            | Аргументы                   | Инструмент           |
-| --------------------------------------------------- | --------------------------- | -------------------- |
-| `serviceDeskServices.retrieveServicesList`          | Нет                         | `kaiten_cards_read`  |
-| `cardSla.retrieveCardSlaMeasurements`               | `card_id`                   | `kaiten_cards_read`  |
-| `cardServiceDeskExternalRecipients.addNewRecipient` | `card_id`, непустой `email` | `kaiten_cards_write` |
-| `cardServiceDeskExternalRecipients.removeRecipient` | `card_id`, непустой `email` | `kaiten_cards_write` |
+| Операция                        | Аргументы                   | Инструмент               |
+| ------------------------------- | --------------------------- | ------------------------ |
+| `list_service_desk_services`    | Нет                         | `kaiten_workflows_read`  |
+| `get_card_sla`                  | `card_id`                   | `kaiten_workflows_read`  |
+| `add_service_desk_recipient`    | `card_id`, непустой `email` | `kaiten_workflows_write` |
+| `remove_service_desk_recipient` | `card_id`, непустой `email` | `kaiten_workflows_write` |
 
 Список сервисов сохраняет маршрутизацию, расположение/тип карточек, настройки
 полей, email-маски и политику внешних получателей, если они возвращаются Kaiten.
@@ -24,12 +22,12 @@ ID сервиса можно передать в `service_id` расширенн
 статус и безопасное сообщение без приватных деталей upstream и автоматических
 повторных запросов записи.
 
-Добавление получателя через `kaiten_cards_write`:
+Добавление получателя через `kaiten_workflows_write`:
 
 ```json
 {
   "request": {
-    "operation": "cardServiceDeskExternalRecipients.addNewRecipient",
+    "operation": "add_service_desk_recipient",
     "args": {"card_id": 10, "email": "person+tag@example.com"}
   }
 }

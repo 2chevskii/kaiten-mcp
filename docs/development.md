@@ -32,7 +32,7 @@ Generated output is excluded from Git and must not be edited by hand.
 | `npm run check`        | Run the build, test types, tests, lint, formatting and docs build |
 
 `npm start` launches the compiled CLI for development. For the published package,
-use the [npx or npm exec configuration](./guide.md#2-configure-your-mcp-client).
+use the [npx or npm exec configuration](./guide.md#_2-configure-your-mcp-client).
 
 ## Verify the MCP catalog with TDQS
 
@@ -49,7 +49,6 @@ npm run tdqs -- score --output artifacts/tdqs/hosted-current
 npm run tdqs -- goal --report path/to/score.json
 ```
 
-Use `--profile legacy` to capture that profile explicitly when supported.
 `--strict` also fails on lint warnings. A `shadow-candidate` warning is a
 heuristic and needs review of the two tools' purposes.
 
@@ -185,7 +184,7 @@ failures, cancellation and shutdown.
 
 These checks exercise MCP and HTTP contracts against fixtures. They do not
 contact a real Kaiten company or prove integration with a particular desktop
-MCP application. For a live read check, follow the [connection verification](./guide.md#3-verify-the-connection).
+MCP application. For a live read check, follow the [connection verification](./guide.md#_3-verify-the-connection).
 
 ## Documentation changes
 

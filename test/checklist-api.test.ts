@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
-import {startHarness} from './harness.ts';
+import {startSourceHarness} from './harness.ts';
 
 test('checklist cloning, sharing and moves retain all supplied fields', async context => {
-  const harness = await startHarness(context);
+  const harness = await startSourceHarness(context);
   harness.reply({id: 8});
   const body = {
     name: 'Copy',
@@ -20,16 +20,10 @@ test('checklist cloning, sharing and moves retain all supplied fields', async co
     true,
   );
   assert.deepEqual(harness.requests.at(-1)?.body, body);
-  assert.equal(
-    harness.operations.get(
-      'spaceTemplateChecklist.getListOfSpaceTemplateChecklists',
-    )?.tool,
-    'kaiten_checklists_read',
-  );
 });
 
 test('checklist and template changes validate required combinations', async context => {
-  const harness = await startHarness(context);
+  const harness = await startSourceHarness(context);
   for (const [operation, args] of [
     [
       'cardChecklists.addChecklistToCard',

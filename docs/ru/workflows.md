@@ -11,8 +11,7 @@
 
 > Найди мои активные карточки, сгруппируй по доскам и сначала покажи просроченные.
 
-1. Прочитайте контекст подключения в описании `kaiten_navigation_read` (`get_current_user`) и вызовите
-   его с `{}`. Используйте `item.id`, если в контексте не настроен другой `user_id`.
+1. Вызовите `get_current_user` в `kaiten_workspace_read` с `{}`. Используйте `item.id`, если в контексте не настроен другой `user_id`.
    Не подтверждайте личность сравнением полученного имени с nickname.
 2. Передайте этот ID как фильтр ответственного (или настроенной роли) в `kaiten_cards_read` (`search_cards`):
 
@@ -27,7 +26,7 @@
 
 Состояние `1` — очередь, `2` — в работе, `3` — выполнено. Добавьте
 `overdue: true`, чтобы найти только просроченные карточки. Для конкретной доски
-получите её ID через `kaiten_navigation_read` (`list_spaces`) и `kaiten_navigation_read` (`list_boards`), затем добавьте
+получите её ID через `kaiten_workspace_read` (`list_spaces`) и `kaiten_workspace_read` (`list_boards`), затем добавьте
 `board_id`.
 
 Для владельца, участника и ответственного предусмотрены отдельные фильтры:
@@ -62,11 +61,11 @@
 
 > Прочитай карточку 123, комментарии и чек-листы. Опиши блокер и незавершённые задачи.
 
-| Шаг                  | Инструмент                                 | Аргументы                          |
-| -------------------- | ------------------------------------------ | ---------------------------------- |
-| Описание и ссылки    | `kaiten_cards_read` (`get_card`)           | `{"card_id":123}`                  |
-| Обсуждение           | `kaiten_comments_read` (`list_comments`)   | `{"card_id":123,"limit":100}`      |
-| Чек-лист из карточки | `kaiten_checklists_read` (`get_checklist`) | `{"card_id":123,"checklist_id":8}` |
+| Шаг                  | Инструмент                                    | Аргументы                          |
+| -------------------- | --------------------------------------------- | ---------------------------------- |
+| Описание и ссылки    | `kaiten_cards_read` (`get_card`)              | `{"card_id":123}`                  |
+| Обсуждение           | `kaiten_collaboration_read` (`list_comments`) | `{"card_id":123,"limit":100}`      |
+| Чек-лист из карточки | `kaiten_checklists_read` (`get_checklist`)    | `{"card_id":123,"checklist_id":8}` |
 
 Прочитайте все страницы комментариев и каждый чек-лист из карточки.
 `kaiten_checklists_read` (`list_checklists`) также позволяет получить ссылки на чек-листы.
@@ -78,21 +77,23 @@
 
 > Создай карточку релиза на доске «Доставка» с чек-листом «Реализация».
 
-Найдите пространство и доску. Через `kaiten_navigation_read` (`get_board`) получите допустимые
+Найдите пространство и доску. Через `kaiten_workspace_read` (`get_board`) получите допустимые
 ID колонок и дорожек этой доски. Затем вызовите `kaiten_cards_write` (`create_card`):
 
 ```json
 {
-  "title": "Подготовить релиз",
-  "board_id": 2,
-  "column_id": 3,
-  "lane_id": 4,
-  "description": "## Цель\nВыпустить согласованный релиз.",
-  "due_date": "2026-10-15"
+  "body": {
+    "title": "Подготовить релиз",
+    "board_id": 2,
+    "column_id": 3,
+    "lane_id": 4,
+    "description": "## Цель\nВыпустить согласованный релиз.",
+    "due_date": "2026-10-15"
+  }
 }
 ```
 
-Для следующих вызовов используйте полученный `item.id`. Для карточки `123`
+Для следующих вызовов используйте полученный `result.id`. Для карточки `123`
 вызовите `kaiten_checklists_write` (`create_checklist`) с
 `{"card_id":123,"name":"Реализация"}`. Передайте полученный ID чек-листа
 в `kaiten_checklists_write` (`add_checklist_item`):
@@ -132,31 +133,31 @@ ID колонок и дорожек этой доски. Затем вызови
 
 Сначала прочитайте целевую доску, чтобы получить её колонки и дорожки.
 Для редактирования содержимого используйте `kaiten_cards_write` (`update_card`) с непустым
-объектом `changes`:
+объектом `body`:
 
 ```json
 {
   "card_id": 123,
-  "changes": {"description": null, "due_date": "2026-10-15"}
+  "body": {"description": null, "due_date": "2026-10-15"}
 }
 ```
 
 Пропущенные поля сохраняют значения. `null` очищает поддерживаемые поля;
-см. [изменяемые поля](./tools.md#карточки). Для архивации вызовите
+см. [операции с карточками](./tools.md#карточки). Для архивации вызовите
 `kaiten_cards_write` (`archive_card`), для восстановления — `kaiten_cards_write` (`restore_card`),
 оба с `{"card_id":123}`. Архивация меняет условие карточки; состояние
 «очередь / в работе / выполнено» хранится отдельно.
 
 ## Назначить участников и пользовательские поля
 
-Для добавления пользователя вызовите `kaiten_relations_write` (`add_card_member`) с `card_id`
+Для добавления пользователя вызовите `kaiten_collaboration_write` (`add_card_member`) с `card_id`
 и `user_id`. Чтобы назначить участника ответственным, получите `id` связи
-из `kaiten_relations_read` (`list_card_members`) и передайте его как `member_id`
-в `kaiten_relations_write` (`update_card_member_role`) с `type: 2`.
+из `kaiten_collaboration_read` (`list_card_members`) и передайте его как `member_id`
+в `kaiten_collaboration_write` (`update_card_member_role`) с `type: 2`.
 
 Для пользовательских полей:
 
-1. Прочитайте `kaiten_navigation_read` (`get_board`), чтобы узнать настройки полей доски.
+1. Прочитайте `kaiten_workspace_read` (`get_board`), чтобы узнать настройки полей доски.
 2. Найдите поле через `kaiten_custom_properties_read` (`list_custom_properties`) и прочитайте определение
    через `kaiten_custom_properties_read` (`get_custom_property`).
 3. Получите существующие варианты через `kaiten_custom_properties_read` (`list_select_values`),

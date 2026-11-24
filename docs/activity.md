@@ -1,20 +1,14 @@
 # Activity and audit logs
 
-Use `list_activity` through canonical `kaiten_workspace_read` for a cursor page
-or `scan_activity` for a bounded snapshot. Supply a numeric `space_id` for
-space activity or omit it for the company feed. Use `list_audit_events` for
-administrative audit events with offset pagination. Responses retain complete
-event details.
+Use `kaiten_workspace_read` for `list_activity`, `scan_activity` and `list_audit_events`. Supply `space_id` for a space activity feed. Omit it for company activity. Responses retain complete event details.
 
-The table shows v2 names supported by `KAITEN_TOOL_PROFILE=legacy`.
-
-| Operation                          | Arguments                                 | Result                                  |
-| ---------------------------------- | ----------------------------------------- | --------------------------------------- |
-| `auditLogs.retrieveAuditLogEvents` | Optional `query`                          | `{result: events[]}`                    |
-| `activity.listCompanyActivity`     | Optional `query`                          | `{result: {items, limit, next_cursor}}` |
-| `activity.listSpaceActivity`       | `space_id`, optional `query`              | Same activity page                      |
-| `activity.iterateCompanyActivity`  | Optional `query`, `max_items`             | `{result: {items, truncated}}`          |
-| `activity.iterateSpaceActivity`    | `space_id`, optional `query`, `max_items` | Same bounded snapshot                   |
+| Operation           | Arguments                                 | Result                                  |
+| ------------------- | ----------------------------------------- | --------------------------------------- |
+| `list_audit_events` | Optional `query`                          | `{result: events[]}`                    |
+| `list_activity`     | Optional `query`                          | `{result: {items, limit, next_cursor}}` |
+| `list_activity`     | `space_id`, optional `query`              | Same activity page                      |
+| `scan_activity`     | Optional `query`, `max_items`             | `{result: {items, truncated}}`          |
+| `scan_activity`     | `space_id`, optional `query`, `max_items` | Same bounded snapshot                   |
 
 Activity queries accept `limit`, opaque `cursor`, comma-separated `actions`,
 `author_id`, `created_after` and `created_before`. Company activity additionally

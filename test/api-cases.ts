@@ -55,4 +55,12 @@ export const specialOperations = [
   'download_comment_file',
   'download_custom_property_file',
   'download_legacy_card_file',
+  'catalog.listComments',
+  'catalog.listCardChildren',
+  'catalog.listCardBlockers',
+  'catalog.listMyBlockedCards',
+  'catalog.listCardTimeLogs',
+  'iterations.addCardsToIteration',
+  'iterations.removeCardsFromIteration',
+  'documents.updateDocumentWithSchema',
 ];

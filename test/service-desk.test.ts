@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
-import {startHarness} from './harness.ts';
+import {startSourceHarness} from './harness.ts';
 
 test('service desk recipient inputs are validated and access failures are sanitized', async context => {
-  const harness = await startHarness(context);
+  const harness = await startSourceHarness(context);
   for (const email of ['', null, 123]) {
     assert.equal(
       (

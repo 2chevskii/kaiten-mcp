@@ -1,10 +1,10 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
-import {startHarness, token} from './harness.ts';
+import {startSourceHarness, token} from './harness.ts';
 
 for (const resource of ['users', 'groups']) {
   test(`SCIM ${resource} iteration preserves one-based indices across capped pages`, async context => {
-    const harness = await startHarness(context);
+    const harness = await startSourceHarness(context);
     harness.respond((request, response) => {
       const next = request.query.startIndex === '2';
       response.setHeader('Content-Type', 'application/json');
@@ -51,7 +51,7 @@ for (const resource of ['users', 'groups']) {
 }
 
 test('SCIM validates typed patch paths and pagination before HTTP', async context => {
-  const harness = await startHarness(context);
+  const harness = await startSourceHarness(context);
   for (const args of [
     {start_index: 0},
     {start_index: 1.5},

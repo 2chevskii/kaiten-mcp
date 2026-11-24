@@ -15,7 +15,6 @@ export function registerScimProvisioning(
 ): void {
   registry.add(
     'scim.groups.iterate',
-    'Collect a bounded snapshot through the public client iterator; returns items and truncated.',
     z.strictObject({
       ...pageFields,
       max_items: z.number().int().min(1).max(1_000).default(100),
@@ -31,7 +30,6 @@ export function registerScimProvisioning(
   );
   registry.add(
     'scim.groups.addGroup',
-    'Add group (groups); full API fields and JSON response.',
     z.strictObject({display_name: z.string()}),
     apiResult,
     change,
@@ -41,7 +39,6 @@ export function registerScimProvisioning(
   );
   registry.add(
     'scim.groups.getGroup',
-    'Get group (groups); full API fields and JSON response.',
     z.strictObject({group_id: z.union([text, id])}),
     apiResult,
     read,
@@ -51,7 +48,6 @@ export function registerScimProvisioning(
   );
   registry.add(
     'scim.groups.getGroups',
-    'Get groups (groups); full API fields and JSON response.',
     z.strictObject({
       ...pageFields,
     }),
@@ -67,7 +63,6 @@ export function registerScimProvisioning(
   );
   registry.add(
     'scim.groups.updateGroup',
-    'Update group (groups); full API fields and JSON response.',
     z.strictObject({
       group_id: z.union([text, id]),
       operations: z.array(
@@ -97,7 +92,6 @@ export function registerScimProvisioning(
   );
   registry.add(
     'scim.users.iterate',
-    'Collect a bounded snapshot through the public client iterator; returns items and truncated.',
     z.strictObject({
       ...pageFields,
       filter: z.string().optional(),
@@ -119,7 +113,6 @@ export function registerScimProvisioning(
   );
   registry.add(
     'scim.users.addUser',
-    'Add user (users); full API fields and JSON response.',
     z.strictObject({
       body: z.strictObject({
         userName: z.string().optional(),
@@ -143,7 +136,6 @@ export function registerScimProvisioning(
   );
   registry.add(
     'scim.users.getUser',
-    'Get user (users); full API fields and JSON response.',
     z.strictObject({user_id: id}),
     apiResult,
     read,
@@ -153,7 +145,6 @@ export function registerScimProvisioning(
   );
   registry.add(
     'scim.users.getUsers',
-    'Get users (users); full API fields and JSON response.',
     z.strictObject({
       ...pageFields,
       filter: z.string().optional(),
@@ -171,7 +162,6 @@ export function registerScimProvisioning(
   );
   registry.add(
     'scim.users.updateUser',
-    'Update user (users); full API fields and JSON response.',
     z.strictObject({
       user_id: id,
       operations: z.array(

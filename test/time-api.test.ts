@@ -1,9 +1,9 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
-import {startHarness} from './harness.ts';
+import {startSourceHarness} from './harness.ts';
 
 test('time tracking validates dates, roles, bounds and nonempty changes', async context => {
-  const harness = await startHarness(context);
+  const harness = await startSourceHarness(context);
   for (const body of [
     {},
     {role_id: -2},
@@ -35,7 +35,7 @@ test('time tracking validates dates, roles, bounds and nonempty changes', async 
 });
 
 test('time reporting preserves aggregate JSON and the built-in Employee role', async context => {
-  const harness = await startHarness(context);
+  const harness = await startSourceHarness(context);
   harness.reply({total: 60, distribution: {'2026-11-06': 60}});
   const report = await harness.call('timesheet.getList', {
     query: {from: '2026-11-01', to: '2026-11-06', only_general_sum: 1},

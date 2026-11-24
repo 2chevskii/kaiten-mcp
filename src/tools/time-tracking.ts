@@ -7,7 +7,6 @@ export function registerTimeTracking(registry: ToolRegistry): void {
   const {client} = registry;
   registry.add(
     'cardTimeLogs.addTimeLog',
-    'Add a time log in minutes. role_id accepts -1 for Employee. Returns the full client JSON.',
     z.strictObject({
       card_id: id,
       body: z.strictObject({
@@ -28,27 +27,7 @@ export function registerTimeTracking(registry: ToolRegistry): void {
     }),
   );
   registry.add(
-    'cardTimeLogs.getTimeLogs',
-    'Get time logs (cardTimeLogs); full API fields and JSON response.',
-    z.strictObject({
-      card_id: id,
-      for_date: dateOnly.optional(),
-      personal: z.boolean().optional(),
-    }),
-    apiResult,
-    read,
-    async (args, options) => ({
-      result: await client.cardTimeLogs.getTimeLogs(
-        args.card_id,
-        args.for_date,
-        args.personal,
-        options,
-      ),
-    }),
-  );
-  registry.add(
     'cardTimeLogs.removeTimeLog',
-    'Remove time log (cardTimeLogs); full API fields and JSON response.',
     z.strictObject({card_id: id, time_log_id: id}),
     apiResult,
     change,
@@ -62,7 +41,6 @@ export function registerTimeTracking(registry: ToolRegistry): void {
   );
   registry.add(
     'cardTimeLogs.updateLogRecord',
-    'Update log record (cardTimeLogs); full API fields and JSON response.',
     z.strictObject({
       card_id: id,
       time_log_id: id,
@@ -88,7 +66,6 @@ export function registerTimeTracking(registry: ToolRegistry): void {
   );
   registry.add(
     'timesheet.getList',
-    'Get list (timesheet); full API fields and JSON response.',
     z.strictObject({
       query: z.strictObject({
         from: dateOnly,

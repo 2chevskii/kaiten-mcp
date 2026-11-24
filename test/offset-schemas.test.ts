@@ -1,20 +1,29 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
-import {startHarness} from './harness.ts';
+import {startHarness, startSourceHarness} from './harness.ts';
 
 test('pagination advertises compact offsets and retains its limit contract', async context => {
-  const harness = await startHarness(context);
+  const harness = await startSourceHarness(context);
   let offsets = 0;
   for (const [name, operation] of harness.operations) {
-    const fields = operation.schema.properties as Record<string, unknown>;
+    const fields = operation.schema.properties as Record<
+      string,
+      Record<string, unknown>
+    >;
     if (!('offset' in fields)) continue;
     const defaults = !name.includes('.');
-    assert.deepEqual(fields.offset, {
+    const serverPage = name.startsWith('catalog.list');
+    const offset = {...fields.offset};
+    const limit = {...fields.limit};
+    delete offset.description;
+    delete limit.description;
+    assert.deepEqual(offset, {
       type: 'integer',
       minimum: 0,
       ...(defaults ? {default: 0} : {}),
+      ...(serverPage ? {maximum: Number.MAX_SAFE_INTEGER - 100} : {}),
     });
-    assert.deepEqual(fields.limit, {
+    assert.deepEqual(limit, {
       type: 'integer',
       minimum: 1,
       maximum: 100,

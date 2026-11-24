@@ -11,7 +11,7 @@ test('addon OAuth uses its configured secret for both public methods and returns
   });
   for (const [operation, method, path, response] of [
     [
-      'addonOAuth.getToken',
+      'get_addon_token',
       'GET',
       '/api/v1/addon-oauth/addon%2Fuid/tokens/5/7',
       {
@@ -22,7 +22,7 @@ test('addon OAuth uses its configured secret for both public methods and returns
       },
     ],
     [
-      'addonOAuth.refreshToken',
+      'refresh_addon_token',
       'POST',
       '/api/v1/addon-oauth/addon%2Fuid/tokens/5/7/refresh',
       {has_token: false, domain: 'example.kaiten.ru'},
@@ -41,14 +41,14 @@ test('addon OAuth uses its configured secret for both public methods and returns
     });
     assert.equal(
       harness.operations.get(operation)?.tool,
-      method === 'GET' ? 'kaiten_navigation_read' : 'kaiten_navigation_write',
+      method === 'GET' ? 'kaiten_workspace_read' : 'kaiten_workspace_write',
     );
   }
   harness.reply([]);
-  await harness.call('spaces.retrieveListOfSpaces');
+  await harness.call('list_spaces');
   assert.equal(harness.requests.at(-1)?.authorization, `Bearer ${token}`);
   harness.reply({message: `${addonSecret} ${token}`}, 403);
-  const error = await harness.call('addonOAuth.refreshToken', key);
+  const error = await harness.call('refresh_addon_token', key);
   assert.equal(error.isError, true);
   assert.match(JSON.stringify(error), /KAITEN_HTTP_ERROR/);
   assert.ok(!JSON.stringify(error).includes(addonSecret));
@@ -59,7 +59,7 @@ test('addon OAuth uses its configured secret for both public methods and returns
 
 test('addon OAuth operations remain discoverable without credentials and fail safely before HTTP', async context => {
   const harness = await startHarness(context);
-  for (const operation of ['addonOAuth.getToken', 'addonOAuth.refreshToken']) {
+  for (const operation of ['get_addon_token', 'refresh_addon_token']) {
     assert.ok(harness.operations.has(operation));
     const result = await harness.call(operation, key);
     assert.equal(result.isError, true);

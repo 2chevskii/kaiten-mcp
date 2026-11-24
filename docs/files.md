@@ -1,8 +1,6 @@
 # Files and comment attachments
 
-File reads and downloads use `kaiten_files_read`; uploads, metadata changes and
-deletion use `kaiten_files_write`. The server exposes exactly **20 tools**.
-All Kaiten API requests use public methods of the pinned client **1.3.0**.
+File reads and downloads use `kaiten_content_read`. Uploads, metadata changes and deletion use `kaiten_content_write`. List attachments first to identify the parent and file IDs. Kaiten API calls use the public client **1.3.0**.
 
 ## Discover attachments and identifiers
 
@@ -16,31 +14,21 @@ According to [Kaiten's migration guide](https://developers.kaiten.ru/restricted-
 one card can contain legacy attachments with numeric IDs and restricted files
 with UUID IDs (`type: 11`). Use the returned card UUID for restricted operations;
 comment and property UUIDs come from complete comment/property reads.
-`get_legacy_card_file` accepts `card_id` and numeric `file_id`, returning
+`get_attachment` with `target: "legacy_card"` accepts `card_id` and numeric `file_id`, returning
 `{result: metadata}` or `FILE_NOT_FOUND` with status 404.
 
-## Public client operations
+## Attachment operations
 
-These operations return complete native JSON in `{result}`. Use `_read` for
-`get*` operations and `_write` for attach/update/delete/detach.
+Use `get_attachment` for metadata, `download_attachment` for bytes, `attach_file` to upload, `update_attachment` to change metadata and `delete_attachment` to remove a file. Select `target` according to the parent.
 
-| Resource                              | Operations after `resource.`                                                                                  | Arguments                                                                                                                                                      |
-| ------------------------------------- | ------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `cardFiles` (legacy)                  | `attachFileToCard`, `updateFile`, `detachFileFromCard`                                                        | `card_id`; `file` for attach; numeric `file_id` for update/detach; optional `card_cover` for update                                                            |
-| `restrictedAccessCardFiles`           | `attachFileToCard`, `getCardFile`, `updateCardFile`, `deleteCardFile`                                         | `card_uid`; `file` for attach; `file_uid` otherwise; optional `redirect`, `download` for get; optional `name`, `card_cover` for update                         |
-| `restrictedAccessCommentFiles`        | `attachFileToComment`, `getCommentFile`, `updateCommentFile`, `deleteCommentFile`                             | `card_uid`, `comment_uid`; `file` for attach; `file_uid` otherwise; optional `query: {redirect?, download?}` for get; `body: {name?, card_cover?}` for update  |
-| `restrictedAccessCustomPropertyFiles` | `attachFileToCustomProperty`, `getCustomPropertyFile`, `updateCustomPropertyFile`, `deleteCustomPropertyFile` | `card_uid`, `property_uid`; `file` for attach; `file_uid` otherwise; optional `query: {redirect?, download?}` for get; `body: {name?, card_cover?}` for update |
+| Target        | Required parent IDs        | Existing file ID  |
+| ------------- | -------------------------- | ----------------- |
+| `card`        | `card_uid`                 | `file_uid`        |
+| `comment`     | `card_uid`, `comment_uid`  | `file_uid`        |
+| `property`    | `card_uid`, `property_uid` | `file_uid`        |
+| `legacy_card` | Numeric `card_id`          | Numeric `file_id` |
 
-All restricted identifiers are UUID strings. Metadata gets can include a
-temporary signed URL. A get with `redirect: true` returns `{result: {location}}`
-without following it. Request signed links immediately before use and keep
-them private. The byte-download helpers below avoid returning the storage URL.
-
-Restricted routes require the company's restricted-file-access setting.
-Legacy numeric-ID upload and comment multipart upload are deprecated and may
-be disabled by Kaiten; there is no automatic fallback between route families.
-Kaiten's installation limit can reject an upload with HTTP 413, independently
-of the MCP limit. See the [restricted upload reference](https://developers.kaiten.ru/restricted-access-card-files/attach-file-to-card).
+For restricted targets, `get_attachment` accepts `query.redirect` for a short-lived private location and `query.download` to request attachment disposition. `update_attachment` takes `body` with `name` or `card_cover`. The `legacy_card` target supports the cover flag. Restricted routes require the company’s restricted-file-access setting. Prefer them for new uploads. Kaiten can disable numeric-ID uploads. Kaiten can reject files with HTTP 413 independently of the MCP size limit.
 
 ## Upload bytes
 
@@ -50,13 +38,14 @@ prefix. `""` uploads an empty file. Filename defaults to `file`, MIME type to
 `application/octet-stream`. The server converts bytes to a `Blob`; the public
 client builds multipart boundaries and headers. No local file path is accepted.
 
-Upload a three-byte text file through `kaiten_files_write`:
+Upload a three-byte text file through `kaiten_content_write`:
 
 ```json
 {
   "request": {
-    "operation": "restrictedAccessCardFiles.attachFileToCard",
+    "operation": "attach_file",
     "args": {
+      "target": "card",
       "card_uid": "11111111-1111-4111-8111-111111111111",
       "file": {
         "filename": "note.txt",
@@ -72,12 +61,7 @@ The response retains the file UUID for metadata, download, update or deletion.
 
 ## Download bytes through MCP
 
-| Operation in `kaiten_files_read` | Arguments                              |
-| -------------------------------- | -------------------------------------- |
-| `download_card_file`             | `card_uid`, `file_uid`                 |
-| `download_comment_file`          | `card_uid`, `comment_uid`, `file_uid`  |
-| `download_custom_property_file`  | `card_uid`, `property_uid`, `file_uid` |
-| `download_legacy_card_file`      | Numeric `card_id`, `file_id`           |
+Call `download_attachment` in `kaiten_content_read` with the matching `target` and IDs.
 
 Restricted downloads request a temporary redirect through the public client,
 then fetch storage bytes with platform `fetch`, without Authorization or cookies.
@@ -107,6 +91,8 @@ structured and text output. Downloads stay in memory and do not write local file
 
 ## Comments and FormData
 
+Use `list_comments` in `kaiten_collaboration_read` with `format: "full"` to discover comment UIDs and metadata. Use `next_offset` as `offset` to continue. `add_comment` and `update_comment` take `text` or multipart `form`, and updates also take `comment_id`. `delete_comment` takes `card_id` and `comment_id`.
+
 `cardComments.retrieveCardComments`, `addComment`, `updateComment` and
 `removeComment` use the existing comment tools and retain complete JSON,
 including comment UUIDs and attachment metadata. Reads take `card_id`; removal
@@ -121,7 +107,7 @@ For legacy comment uploads, use Kaiten's `files[]` field where supported:
 ```json
 {
   "request": {
-    "operation": "cardComments.addComment",
+    "operation": "add_comment",
     "args": {
       "card_id": 10,
       "form": [
@@ -136,13 +122,7 @@ For legacy comment uploads, use Kaiten's `files[]` field where supported:
 }
 ```
 
-For restricted files, create the comment first, then use its UUID with
-`restrictedAccessCommentFiles.attachFileToComment`.
-The legacy comment read has no server pagination arguments.
-[Kaiten caps this endpoint at 100 comments](https://developers.kaiten.ru/card-comments/retrieve-card-comments),
-so advanced reads expose the returned page and convenient `list_comments` can
-only page locally within it. Use the canonical `list_comments` operation for
-server-side pages.
+For restricted files, create the comment first. Then use `attach_file` with `target: "comment"`, its `comment_uid`, and the parent `card_uid`.
 
 ## Limits and errors
 

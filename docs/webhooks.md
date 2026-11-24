@@ -1,14 +1,8 @@
 # Incoming card webhooks
 
-With the canonical profile, call `send_card_webhook` in
+Call `send_card_webhook` in
 `kaiten_workflows_write` to create a card at a configured webhook destination.
 For direct card creation, use `kaiten_cards_write`.
-
-## Legacy profile
-
-`sendCardWebhook` in `kaiten_cards_write` calls the public client's incoming
-webhook helper. It creates a card through an existing Kaiten webhook URL.
-The total remains 20 tools.
 
 Arguments are `webhook_url` and `body`. The body requires `title` and supports
 `description`, `asap`, `due_date`, `owner_id`, `links` (each with `url` and
@@ -27,7 +21,7 @@ the package does not provide a webhook listener or subscription service.
 ```json
 {
   "request": {
-    "operation": "sendCardWebhook",
+    "operation": "send_card_webhook",
     "args": {
       "webhook_url": "https://your-company.kaiten.ru/your-configured-webhook-path",
       "body": {"title": "Integration task", "asap": false, "tags": ["Backend"]}

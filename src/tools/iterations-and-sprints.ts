@@ -7,7 +7,6 @@ export function registerIterationsAndSprints(registry: ToolRegistry): void {
   const {client} = registry;
   registry.add(
     'iterations.addCardToIteration',
-    'Add card to iteration (iterations); full API fields and JSON response.',
     z.strictObject({space_uid: text, iteration_id: text, card_uid: text}),
     apiResult,
     change,
@@ -22,7 +21,6 @@ export function registerIterationsAndSprints(registry: ToolRegistry): void {
   );
   registry.add(
     'iterations.addCardsToIteration',
-    'Add or transfer a batch of cards to a target iteration.',
     z.strictObject({
       space_uid: text,
       iteration_id: text,
@@ -46,11 +44,9 @@ export function registerIterationsAndSprints(registry: ToolRegistry): void {
         options,
       ),
     }),
-    {canonicalOnly: true},
   );
   registry.add(
     'iterations.createIteration',
-    'Create iteration (iterations); full API fields and JSON response.',
     z.strictObject({
       space_uid: text,
       body: z.strictObject({
@@ -72,7 +68,6 @@ export function registerIterationsAndSprints(registry: ToolRegistry): void {
   );
   registry.add(
     'iterations.deleteIteration',
-    'Delete iteration (iterations); full API fields and JSON response.',
     z.strictObject({
       space_uid: text,
       id: text,
@@ -91,7 +86,6 @@ export function registerIterationsAndSprints(registry: ToolRegistry): void {
   );
   registry.add(
     'iterations.getCardIterationsHistory',
-    'Get card iterations history (iterations); full API fields and JSON response.',
     z.strictObject({card_uid: text, with_details: z.boolean().optional()}),
     apiResult,
     read,
@@ -105,7 +99,6 @@ export function registerIterationsAndSprints(registry: ToolRegistry): void {
   );
   registry.add(
     'iterations.getIteration',
-    'Get iteration (iterations); full API fields and JSON response.',
     z.strictObject({space_uid: text, id: text}),
     apiResult,
     read,
@@ -119,7 +112,6 @@ export function registerIterationsAndSprints(registry: ToolRegistry): void {
   );
   registry.add(
     'iterations.removeCardFromIteration',
-    'Remove card from iteration (iterations); full API fields and JSON response.',
     z.strictObject({space_uid: text, iteration_id: text, uid: text}),
     apiResult,
     change,
@@ -134,7 +126,6 @@ export function registerIterationsAndSprints(registry: ToolRegistry): void {
   );
   registry.add(
     'iterations.removeCardsFromIteration',
-    'Remove several cards’ manual iteration memberships in one request.',
     z.strictObject({
       space_uid: text,
       iteration_id: text,
@@ -158,11 +149,9 @@ export function registerIterationsAndSprints(registry: ToolRegistry): void {
         options,
       ),
     }),
-    {canonicalOnly: true},
   );
   registry.add(
     'iterations.retrieveCardsInIteration',
-    'Retrieve cards in iteration (iterations); full API fields and JSON response.',
     z.strictObject({
       space_uid: text,
       iteration_id: text,
@@ -181,7 +170,6 @@ export function registerIterationsAndSprints(registry: ToolRegistry): void {
   );
   registry.add(
     'iterations.retrieveListOfIterations',
-    'Retrieve list of iterations (iterations); full API fields and JSON response.',
     z.strictObject({
       space_uid: text,
       query: z
@@ -208,7 +196,6 @@ export function registerIterationsAndSprints(registry: ToolRegistry): void {
   );
   registry.add(
     'iterations.updateIteration',
-    'Update iteration (iterations); full API fields and JSON response.',
     z.strictObject({
       space_uid: text,
       id: text,
@@ -251,7 +238,6 @@ export function registerIterationsAndSprints(registry: ToolRegistry): void {
   );
   registry.add(
     'sprints.getSprintSummary',
-    'Get sprint summary (sprints); full API fields and JSON response.',
     z.strictObject({id: id, exclude_deleted_cards: z.boolean().optional()}),
     apiResult,
     read,
@@ -265,7 +251,6 @@ export function registerIterationsAndSprints(registry: ToolRegistry): void {
   );
   registry.add(
     'sprints.getSprintsList',
-    'Get sprints list (sprints); full API fields and JSON response.',
     z.strictObject({
       active: z.boolean().optional(),
       limit: pageFields.limit.removeDefault().optional(),
