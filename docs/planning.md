@@ -15,6 +15,21 @@ members. The public API rejects the old `with_data` query.
 - [Iteration list API](https://developers.kaiten.ru/iterations/retrieve-list-of-iterations)
 - [Iteration membership API](https://developers.kaiten.ru/iterations/retrieve-cards-in-iteration)
 
+## Remove iteration memberships
+
+Use `kaiten_workflows_write` with `remove_iteration_member`. Supply `space_uid`,
+`iteration_id` and the `uid` of one card, or supply `card_uids` with 1–500
+distinct card UIDs for a native bulk removal. Resolve the UIDs with
+`list_iteration_memberships`.
+
+Bulk removal affects manual memberships and returns the removed membership
+records. Kaiten ignores cards outside the iteration and rejects the whole
+request on an iteration restriction violation before the first write. Once
+execution begins, transactions of up to 100 cards can leave earlier batches
+applied if a later batch fails. Read back memberships before retrying.
+
+[Bulk removal API](https://developers.kaiten.ru/iterations/remove-cards-from-iteration)
+
 ## Legacy profile
 
 These [advanced operations](./api.md) share `kaiten_navigation_read` and

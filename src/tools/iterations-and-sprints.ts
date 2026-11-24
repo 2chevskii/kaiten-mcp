@@ -105,6 +105,34 @@ export function registerIterationsAndSprints(registry: ToolRegistry): void {
     }),
   );
   registry.add(
+    'iterations.removeCardsFromIteration',
+    'Remove several cards’ manual iteration memberships in one request.',
+    z.strictObject({
+      space_uid: text,
+      iteration_id: text,
+      card_uids: z
+        .array(text)
+        .min(1)
+        .max(500)
+        .refine(
+          uids => new Set(uids).size === uids.length,
+          'Supply unique card UIDs.',
+        )
+        .meta({uniqueItems: true}),
+    }),
+    apiResult,
+    change,
+    async (args, options) => ({
+      result: await client.iterations.removeCardsFromIteration(
+        args.space_uid,
+        args.iteration_id,
+        {card_uids: args.card_uids},
+        options,
+      ),
+    }),
+    {canonicalOnly: true},
+  );
+  registry.add(
     'iterations.retrieveCardsInIteration',
     'Retrieve cards in iteration (iterations); full API fields and JSON response.',
     z.strictObject({

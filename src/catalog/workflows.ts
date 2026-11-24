@@ -230,16 +230,36 @@ export const workflowsCatalog: CatalogDefinition = {
           card_uid: cardUid,
         },
       },
-      remove_iteration_member: {
-        source: 'iterations.removeCardFromIteration',
-        description:
-          'Remove one card’s manual membership, leaving the card intact. Closed iterations reject removal.',
-        fields: {
-          space_uid: spaceUid,
-          iteration_id: iterationId,
-          uid: 'UUID of the card to remove from this iteration; use the card UID from the membership result.',
+      remove_iteration_member: [
+        {
+          source: 'iterations.removeCardFromIteration',
+          description:
+            'Remove one card’s manual membership by card UID. This leaves the card intact. Closed iterations reject removal.',
+          fields: {
+            space_uid: spaceUid,
+            iteration_id: iterationId,
+            uid: 'UUID of one card to remove. Use card_uid from list_iteration_memberships.',
+          },
         },
-      },
+        {
+          source: 'iterations.removeCardsFromIteration',
+          description:
+            'Bulk-remove manual memberships and return the records actually removed. Kaiten ignores cards outside the iteration and checks all restrictions before writing. Writes run in batches of up to 100, so an execution error can leave earlier batches applied. Read back memberships before retrying.',
+          fields: {
+            space_uid: spaceUid,
+            iteration_id: iterationId,
+            card_uids:
+              'Supply 1 to 500 distinct card UIDs from list_iteration_memberships for the bulk form.',
+          },
+          output: z.object({
+            result: z.looseObject({
+              removed: z
+                .array(z.json())
+                .describe('Manual membership records that Kaiten removed.'),
+            }),
+          }),
+        },
+      ],
       add_card_time_log: {
         source: 'cardTimeLogs.addTimeLog',
         description:
