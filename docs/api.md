@@ -19,7 +19,7 @@ append `_read` or `_write` according to the operation.
 [Connection options](./connection-options.md) select the API version and rotating credentials.
 
 Advanced operations expose the complete public contracts of the pinned
-`@2chevskii/kaiten-client` **1.2.0**. Use these when you need fields beyond the
+`@2chevskii/kaiten-client` **1.3.0**. Use these when you need fields beyond the
 convenient operations in the [tool reference](./tools.md).
 
 Select the exact `resource.method` name in `request.operation`. Top-level

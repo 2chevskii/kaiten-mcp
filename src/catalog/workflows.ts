@@ -16,6 +16,8 @@ const roleId =
 const workDate = 'Calendar date in YYYY-MM-DD.';
 const automationUid =
   'Automation UID returned by list_automations for the same space.';
+const automationTriggerType =
+  'For Iterations, use iteration_card_added or iteration_card_removed with on_action for membership events. Use iteration_start_date_on_date or iteration_finish_date_on_date with on_date for the relevant date in this space. These triggers require the Iterations feature.';
 const iterationDates = {
   'body.start_date': 'Planned start as ISO 8601; null clears it.',
   'body.finish_date': 'Planned finish as ISO 8601; null clears it.',
@@ -362,7 +364,8 @@ export const workflowsCatalog: CatalogDefinition = {
         },
       },
       create_automation: {
-        source: 'automations.createAutomation',
+        source: 'catalog.createAutomation',
+        replaces: ['automations.createAutomation'],
         description:
           'Configure an event, date, or on-demand rule. Event and date types require a trigger. On-demand requires a name. Supply at least one action.',
         fields: {
@@ -373,6 +376,7 @@ export const workflowsCatalog: CatalogDefinition = {
           'body.name': 'Display name. Required for on-demand rules.',
           'body.trigger':
             'Event/date trigger type and its native settings. Applies only to triggered rules.',
+          'body.trigger.type': automationTriggerType,
           'body.conditions':
             'Recursive condition groups, joined by and/or, for triggered rules.',
           'body.actions':
@@ -380,7 +384,8 @@ export const workflowsCatalog: CatalogDefinition = {
         },
       },
       update_automation: {
-        source: 'automations.updateAutomation',
+        source: 'catalog.updateAutomation',
+        replaces: ['automations.updateAutomation'],
         description:
           'Update only supplied rule fields. Provide the full desired action list or condition tree when changing it.',
         fields: {
@@ -392,6 +397,7 @@ export const workflowsCatalog: CatalogDefinition = {
           'body.name': 'New display name for the rule.',
           'body.trigger':
             'Replacement trigger and settings when changing a trigger-based rule.',
+          'body.trigger.type': automationTriggerType,
           'body.conditions':
             'Replacement recursive condition tree for a triggered rule.',
           'body.actions':

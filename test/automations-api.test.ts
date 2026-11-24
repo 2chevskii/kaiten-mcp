@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {test} from 'node:test';
+import type {AutomationTrigger} from '@2chevskii/kaiten-client';
 import {startHarness} from './harness.ts';
 
 test('automation variants accept nonempty action lists of any length and partial updates', async context => {
@@ -78,4 +79,106 @@ test('automation schema rejects malformed variants, triggers, actions, and neste
     );
   }
   assert.equal(harness.requests.length, 0);
+});
+
+interface AutomationSchema {
+  properties?: Record<string, AutomationSchema>;
+  anyOf?: AutomationSchema[];
+  enum?: string[];
+  description?: string;
+}
+
+function triggerTypeSchema(schema: AutomationSchema) {
+  const variants = schema.properties?.body?.anyOf;
+  const triggered = variants?.find(item => item.properties?.trigger);
+  const type = triggered?.properties?.trigger?.properties?.type;
+  assert.ok(type?.enum);
+  return {types: type.enum, description: type.description};
+}
+
+test('canonical automation mutations advertise and forward iteration triggers while legacy rejects them', async context => {
+  const canonical = await startHarness(context, 30_000, {
+    KAITEN_TOOL_PROFILE: 'canonical',
+  });
+  const legacy = await startHarness(context);
+  const dateData = {
+    variant: 'time_left_before_date',
+    timezone: 'UTC',
+    offset: 2,
+    offset_unit: 'day',
+  };
+  const iterationRules = [
+    {type: 'on_action', trigger: {type: 'iteration_card_added'}},
+    {type: 'on_action', trigger: {type: 'iteration_card_removed'}},
+    {
+      type: 'on_date',
+      trigger: {type: 'iteration_start_date_on_date', data: dateData},
+    },
+    {
+      type: 'on_date',
+      trigger: {type: 'iteration_finish_date_on_date', data: dateData},
+    },
+  ] satisfies {type: 'on_action' | 'on_date'; trigger: AutomationTrigger}[];
+  const newTypes = iterationRules.map(rule => rule.trigger.type);
+  for (const [canonicalName, legacyName] of [
+    ['create_automation', 'automations.createAutomation'],
+    ['update_automation', 'automations.updateAutomation'],
+  ] as const) {
+    const operation = canonical.operations.get(canonicalName);
+    assert.equal(operation?.tool, 'kaiten_workflows_write');
+    const current = triggerTypeSchema(operation!.schema);
+    const original = triggerTypeSchema(
+      legacy.operations.get(legacyName)!.schema,
+    );
+    assert.equal(original.types.length, 21);
+    assert.deepEqual(current.types, [...original.types, ...newTypes]);
+    for (const type of newTypes) assert.ok(current.description?.includes(type));
+  }
+
+  const response = {id: 'automation-uid'};
+  canonical.reply(response);
+  for (const rule of [
+    ...iterationRules,
+    {
+      type: 'on_action',
+      trigger: {type: 'card_moved_in_path', hasToFireOnCardCreation: true},
+    },
+  ]) {
+    const creation = {
+      space_id: 1,
+      body: {...rule, actions: [{type: 'change_asap', data: {asap: true}}]},
+    };
+    const update = {
+      space_id: 1,
+      automation_uid: 'automation/uid',
+      body: {trigger: rule.trigger},
+    };
+    for (const [operation, args, method, path] of [
+      ['create_automation', creation, 'POST', '/api/v1/spaces/1/automations'],
+      [
+        'update_automation',
+        update,
+        'PATCH',
+        '/api/v1/spaces/1/automations/automation%2Fuid',
+      ],
+    ] as const) {
+      const result = await canonical.call(operation, args);
+      assert.deepEqual(result.structuredContent, {result: response});
+      const request = canonical.requests.at(-1);
+      assert.equal(request?.method, method);
+      assert.equal(request?.path, path);
+      assert.deepEqual(request?.body, args.body);
+    }
+    if (rule.trigger.type === 'card_moved_in_path') continue;
+    assert.equal(
+      (await legacy.call('automations.createAutomation', creation)).isError,
+      true,
+    );
+    assert.equal(
+      (await legacy.call('automations.updateAutomation', update)).isError,
+      true,
+    );
+  }
+  assert.equal(canonical.requests.length, 10);
+  assert.equal(legacy.requests.length, 0);
 });
