@@ -1,5 +1,17 @@
 # Service desk and SLA
 
+With the canonical profile, call `list_service_desk_services` or
+`get_card_sla` through `kaiten_workflows_read`. The public API lists service
+configuration and reads recorded SLA measurements. Use the card lifecycle to
+assign the returned service ID and `kaiten_workflows_write` to add or remove
+external notification recipients. Work time in SLA measurements is in minutes
+and follows the returned working calendar.
+
+- [Public service list](https://developers.kaiten.ru/service-desk-services/retrieve-services-list)
+- [Public card SLA measurements](https://developers.kaiten.ru/card-sla/retrieve-card-sla-measurements)
+
+## Legacy profile
+
 These [advanced operations](./api.md) share `kaiten_cards_read` and
 `kaiten_cards_write`; the total remains 20 tools. Full client responses are
 preserved in `{result}`.

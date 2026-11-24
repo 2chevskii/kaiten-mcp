@@ -1,5 +1,13 @@
 # Time tracking and reports
 
+With the canonical profile, use `kaiten_workflows_read` for
+`list_card_time_logs` and `get_timesheet`. The card log operation reads the
+first upstream page of up to 100 logs. For pageable reports, provide a date
+range and filters such as `card_ids` to `get_timesheet`.
+Use `kaiten_workflows_write` to add, update or delete time logs.
+
+## Legacy profile
+
 These [advanced operations](./api.md) share `kaiten_cards_read` and
 `kaiten_cards_write`; the server still exposes 20 tools. Responses preserve the
 complete upstream JSON in `{result}`, including report aggregates.
