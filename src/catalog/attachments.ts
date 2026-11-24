@@ -123,7 +123,11 @@ function attachmentRoute(
       ...(action === 'attach' ? {} : target.fileIdentity),
       ...extra,
     }),
-    mapArgs: ({target: _target, ...args}) => (mapArgs ? mapArgs(args) : args),
+    mapArgs: args => {
+      const sourceArgs = {...args};
+      delete sourceArgs.target;
+      return mapArgs ? mapArgs(sourceArgs) : sourceArgs;
+    },
   };
 }
 
