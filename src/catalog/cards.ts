@@ -1,4 +1,5 @@
 import * as z from 'zod/v4';
+import {canonicalCardBatchBody} from '../card-schemas.ts';
 import type {CatalogDefinition} from '../catalog.ts';
 import {hasChanges, id} from '../schemas.ts';
 
@@ -292,7 +293,8 @@ export const cardsCatalog: CatalogDefinition = {
       '- Create. Resolve numeric layout and user IDs with kaiten_workspace_read. To reuse a card type’s description template, call kaiten_workspace_read get_card_type and pass result.id as body.type_id and selected text from result.description_template as body.description.',
       '- Edit. Use update_card for a single card and include body.properties when changing fields and values together. Include initial property values in create_card. Use kaiten_custom_properties_write set_card_properties for property-only changes on existing cards.',
       '- Batch. Preview targets with kaiten_cards_read search_cards. Put a selector such as body.board_id alongside body.attributes, or send body.column_id, body.lane_id and body.order_by to sort one cell. Batches return a background job ID.',
-      '- Effects. Kaiten checks card and board permissions. Archive when the card may need restoring. Deletion has no restore route. Verify state before retrying after a timeout.',
+      '- Archive. Archiving a card in a queued or in-progress column removes its parent and child links. Read the relations with get_card before archiving. Reactivation only changes the card condition.',
+      '- Effects. Kaiten checks card and board permissions. Deletion is permanent. Verify state before retrying after a timeout.',
     ].join('\n'),
     operations: {
       create_card: {
@@ -337,7 +339,8 @@ export const cardsCatalog: CatalogDefinition = {
             ...editableFields,
             blocked:
               'Sets the card blocked flag. Manage detailed blocker records with collaboration_write.',
-            condition: 'Lifecycle value: 1 activates a card, 2 archives it.',
+            condition:
+              'Use 1 to activate or 2 to archive. Archiving in a queued or in-progress column removes parent and child links.',
             sd_new_comment:
               'Set or clear the service-desk new-comment indicator.',
             prev_card_id: 'Place after the card identified by this ID.',
@@ -356,13 +359,13 @@ export const cardsCatalog: CatalogDefinition = {
       archive_card: {
         source: 'archive_card',
         description:
-          'Move a card out of active work by setting its live condition to archived. Use restore_card to reactivate it.',
+          'Archive a card. Archiving in a queued or in-progress column removes its parent and child links. Read its relations with kaiten_cards_read get_card first.',
         fields: cardId,
       },
       restore_card: {
         source: 'restore_card',
         description:
-          'Return an archived card to active work. A card removed by delete_card has no exposed restore path.',
+          'Reactivate an archived card by changing its condition. Recreate any removed parent and child links separately.',
         fields: cardId,
       },
       delete_card: {
@@ -375,6 +378,7 @@ export const cardsCatalog: CatalogDefinition = {
       },
       batch_update_cards: {
         source: 'cards.batchUpdateForCards',
+        input: input => input.safeExtend({body: canonicalCardBatchBody}),
         output: z.object({
           result: z.looseObject({
             id: z.string().describe('Background job ID assigned by Kaiten.'),
