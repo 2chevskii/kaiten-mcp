@@ -52,7 +52,7 @@ const reads: Record<string, CatalogRoute | readonly CatalogRoute[]> = {
       'items.id':
         'Pass this numeric ID as checklist_id to get_checklist for the same card.',
       'items.checklist_id':
-        'Parent template ID when the checklist came from a template.',
+        'Parent template ID, or null when the checklist has no parent template.',
       next_offset:
         'Next local slice position or null at the end of the fetched list.',
     },

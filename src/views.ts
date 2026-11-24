@@ -54,7 +54,7 @@ export const cardSummary = identityView.extend({
 });
 export const checklistView = identityView.extend({
   name: z.string().optional(),
-  checklist_id: z.number().optional(),
+  checklist_id: z.number().nullable().optional(),
   sort_order: z.number().optional(),
 });
 export const checklistItemView = identityView.extend({
