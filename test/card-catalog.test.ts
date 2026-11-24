@@ -98,6 +98,12 @@ test('canonical card and collaboration operations cover their legacy routes', as
   assert.match(JSON.stringify(allowedUsers), /server defaults to 100/);
   const nativeSearch = harness.operations.get('search_cards')?.schema;
   assert.match(JSON.stringify(nativeSearch), /previous position/);
+  for (const operation of ['search_cards', 'scan_cards']) {
+    assert.match(
+      JSON.stringify(harness.operations.get(operation)?.schema),
+      /project_ids.*list_card_baselines/,
+    );
+  }
 });
 
 test('canonical card search chooses summary cursors or native pages', async context => {
@@ -138,6 +144,109 @@ test('canonical card search chooses summary cursors or native pages', async cont
     harness.requests.at(-1)?.query.start_position,
     'previous-native',
   );
+});
+
+test('canonical native pages and scans keep project UUID filters across requests', async context => {
+  const harness = await startHarness(context, 30_000, canonical);
+  const projectIds = [
+    '86e1625f-d2c3-440d-b14a-3e11180f7432',
+    '7a051019-b10d-4677-a2d7-d5b802e277ec',
+  ];
+  const csv = projectIds.join(',');
+  const firstPage = {result: [cardFixture], position: 'next/project+cursor'};
+  const nextCard = {...cardFixture, id: 11};
+  const finalPage = {result: [nextCard], position: ''};
+  harness.respond((request, response) => {
+    response.writeHead(200, {'Content-Type': 'application/json'});
+    response.end(
+      JSON.stringify(request.query.start_position ? finalPage : firstPage),
+    );
+  });
+
+  const expectedQuery = {
+    version: '2',
+    project_ids: csv,
+    owner_ids: '5,7',
+    order_by: 'created,id',
+    order_direction: 'desc,asc',
+    limit: '1',
+  };
+  const nextQuery = {...expectedQuery, start_position: firstPage.position};
+  for (const project_ids of [projectIds, csv]) {
+    const start = harness.requests.length;
+    const query = {
+      project_ids,
+      owner_ids: [5, 7],
+      order_by: ['created', 'id'],
+      order_direction: ['desc', 'asc'],
+      limit: 1,
+    };
+    const args = {mode: 'native_page', query: {...query, version: 2}};
+    const page = await harness.call('search_cards', args);
+    assert.equal(page.isError, undefined);
+    assert.deepEqual(page.structuredContent, {result: firstPage});
+    const continued = await harness.call('search_cards', {
+      ...args,
+      query: {...args.query, start_position: firstPage.position},
+    });
+    assert.equal(continued.isError, undefined);
+    assert.deepEqual(continued.structuredContent, {result: finalPage});
+    const scan = await harness.call('scan_cards', {query, max_items: 2});
+    assert.equal(scan.isError, undefined);
+    assert.deepEqual(scan.structuredContent, {
+      result: {items: [cardFixture, nextCard], truncated: false},
+    });
+    assert.deepEqual(
+      harness.requests.slice(start).map(({method, path, query}) => ({
+        method,
+        path,
+        query,
+      })),
+      [expectedQuery, nextQuery, expectedQuery, nextQuery].map(query => ({
+        method: 'GET',
+        path: '/api/v1/cards',
+        query,
+      })),
+    );
+  }
+});
+
+test('project filters are limited to canonical native card queries', async context => {
+  const harness = await startHarness(context, 30_000, canonical);
+  const legacy = await startHarness(context);
+  const projectId = '86e1625f-d2c3-440d-b14a-3e11180f7432';
+  for (const project_ids of [[], '', [42], ['malformed'], `${projectId},`]) {
+    assert.equal(
+      (
+        await harness.call('search_cards', {
+          mode: 'native_page',
+          query: {project_ids},
+        })
+      ).isError,
+      true,
+    );
+    assert.equal(
+      (await harness.call('scan_cards', {query: {project_ids}})).isError,
+      true,
+    );
+  }
+  assert.equal(
+    (await harness.call('search_cards', {project_ids: [projectId]})).isError,
+    true,
+  );
+  assert.equal(harness.requests.length, 0);
+  for (const operation of ['cards.retrieveCardList', 'cards.iterate']) {
+    assert.doesNotMatch(
+      JSON.stringify(legacy.operations.get(operation)?.schema),
+      /project_ids/,
+    );
+    assert.equal(
+      (await legacy.call(operation, {query: {project_ids: [projectId]}}))
+        .isError,
+      true,
+    );
+  }
+  assert.equal(legacy.requests.length, 0);
 });
 
 test('canonical card lifecycle preserves native fields and rejects an empty patch', async context => {

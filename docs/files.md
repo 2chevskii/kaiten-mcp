@@ -2,7 +2,7 @@
 
 File reads and downloads use `kaiten_files_read`; uploads, metadata changes and
 deletion use `kaiten_files_write`. The server exposes exactly **20 tools**.
-All Kaiten API requests use public methods of the pinned client **1.2.0**.
+All Kaiten API requests use public methods of the pinned client **1.3.0**.
 
 ## Discover attachments and identifiers
 

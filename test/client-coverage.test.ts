@@ -10,6 +10,7 @@ test('the catalogs cover every public REST and SCIM resource method', async cont
     KAITEN_TOOL_PROFILE: 'canonical',
   });
   const canonicalMethods = new Map([
+    ['iterations.addCardsToIteration', 'add_iteration_member'],
     ['iterations.removeCardsFromIteration', 'remove_iteration_member'],
   ]);
   const client = new KaitenClient({

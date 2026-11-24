@@ -7,12 +7,17 @@ const spaceUid =
 const iterationId = 'Iteration UUID from list_iterations.';
 const cardUid = 'Card UUID, distinct from the numeric card_id.';
 const cardId = 'Numeric card ID from card search or details.';
+const memberships = z.array(
+  z.looseObject({iteration_id: z.string(), card_uid: z.string()}),
+);
 const spaceId = 'Numeric space ID from workspace discovery.';
 const roleId =
   'Role ID from workspace role lookup. Pass -1 for the built-in Employee role.';
 const workDate = 'Calendar date in YYYY-MM-DD.';
 const automationUid =
   'Automation UID returned by list_automations for the same space.';
+const automationTriggerType =
+  'For Iterations, use iteration_card_added or iteration_card_removed with on_action for membership events. Use iteration_start_date_on_date or iteration_finish_date_on_date with on_date for the relevant date in this space. These triggers require the Iterations feature.';
 const iterationDates = {
   'body.start_date': 'Planned start as ISO 8601; null clears it.',
   'body.finish_date': 'Planned finish as ISO 8601; null clears it.',
@@ -187,7 +192,7 @@ export const workflowsCatalog: CatalogDefinition = {
     description: [
       'Change Kaiten iteration membership and schedules, time logs, service desk recipients and automation rules, or route a new card through a configured incoming webhook.',
       'Read current state and IDs with kaiten_workflows_read before writing.',
-      '- Iterations. Writes require the feature and space access. Use remove_iteration_member with uid for one card or card_uids for 1–500 distinct cards. Kaiten checks restrictions before any bulk write. A later failure can leave earlier batches applied. delete_iteration permanently removes original links. Pass new_iteration_id for deletion or body.new_iteration_id when closing to transfer eligible cards to a planned or active iteration in the same space.',
+      '- Iterations. Writes require the feature and space access. Use add_iteration_member or remove_iteration_member with card_uids for 1–500 distinct cards. Kaiten checks restrictions before any bulk write. A later failure can leave earlier batches applied. delete_iteration permanently removes original links. Pass new_iteration_id for deletion or body.new_iteration_id when closing to transfer eligible cards to a planned or active iteration in the same space.',
       '- Time. To record an hour with add_card_time_log, pass the numeric card_id and a body such as {"time_spent":60,"for_date":"2026-11-24","role_id":-1}. Edits use the time_log_id returned for that card.',
       '- Recipients and rules. Check the service’s recipient policy. Read the current automation before replacing its action list or condition tree. Deleting a rule leaves its past card changes in place.',
       '- Card creation. Use send_card_webhook for the explicitly configured destination. The secret URL determines routing and Kaiten’s REST token stays off the webhook request. Use kaiten_cards_write for normal card creation.',
@@ -237,15 +242,47 @@ export const workflowsCatalog: CatalogDefinition = {
             'Optional planned or active replacement iteration UUID from the same space. Omission sends no body; null sends an explicit empty replacement.',
         },
       },
-      add_iteration_member: {
-        source: 'iterations.addCardToIteration',
-        description: 'Add one active card on a primary board to an iteration.',
-        fields: {
-          space_uid: spaceUid,
-          iteration_id: iterationId,
-          card_uid: cardUid,
+      add_iteration_member: [
+        {
+          source: 'iterations.addCardToIteration',
+          description:
+            'Add one active card from a primary board of this space to a planned or active iteration. This transfers the card if it already belongs to another planned or active iteration.',
+          fields: {
+            space_uid: spaceUid,
+            iteration_id: iterationId,
+            card_uid: cardUid,
+          },
         },
-      },
+        {
+          source: 'iterations.addCardsToIteration',
+          description:
+            'Add active cards from primary boards of this space to a planned or active iteration. Cards in another planned or active iteration move to the target. Kaiten checks addition and active-source removal restrictions for the whole batch before writing. Later errors can leave transactions of up to 100 cards applied. Re-read memberships and card iteration histories before retrying.',
+          fields: {
+            space_uid: spaceUid,
+            iteration_id: iterationId,
+            card_uids:
+              'Supply 1 to 500 distinct card UUIDs. Get each result.uid from kaiten_cards_read get_card with format=full.',
+          },
+          output: z.object({
+            result: z.looseObject({
+              added: memberships.describe(
+                'New memberships in the target iteration.',
+              ),
+              removed: memberships.describe(
+                'Memberships removed from previous iterations during transfers.',
+              ),
+              skipped: memberships.describe(
+                'Existing memberships already in the target iteration.',
+              ),
+              ineligible: z
+                .array(z.string())
+                .describe(
+                  'Card UUIDs that became ineligible during execution.',
+                ),
+            }),
+          }),
+        },
+      ],
       remove_iteration_member: [
         {
           source: 'iterations.removeCardFromIteration',
@@ -327,7 +364,8 @@ export const workflowsCatalog: CatalogDefinition = {
         },
       },
       create_automation: {
-        source: 'automations.createAutomation',
+        source: 'catalog.createAutomation',
+        replaces: ['automations.createAutomation'],
         description:
           'Configure an event, date, or on-demand rule. Event and date types require a trigger. On-demand requires a name. Supply at least one action.',
         fields: {
@@ -338,6 +376,7 @@ export const workflowsCatalog: CatalogDefinition = {
           'body.name': 'Display name. Required for on-demand rules.',
           'body.trigger':
             'Event/date trigger type and its native settings. Applies only to triggered rules.',
+          'body.trigger.type': automationTriggerType,
           'body.conditions':
             'Recursive condition groups, joined by and/or, for triggered rules.',
           'body.actions':
@@ -345,7 +384,8 @@ export const workflowsCatalog: CatalogDefinition = {
         },
       },
       update_automation: {
-        source: 'automations.updateAutomation',
+        source: 'catalog.updateAutomation',
+        replaces: ['automations.updateAutomation'],
         description:
           'Update only supplied rule fields. Provide the full desired action list or condition tree when changing it.',
         fields: {
@@ -357,6 +397,7 @@ export const workflowsCatalog: CatalogDefinition = {
           'body.name': 'New display name for the rule.',
           'body.trigger':
             'Replacement trigger and settings when changing a trigger-based rule.',
+          'body.trigger.type': automationTriggerType,
           'body.conditions':
             'Replacement recursive condition tree for a triggered rule.',
           'body.actions':

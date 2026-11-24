@@ -1,5 +1,5 @@
 import * as z from 'zod/v4';
-import {id, pageFields} from './schemas.ts';
+import {id, pageFields, uuid} from './schemas.ts';
 import {cardFilter} from './card-filter-schema.ts';
 
 const batchSelectors = {
@@ -151,6 +151,21 @@ export const cardSearchQuery = z.strictObject({
   exclude_card_ids: z.union([z.string(), z.array(id)]).optional(),
   organizations_ids: z.union([z.string(), z.array(id)]).optional(),
   broken_api: z.boolean().optional(),
+});
+
+export const canonicalCardSearchQuery = cardSearchQuery.extend({
+  project_ids: z
+    .union([
+      z
+        .string()
+        .min(1)
+        .refine(
+          value => value.split(',').every(id => uuid.safeParse(id).success),
+          'Expected comma-separated project UUIDs.',
+        ),
+      z.array(uuid).min(1),
+    ])
+    .optional(),
 });
 
 export const cardUpdateBody = z.strictObject({

@@ -6,6 +6,13 @@ With the canonical profile, list a space's rules with `list_automations` in
 new event, date or on-demand rule. Changes may affect subsequent cards matching
 the rule.
 
+Iteration triggers require the Iterations feature. Use `on_action` with
+`iteration_card_added` or `iteration_card_removed` to react to membership
+changes. Use `on_date` with `iteration_start_date_on_date` or
+`iteration_finish_date_on_date` to schedule a rule around the start or finish
+date of iterations in the rule's space. Pass the date schedule in `trigger.data`.
+See the trigger settings in the [Kaiten automation API](https://developers.kaiten.ru/automations/create-automation).
+
 ## Legacy profile
 
 Automation operations share `kaiten_navigation_read` and
@@ -23,7 +30,7 @@ optional `name` and recursive `conditions`. An `on_demand` body requires `name`
 and has no trigger or conditions. Every create body requires at least one action.
 An action has a nonempty `type`, a JSON object `data` and optional `created`.
 
-Triggers accept all 21 names from the pinned client contract, with optional
+Legacy triggers accept 21 names, with optional
 `hasToFireOnCardCreation` and `data`. Condition groups use `clause: "and"` or
 `"or"` and a `conditions` array containing conditions or nested groups. A leaf
 condition has `type`, optional `operator`, `data` and `created`. Group `created`

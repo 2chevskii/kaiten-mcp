@@ -7,6 +7,7 @@ import {
   cardCreateBody,
   cardUpdateBody,
   cardSearchQuery,
+  canonicalCardSearchQuery,
 } from '../card-schemas.ts';
 import {read, change, type ToolRegistry} from '../tool-registry.ts';
 import {apiResult, collectItems} from '../results.ts';
@@ -21,25 +22,36 @@ export function registerAdvancedCardOperations(registry: ToolRegistry): void {
     read,
     async args => ({result: encodeCardFilter(args.filter as CardFilter)}),
   );
-  registry.add(
-    'cards.iterate',
-    'Read across search pages using the client iterator. Returns a bounded snapshot with items and truncated; use retrieveCardList for resumable pages.',
-    z.strictObject({
-      query: cardSearchQuery.omit({version: true, offset: true}).optional(),
-      max_items: z.number().int().min(1).max(1_000).default(100),
-    }),
-    apiResult,
-    read,
-    async (args, options) => ({
-      result: await collectItems(
-        client.cards.iterate(
-          args.query as Parameters<typeof client.cards.iterate>[0],
-          options,
+  const nativePageOnlyFields = {version: true, offset: true} as const;
+  for (const [name, query, canonicalOnly] of [
+    ['cards.iterate', cardSearchQuery.omit(nativePageOnlyFields), false],
+    [
+      'catalog.cards.iterate',
+      canonicalCardSearchQuery.omit(nativePageOnlyFields),
+      true,
+    ],
+  ] as const) {
+    registry.add(
+      name,
+      'Read across search pages using the client iterator. Returns a bounded snapshot with items and truncated; use retrieveCardList for resumable pages.',
+      z.strictObject({
+        query: query.optional(),
+        max_items: z.number().int().min(1).max(1_000).default(100),
+      }),
+      apiResult,
+      read,
+      async (args, options) => ({
+        result: await collectItems(
+          client.cards.iterate(
+            args.query as Parameters<typeof client.cards.iterate>[0],
+            options,
+          ),
+          args.max_items,
         ),
-        args.max_items,
-      ),
-    }),
-  );
+      }),
+      {canonicalOnly},
+    );
+  }
   registry.add(
     'cards.batchUpdateForCards',
     'Batch update for cards (cards); full API fields and JSON response.',
@@ -102,21 +114,25 @@ export function registerAdvancedCardOperations(registry: ToolRegistry): void {
       result: await client.cards.retrieveCardBaselines(args.card_id, options),
     }),
   );
-  registry.add(
-    'cards.retrieveCardList',
-    'Retrieve card list (cards); full API fields and JSON response.',
-    z.strictObject({
-      query: cardSearchQuery.optional(),
-    }),
-    apiResult,
-    read,
-    async (args, options) => ({
-      result: await client.cards.retrieveCardList(
-        args.query as Parameters<typeof client.cards.retrieveCardList>[0],
-        options,
-      ),
-    }),
-  );
+  for (const [name, query, canonicalOnly] of [
+    ['cards.retrieveCardList', cardSearchQuery, false],
+    ['catalog.cards.retrieveCardList', canonicalCardSearchQuery, true],
+  ] as const) {
+    registry.add(
+      name,
+      'Retrieve card list (cards); full API fields and JSON response.',
+      z.strictObject({query: query.optional()}),
+      apiResult,
+      read,
+      async (args, options) => ({
+        result: await client.cards.retrieveCardList(
+          args.query as Parameters<typeof client.cards.retrieveCardList>[0],
+          options,
+        ),
+      }),
+      {canonicalOnly},
+    );
+  }
   registry.add(
     'cards.retrieveCardLocationHistory',
     'Retrieve card location history (cards); full API fields and JSON response.',

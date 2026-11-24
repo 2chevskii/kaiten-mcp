@@ -77,6 +77,8 @@ const nativeSearchFields = {
     'Upper bound for the last move to done.',
   'query.tag':
     'Tag name for name-based matching. Use tag_ids when you already have the IDs.',
+  'query.project_ids':
+    'Project UUIDs, as an array or a comma-separated string without spaces. Use project_id from list_card_baselines for a card in the project. Keep the filter on continuation pages.',
   'query.column_ids':
     'Filter to multiple column IDs, using an array or the native API string.',
   'query.exclude_board_ids': 'Board IDs to exclude from matches.',
@@ -154,7 +156,7 @@ export const cardsCatalog: CatalogDefinition = {
   cards_read: {
     description: [
       'Search Kaiten cards or inspect a card’s details, baselines and movement history.',
-      '- Search. Filter by card text, location, role or status with search_cards (limit defaults to 25). Reuse filters with cursor=next_cursor. For native cursor pages, use mode=native_page with query.version=2 and reuse position as query.start_position.',
+      '- Search. Filter by card text, location, role or status with search_cards (limit defaults to 25). Reuse filters with cursor=next_cursor. For native cursor pages, use mode=native_page with query.version=2 and reuse position as query.start_position. Use query.project_ids in native pages or scan_cards to filter by project.',
       '- Snapshot. Use scan_cards with max_items (default 100). If truncated, restart with paged search.',
       '- Filter tokens. Use encode_card_filter for standalone base64 reuse. Native search accepts the filter object directly.',
       '- Identity. For my cards, call kaiten_workspace_read get_current_user. Use responsible_ids=[id] (query.responsible_ids in native mode) unless the request or connection specifies another filter.',
@@ -175,7 +177,8 @@ export const cardsCatalog: CatalogDefinition = {
           },
         },
         {
-          source: 'cards.retrieveCardList',
+          source: 'catalog.cards.retrieveCardList',
+          replaces: ['cards.retrieveCardList'],
           description:
             'Read one native page for custom projections, sorting or complex filters. Match version 1 to arrays and version 2 to native pagination metadata.',
           input: input =>
@@ -214,7 +217,8 @@ export const cardsCatalog: CatalogDefinition = {
         },
       ],
       scan_cards: {
-        source: 'cards.iterate',
+        source: 'catalog.cards.iterate',
+        replaces: ['cards.iterate'],
         output: z.object({
           result: z.object({
             items: z
@@ -264,7 +268,7 @@ export const cardsCatalog: CatalogDefinition = {
       list_card_baselines: {
         source: 'cards.retrieveCardBaselines',
         description:
-          'Read unarchived baselines of unarchived projects connected to this card.',
+          'Read unarchived baselines of unarchived projects connected to this card. Use result[].project_id in query.project_ids to filter native card searches.',
         fields: cardId,
       },
       list_card_location_history: {

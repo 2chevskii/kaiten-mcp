@@ -26,6 +26,12 @@ The native query can accept a structured filter or a pre-encoded string. Use
 `encode_card_filter` when you need a portable base64 filter token for another
 integration. Native search automatically encodes structured filters.
 
+To filter by project, pass `query.project_ids` to `search_cards` with
+`mode: "native_page"` or to `scan_cards`. Supply one or more project UUIDs as
+an array or a comma-separated string without spaces. Call `list_card_baselines`
+on a card in the project and use its returned `result[].project_id`. Keep
+`project_ids` with the rest of the query when continuing a native page.
+
 ## Collaboration
 
 - List comments before editing to obtain the numeric comment ID. Use

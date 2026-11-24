@@ -1,5 +1,5 @@
 import * as z from 'zod/v4';
-import {id, pageFields, text} from '../schemas.ts';
+import {id, pageFields, text, uuid} from '../schemas.ts';
 import {read, change, type ToolRegistry} from '../tool-registry.ts';
 import {apiResult} from '../results.ts';
 
@@ -19,6 +19,34 @@ export function registerIterationsAndSprints(registry: ToolRegistry): void {
         options,
       ),
     }),
+  );
+  registry.add(
+    'iterations.addCardsToIteration',
+    'Add or transfer a batch of cards to a target iteration.',
+    z.strictObject({
+      space_uid: text,
+      iteration_id: text,
+      card_uids: z
+        .array(uuid)
+        .min(1)
+        .max(500)
+        .refine(
+          uids => new Set(uids).size === uids.length,
+          'Supply unique card UIDs.',
+        )
+        .meta({uniqueItems: true}),
+    }),
+    apiResult,
+    change,
+    async ({space_uid, iteration_id, card_uids}, options) => ({
+      result: await client.iterations.addCardsToIteration(
+        space_uid,
+        iteration_id,
+        {card_uids},
+        options,
+      ),
+    }),
+    {canonicalOnly: true},
   );
   registry.add(
     'iterations.createIteration',

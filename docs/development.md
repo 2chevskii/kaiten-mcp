@@ -1,7 +1,7 @@
 # Development
 
 The project is a Node.js 24+ TypeScript ESM server. All Kaiten requests go through
-`@2chevskii/kaiten-client`, pinned to `1.2.0` from public npm. The documentation is
+`@2chevskii/kaiten-client`, pinned to `1.3.0` from public npm. The documentation is
 a private npm workspace using VitePress `2.0.0-alpha.20`.
 
 ## Build from a checkout
