@@ -1,9 +1,12 @@
 # Time tracking and reports
 
 With the canonical profile, use `kaiten_workflows_read` for
-`list_card_time_logs` and `get_timesheet`. The card log operation reads the
-first upstream page of up to 100 logs. For pageable reports, provide a date
-range and filters such as `card_ids` to `get_timesheet`.
+`list_card_time_logs` and `get_timesheet`. For one card's logs, use
+`list_card_time_logs` with optional `for_date` and `personal` filters. It
+returns the native records in `result` and a `next_offset` for a full page.
+Pass that offset with the same filters and page size to continue. The default
+and maximum page size are 100. For reports spanning a date range or several
+cards, use `get_timesheet`.
 Use `kaiten_workflows_write` to add, update or delete time logs.
 
 ## Legacy profile
@@ -35,10 +38,9 @@ zero, false and empty comment strings are preserved.
 
 The timesheet page limit is 1–200; `offset` selects subsequent pages. Raw report
 responses are preserved even when a grouping option changes their JSON shape.
-The pinned client's card-specific `getTimeLogs` method has no pagination
-parameters and the upstream endpoint caps its response at 100 logs. Use
-`timesheet.getList` with an explicit date range and `card_ids` for paginated
-reports; the MCP does not silently truncate or invent a cursor for a raw response.
+The legacy MCP contract for `cardTimeLogs.getTimeLogs` preserves the
+upstream default page of up to 100 logs. Use the canonical profile to page
+through a card's logs with these filters.
 
 Log an hour as Employee through `kaiten_cards_write`:
 

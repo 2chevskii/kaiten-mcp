@@ -19,7 +19,7 @@ append `_read` or `_write` according to the operation.
 [Connection options](./connection-options.md) select the API version and rotating credentials.
 
 Advanced operations expose the complete public contracts of the pinned
-`@2chevskii/kaiten-client` **1.1.0**. Use these when you need fields beyond the
+`@2chevskii/kaiten-client` **1.2.0**. Use these when you need fields beyond the
 convenient operations in the [tool reference](./tools.md).
 
 Select the exact `resource.method` name in `request.operation`. Top-level
@@ -193,8 +193,9 @@ Create a dependency with `kaiten_relations_write`:
 ## Client coverage and limits
 
 The runtime inventory test checks every resource and public method on
-`KaitenClient` and `KaitenScimClient` against the advertised operations. The
-surface also includes `encodeCardFilter`, `sendCardWebhook`, and both public
+`KaitenClient` and `KaitenScimClient` against the advertised operations. Native
+bulk iteration membership removal is available in the canonical profile.
+The surface also includes `encodeCardFilter`, `sendCardWebhook`, and both public
 `AddonOAuthClient` token methods. Server configuration exposes REST API-version
 selection and token providers; timeout/cancellation supplies the public signal
 option and upload filenames map to the client's upload options.
@@ -205,9 +206,9 @@ addon browser runtime is supplied by Kaiten, and the package has no import job
 runner or user-metadata HTTP client to expose as MCP operations. Custom fetch
 injection is a library integration hook, not a tool accepting executable code.
 
-The pinned client's comment and card time-log methods do not expose server
-pagination parameters. See [comments/files](./files.md#comments-and-formdata) and
-[time tracking](./time-tracking.md) for the practical limits and report alternatives.
+The v2 comment and time-log calls use the first upstream page. The canonical
+catalog takes server-side offsets for both. See [comments/files](./files.md#comments-and-formdata)
+and [time tracking](./time-tracking.md) for the paging contract.
 Kaiten permissions, plan settings, beta availability, and installation limits
 still apply. All verification here uses real client calls against local fixtures;
 no live Kaiten account is used.

@@ -42,7 +42,7 @@
     "check": "npm run build && npm run test:types && npm test && npm run lint && npm run format:check && npm run docs:build && npm run tdqs -- lint"
   },
   "dependencies": {
-    "@2chevskii/kaiten-client": "1.1.0",
+    "@2chevskii/kaiten-client": "1.2.0",
     "@modelcontextprotocol/server": "^2.3.0",
     "pino": "^10.4.0",
     "zod": "^4.0.0"

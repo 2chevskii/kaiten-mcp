@@ -30,7 +30,7 @@ export const workflowsCatalog: CatalogDefinition = {
     description: [
       'Read Kaiten planning, time, service desk, SLA and automation data.',
       'For planning, list iterations by space UUID, then inspect an iteration, its members, or a card’s membership history. Legacy sprint lookup is for historical numeric sprint IDs.',
-      'For one card’s recent time logs, use list_card_time_logs. Its first upstream page contains at most 100 records. To page a date range or aggregate across cards, use get_timesheet with the same filters and increasing offset.',
+      'Use list_card_time_logs for one card and follow next_offset with the same date and personal filters. Use get_timesheet for a date range or aggregates across cards.',
       'Use list_service_desk_services to find a service ID and recipient policy. get_card_sla returns recorded rules and calendars, with actual work time in minutes and no local aggregation.',
       'Use list_automations to find a rule UID and inspect its trigger, conditions and actions before an edit. For card details use kaiten_cards_read.',
     ].join('\n'),
@@ -109,14 +109,22 @@ export const workflowsCatalog: CatalogDefinition = {
         },
       },
       list_card_time_logs: {
-        source: 'cardTimeLogs.getTimeLogs',
+        source: 'catalog.listCardTimeLogs',
+        replaces: ['cardTimeLogs.getTimeLogs'],
         description:
-          'Read the upstream first page of at most 100 logs for one card. For pageable reporting, use get_timesheet with a date range and card_ids.',
+          'Read a server page of time logs for one card. For reports spanning a date range or several cards, use get_timesheet.',
+        outputFields: {
+          result:
+            'Original Kaiten time-log entries, with time_spent measured in minutes.',
+          next_offset:
+            'Pass as offset on the next page with unchanged filters. Null means the last page was short or empty.',
+        },
         fields: {
           card_id: cardId,
           for_date:
-            'Filter to this calendar date in YYYY-MM-DD. The response is still capped.',
-          personal: 'True limits the list to the token user’s logs.',
+            'Filter to this calendar date in YYYY-MM-DD. Omit to read logs across dates.',
+          personal:
+            'Set true to include only the token user’s logs. False or omission leaves that restriction off.',
         },
       },
       get_timesheet: {
@@ -230,16 +238,36 @@ export const workflowsCatalog: CatalogDefinition = {
           card_uid: cardUid,
         },
       },
-      remove_iteration_member: {
-        source: 'iterations.removeCardFromIteration',
-        description:
-          'Remove one card’s manual membership, leaving the card intact. Closed iterations reject removal.',
-        fields: {
-          space_uid: spaceUid,
-          iteration_id: iterationId,
-          uid: 'UUID of the card to remove from this iteration; use the card UID from the membership result.',
+      remove_iteration_member: [
+        {
+          source: 'iterations.removeCardFromIteration',
+          description:
+            'Remove one card’s manual membership by card UID. This leaves the card intact. Closed iterations reject removal.',
+          fields: {
+            space_uid: spaceUid,
+            iteration_id: iterationId,
+            uid: 'UUID of one card to remove. Use card_uid from list_iteration_memberships.',
+          },
         },
-      },
+        {
+          source: 'iterations.removeCardsFromIteration',
+          description:
+            'Bulk-remove manual memberships and return the records actually removed. Kaiten ignores cards outside the iteration and checks all restrictions before writing. Writes run in batches of up to 100, so an execution error can leave earlier batches applied. Read back memberships before retrying.',
+          fields: {
+            space_uid: spaceUid,
+            iteration_id: iterationId,
+            card_uids:
+              'Supply 1 to 500 distinct card UIDs from list_iteration_memberships for the bulk form.',
+          },
+          output: z.object({
+            result: z.looseObject({
+              removed: z
+                .array(z.json())
+                .describe('Manual membership records that Kaiten removed.'),
+            }),
+          }),
+        },
+      ],
       add_card_time_log: {
         source: 'cardTimeLogs.addTimeLog',
         description:

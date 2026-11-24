@@ -56,7 +56,10 @@ test('canonical card and collaboration operations cover their legacy routes', as
         !workflows.has(name),
     )
     .map(([name]) => name);
-  assert.deepEqual([...sources].sort(), expected.sort());
+  assert.deepEqual(
+    [...sources].filter(name => !name.startsWith('catalog.')).sort(),
+    expected.sort(),
+  );
 
   const tools = (await harness.client.listTools()).tools.filter(tool =>
     /^kaiten_(?:cards|collaboration)_/.test(tool.name),
@@ -187,15 +190,18 @@ test('canonical comments use one operation for JSON or legacy multipart', async 
       Object.entries(compact.structuredContent).find(
         ([key]) => key === 'next_offset',
       ),
-    ['next_offset', null],
+    ['next_offset', 1],
   );
-  assert.deepEqual(harness.requests.at(-1)?.query, {});
+  assert.deepEqual(harness.requests.at(-1)?.query, {limit: '1'});
   const full = await harness.call('list_comments', {
     card_id: 10,
     format: 'full',
   });
   assert.equal(full.isError, undefined);
-  assert.deepEqual(full.structuredContent, {result: [comment]});
+  assert.deepEqual(full.structuredContent, {
+    items: [comment],
+    next_offset: null,
+  });
 
   harness.reply(comment);
   const textComment = await harness.call('add_comment', {

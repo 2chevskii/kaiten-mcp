@@ -1,7 +1,7 @@
 # Разработка
 
 Проект — TypeScript ESM-сервер для Node.js 24+. Все запросы Kaiten проходят через
-`@2chevskii/kaiten-client`, закреплённый на версии `1.1.0` из публичного npm.
+`@2chevskii/kaiten-client`, закреплённый на версии `1.2.0` из публичного npm.
 Документация — приватный npm workspace с VitePress `2.0.0-alpha.20`.
 
 ## Сборка из исходников

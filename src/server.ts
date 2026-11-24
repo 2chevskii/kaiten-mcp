@@ -36,6 +36,7 @@ import {registerAddonOAuth} from './tools/addon-oauth.ts';
 import {registerFiles} from './tools/files.ts';
 import {registerAdvancedComments} from './tools/advanced-comments.ts';
 import {defaultMaxFileBytes} from './file-transfer.ts';
+import {registerCanonicalPages} from './tools/canonical-pages.ts';
 
 export function createServer(
   configuration: Configuration,
@@ -127,6 +128,7 @@ export function createServer(
   registerAdvancedComments(registry, maximum);
   registry.group('files');
   registerFiles(registry, maximum, configuration.origin);
+  registerCanonicalPages(registry);
   registry.register(profile === 'canonical' ? canonicalCatalog : undefined);
   return {server};
 }

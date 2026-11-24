@@ -19,6 +19,13 @@ as `request.operation` and `request.args`.
   Create a document with its sort order and optional parent UID. To edit the
   contents, read the current version with `get_document_schema` and submit the
   full ProseMirror tree as `body.data` to `update_document`.
+- For an explicit schema update, call `get_document_schema` with
+  `schema_version: "latest"` or a concrete version. Use the returned
+  `result.version` (for example `v28`) as `body.schema_version` and send the
+  complete `body.data` matching that schema. Kaiten validates the whole tree
+  and saves the version and content together. It accepts the current or a
+  newer supported schema and rejects downgrades. Restore a revision through
+  the ordinary `update_document` form with `backup_version`.
 - Document and group archive operations use the corresponding Kaiten DELETE
   routes. They return an archived record. This catalog has no restore
   operation. Inspect a folder’s contents before archiving it.
